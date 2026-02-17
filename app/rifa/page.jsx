@@ -110,7 +110,8 @@ export default function App() {
     fuente: '',
     comprobante: null,
     selectedPremium: [],
-    selectedGeneral: []
+    selectedGeneral: [],
+    support_reason: ""
   });
 
   useEffect(() => {
@@ -289,12 +290,14 @@ const handleSubmit = async (e) => {
         "4_personal_id_last_digits": formData.cedula,
         phone1: formData.telefono,
         phone2: formData.telefonoSecundario || "None",
+        email: formData.email,
         owner_address: formData.ubicacion || "None",
         comprobanteUrl: comprobanteUrl,
         terms_accepted: formData.terms_accepted,
         created_at: new Date(),
         userId: user.uid,
         status: "reserved",
+        support_reason: formData.support_reason
       };
 
       // D. GUARDAR REGISTROS DE VENTA
@@ -547,6 +550,11 @@ return (
               <label className="block text-sm font-black text-gray-700 mb-2">Teléfono Secundario (Opcional)</label>
               <input type="tel" className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none" placeholder="Ej: 18092224444" value={formData.telefonoSecundario} onChange={e => setFormData({ ...formData, telefonoSecundario: e.target.value.replace(/[^0-9]/g, '') })} />
             </div>
+            {/* Campo de Email - Paso 1 */}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-black text-gray-700 mb-2">Correo Electrónico *</label>
+              <input type="email" className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none" placeholder="tu@email.com" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
+            </div>
             <div>
               <label className="block text-sm font-black text-gray-700 mb-2">Ubicación Completa (Opcional)</label>
               <textarea rows="3" className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none" placeholder="País, Estado/Provincia, Sector, Calle..." value={formData.ubicacion} onChange={e => setFormData({ ...formData, ubicacion: e.target.value })} />
@@ -709,6 +717,17 @@ return (
                 </div>
               )}
             </div>
+            {/* Campo de Comentario - Paso 7 */}
+            <div className="mt-4">
+              <label className="block text-sm font-black text-gray-700 mb-2">¿Por qué apoyas esta causa? (Opcional)</label>
+              <textarea 
+              rows="2" 
+              className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none resize-none text-gray-900" 
+              placeholder="Escribe un mensaje breve..." 
+              value={formData.support_reason} 
+              onChange={e => setFormData({ ...formData, support_reason: e.target.value })} 
+            />
+          </div>
 
             {/* Checkbox de Términos */}
             <div className="mt-8 p-6 bg-gray-50 rounded-3xl border border-gray-100">
@@ -732,25 +751,6 @@ return (
         )}
 
         {/* PASO 8: ÉXITO */}
-        {step === 8 && (
-          <div className="text-center py-16 animate-in zoom-in duration-700">
-            <div className="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
-              <CheckCircle size={56} />
-            </div>
-            <h2 className="text-3xl font-black text-gray-900 mb-4 leading-tight">Tu participación quedó registrada</h2>
-            <p className="text-gray-600 mb-10 leading-relaxed max-w-sm mx-auto font-medium">
-              Gracias por apoyar el talento dominicano. En breve recibirás tu boleta por WhatsApp o correo.
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="bg-blue-600 text-white px-10 py-5 rounded-3xl font-black hover:bg-blue-700 transition-all shadow-xl hover:shadow-blue-200"
-            >
-              Cerrar esta ventana
-            </button>
-          </div>
-        )}
-
-
         {step === 8 && (
           <div className="text-center py-16 animate-in zoom-in duration-700">
             <div className="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
