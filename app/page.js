@@ -1,4 +1,5 @@
 "use client";
+import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { 
   Instagram, 
@@ -80,10 +81,10 @@ const App = () => {
   ];
 
   const plans = [
-    { name: 'Milla Extra', price: 'RD$5,000', tickets: '10 Tickets + 3 especiales', color: 'bg-indigo-900 text-white border-indigo-500', tag: 'Máximo Impacto', benefit: 'Para quienes quieren dejar huella.', url: "https://wa.me/18295705985?text=MillaExtra" },
-    { name: 'Milla Impacto', price: 'RD$3,000', tickets: '5 Tickets + 1 ticket de Rifa Especial', color: 'bg-amber-400 text-slate-900 border-amber-500', tag: 'Recomendado', benefit: 'Incluye ticket de Rifa Especial', url: "https://wa.me/18295705985?text=MillaImpacto" },
-    { name: 'Milla de Impulso', price: 'RD$1,500', tickets: '3 Tickets', color: 'bg-blue-600 text-white border-blue-300', tag: '🔥 El mejor valor', benefit: 'Triplicas impacto y oportunidades.', featured: true, url: "https://wa.me/18295705985?text=MillaImpulso" },
-    { name: 'Milla Inicial', price: 'RD$1,000', tickets: '1 Ticket', color: 'bg-white text-slate-900 border-white', benefit: 'Participación base en el sorteo', url: "https://wa.me/18295705985?text=MillaInicial" }
+    { name: 'Milla Extra', price: 'RD$5,000', tickets: '10 Tickets + 3 especiales', color: 'bg-indigo-900 text-white border-indigo-500', tag: 'Máximo Impacto', benefit: 'Para quienes quieren dejar huella.', url: "/rifa" },
+    { name: 'Milla Impacto', price: 'RD$3,000', tickets: '5 Tickets + 1 ticket de Rifa Especial', color: 'bg-amber-400 text-slate-900 border-amber-500', tag: 'Recomendado', benefit: 'Incluye ticket de Rifa Especial', url: "/rifa" },
+    { name: 'Milla de Impulso', price: 'RD$1,500', tickets: '3 Tickets', color: 'bg-blue-600 text-white border-blue-300', tag: '🔥 El mejor valor', benefit: 'Triplicas impacto y oportunidades.', featured: true, url: "/rifa" },
+    { name: 'Milla Inicial', price: 'RD$1,000', tickets: '1 Ticket', color: 'bg-white text-slate-900 border-white', benefit: 'Participación base en el sorteo', url: "/rifa" }
   ];
 
   return (
