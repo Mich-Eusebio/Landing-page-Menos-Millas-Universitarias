@@ -323,7 +323,7 @@ const handleSubmit = async (e) => {
     });
     setStep(8); // ¡Éxito!
   } catch (err) { 
-    console.error("🔥 Error al procesar:", err);
+    console.error(" Error al procesar:", err);
     alert(err.message || "Error al procesar la solicitud.");
   } finally {
     setLoading(false);
@@ -703,7 +703,7 @@ return (
               {formData.comprobante ? (
                 <div className="text-blue-600 font-black flex flex-col items-center gap-2">
                   <CheckCircle size={40} className="animate-bounce" />
-                  <p>{formData.comprobante.name}</p>
+                  <p className="text-sm">Archivo seleccionado: {formData.comprobante.name.substring(0, 20)}...</p>
                 </div>
               ) : (
                 <div className="text-gray-400 flex flex-col items-center gap-4">
