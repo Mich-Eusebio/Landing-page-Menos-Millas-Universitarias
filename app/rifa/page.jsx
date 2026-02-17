@@ -114,7 +114,6 @@ export default function App() {
   });
 
   useEffect(() => {
-    console.log(process.env.NEXT_PUBLIC_FIREBASE_API_KEY)
     const initAuth = async () => {
       if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
         await signInWithCustomToken(auth, __initial_auth_token);
@@ -127,36 +126,54 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    if (!user) return;
-    const ticketsRef = collection(db, 'Millas-michael-rifa-tickets');
-    const unsubscribe = onSnapshot(ticketsRef, (snapshot) => {
-      const data = {};
-      snapshot.forEach(doc => {
-        data[doc.id] = doc.data();
-      });
-      setTicketsDB(data);
-    }, (error) => {
-      console.error("🔥 Error de permisos:", error.message);
+useEffect(() => {
+  if (!user) return;
+  // escuchar la colección de premiun tickets y general tickets
+  const genRef = collection(db, 'tickets_sold_general');
+  const premRef = collection(db, 'tickets_sold_premium');
+
+  const unsubscribeGen = onSnapshot(genRef, (snapshot) => {
+    setTicketsDB(prev => {
+      const newDocs = {};
+      snapshot.forEach(doc => { newDocs[doc.id] = doc.data(); });
+      return { ...prev, ...newDocs };
     });
-  return () => unsubscribe();
+  });
+
+  const unsubscribePrem = onSnapshot(premRef, (snapshot) => {
+    setTicketsDB(prev => {
+      const newDocs = {};
+      snapshot.forEach(doc => { newDocs[doc.id] = doc.data(); });
+      return { ...prev, ...newDocs };
+    });
+  });
+
+  return () => {
+    unsubscribeGen();
+    unsubscribePrem();
+  };
 }, [user]);
 
+const [visibleCount, setVisibleCount] = useState(200); // Empezamos mostrando 200
+const [currentGridPage, setCurrentGridPage] = useState(0);
 const selectedPlan = PLANS.find(p => p.id === formData.plan);
 
 const toggleTicket = (id, type) => {
+  const rawId = id.toString().padStart(4, '0');
+  const fullId = type === 'premium' ? `premium-${rawId}` : `general-${rawId}`;
   const field = type === 'premium' ? 'selectedPremium' : 'selectedGeneral';
   const max = type === 'premium' ? (selectedPlan?.premium || 0) : (selectedPlan?.general || 0);
 
-  if (ticketsDB[id]?.status === 'sold') return;
+  // Verificamos usando el fullId
+  if (ticketsDB[fullId]?.status === 'sold' || ticketsDB[fullId]?.status === 'reserved') return;
 
   setFormData(prev => {
     const current = prev[field];
-    if (current.includes(id)) {
-      return { ...prev, [field]: current.filter(t => t !== id) };
+    if (current.includes(fullId)) {
+      return { ...prev, [field]: current.filter(t => t !== fullId) };
     }
     if (current.length >= max) return prev;
-    return { ...prev, [field]: [...current, id] };
+    return { ...prev, [field]: [...current, fullId] };
   });
 };
 
@@ -217,74 +234,90 @@ const handleSubmit = async (e) => {
   setLoading(true);
 
   try {
-    console.log("ejecutando función de envío");
     const submissionId = crypto.randomUUID();
     let comprobanteUrl = "";
+    let generalPayload = null;
+    let premiumPayload = null
 
-    // --- PASO 1: Subir el archivo a Firebase Storage ---
-    // Creamos una ruta única: comprobantes/ID_DEL_USUARIO/NOMBRE_ARCHIVO
-    const storageRef = ref(storage, `comprobantes/${user.uid}/${submissionId}_${formData.comprobante.name}`);
-
-    // Subimos el archivo físico
-    console.log(" Iniciando carga de archivo...");
+    // : Subir archivo ---
+    const storageRef = ref(storage, `comprobantes/comprobante de pago [${formData.nombre}] [${new Date().toLocaleDateString('es-DO')}]`);
     const uploadResult = await uploadBytes(storageRef, formData.comprobante);
-    console.log("archivo cargado");
-
-    // Obtenemos la URL de descarga
-    console.log("tratando de obtener url");
     comprobanteUrl = await getDownloadURL(uploadResult.ref);
-    console.log("url obtenida");
 
-    // --- PASO 2: Guardar todo en Firestore (incluyendo la URL) ---
-    const allSelected = [...formData.selectedPremium, ...formData.selectedGeneral];
-
+    // --- PASO 2: La Transacción (Todo o nada) ---
     await runTransaction(db, async (transaction) => {
-      console.log("verificando disponiblidad de tickets");
-      // Verificar disponibilidad de tickets (tu lógica actual)
-      for (const tid of allSelected) {
-        const tDocRef = doc(db, 'Millas-michael-rifa-tickets', tid);
+      
+      // A. VALIDACIÓN DE DISPONIBILIDAD
+      for (const tid of formData.selectedGeneral) {
+        const tDocRef = doc(db, 'tickets_sold_general', tid);
         const tSnap = await transaction.get(tDocRef);
         if (tSnap.exists() && (tSnap.data().status === 'sold' || tSnap.data().status === 'reserved')) {
-          //¡Ups! Parece que otra persona reservó tus ${tid} tickets justo ahora. Por favor, regresa al paso anterior y selecciona otros números.
-          throw new Error(`¡Ups! Parece que otra persona reservó tus ${tid} tickets justo ahora. Por favor, regresa al paso anterior y selecciona otros números.`);
+          throw new Error(`El ticket General ${tid} ya no está disponible.`);
         }
       }
 
-      // Marcar tickets como reservados
-      for (const tid of allSelected) {
-        const tDocRef = doc(db, 'Millas-michael-rifa-tickets', tid);
-        transaction.set(tDocRef, { status: 'reserved', reservedBy: formData.nombre, timestamp: Date.now() });
+      for (const tid of formData.selectedPremium) {
+        const tDocRef = doc(db, 'tickets_sold_premium', tid);
+        const tSnap = await transaction.get(tDocRef);
+        if (tSnap.exists() && (tSnap.data().status === 'sold' || tSnap.data().status === 'reserved')) {
+          throw new Error(`El ticket Premium ${tid} ya no está disponible.`);
+        }
       }
 
-      // Guardar el registro con la URL REAL del comprobante
-      const regRef = doc(db, 'registrations', submissionId); 
+      //MARCAR COMO RESERVADOS (Update de estados)
+      formData.selectedGeneral.forEach((tid) => {
+        const tDocRef = doc(db, 'tickets_sold_general', tid);
+        transaction.set(tDocRef, { 
+          status: 'reserved', 
+          reservedBy: formData.nombre, 
+          timestamp: Date.now() 
+        });
+      });
 
-      // Creamos una copia de formData pero quitamos el objeto File pesado
-      const { comprobante, ...restoDelForm } = formData;
+      formData.selectedPremium.forEach((tid) => {
+        const tDocRef = doc(db, 'tickets_sold_premium', tid);
+        transaction.set(tDocRef, { 
+          status: 'reserved', 
+          reservedBy: formData.nombre, 
+          timestamp: Date.now() 
+        });
+      });
 
-      console.log("intentando cargar data");
-      transaction.set(regRef, {
-        //...restoDelForm,
-        comprobanteUrl: comprobanteUrl, // <--- AQUÍ ESTÁ LA MAGIA
+      // PREPARAR PAYLOADS
+      const commonData = {
         owner_name: formData.nombre,
         "4_personal_id_last_digits": formData.cedula,
         phone1: formData.telefono,
         phone2: formData.telefonoSecundario || "None",
         owner_address: formData.ubicacion || "None",
+        comprobanteUrl: comprobanteUrl,
         terms_accepted: formData.terms_accepted,
         created_at: new Date(),
-        purchased_at: new Date(),
-        reserved_at: new Date(),
         userId: user.uid,
-        ticket_tipe: formData.selectedPremium.length > 0 ? "Premium" : "General",
-        general_raffle_tickets: formData.selectedGeneral.map(id => parseInt(id.replace('general-', ''))),
-        premium_raffle_tickets: formData.selectedPremium.map(id => parseInt(id.replace('premium-', ''))),
         status: "reserved",
-        was_purchased: true,
-      });
-      console.log("data cargada a la db");
-    });
+      };
 
+      // D. GUARDAR REGISTROS DE VENTA
+      if (formData.selectedGeneral.length > 0) {
+        const generalPayload = {
+          ...commonData,
+          ticket_tipe: "General",
+          general_raffle_tickets: formData.selectedGeneral.map(id => parseInt(id.replace('general-', ''))),
+        };
+        const regGenRef = doc(db, 'general_registrations', `${submissionId}_general`);
+        transaction.set(regGenRef, generalPayload);
+      }
+
+      if (formData.selectedPremium.length > 0) {
+        const premiumPayload = {
+          ...commonData,
+          ticket_tipe: "Premium",
+          premium_raffle_tickets: formData.selectedPremium.map(id => parseInt(id.replace('premium-', ''))),
+        };
+        const regPremRef = doc(db, 'premium_registrations', `${submissionId}_premium`);
+        transaction.set(regPremRef, premiumPayload);
+      }
+    });
     setStep(8); // ¡Éxito!
   } catch (err) { 
     console.error("🔥 Error al procesar:", err);
@@ -292,55 +325,102 @@ const handleSubmit = async (e) => {
   } finally {
     setLoading(false);
   }
-}; 
+};
 
-const renderTicketGrid = (rows, cols, type) => {
+const renderTicketGrid = (totalTickets, cols, type) => {
   const isPremium = type === 'premium';
   const field = isPremium ? 'selectedPremium' : 'selectedGeneral';
   const limit = isPremium ? (selectedPlan?.premium || 0) : (selectedPlan?.general || 0);
 
+  const pageSize = 100; 
+  const totalPages = Math.ceil(totalTickets / pageSize);
+
+  const startTicket = currentGridPage * pageSize + 1;
+  const endTicket = Math.min(startTicket + pageSize - 1, totalTickets);
+  const currentTickets = Array.from({ length: endTicket - startTicket + 1 }, (_, i) => startTicket + i);
+
   return (
-    <div className="animate-in fade-in duration-500">
-      <div className="flex justify-between items-end mb-6">
-        <div>
-          <h4 className={`text-xl font-black ${isPremium ? 'text-blue-700' : 'text-gray-800'}`}>
-            Tablero de tickets {isPremium ? 'Premium' : 'General'}
-          </h4>
-          <p className="text-sm text-gray-500">
-            Selecciona {limit} {limit === 1 ? 'número' : 'números'}
-          </p>
-        </div>
-        <div className={`px-4 py-2 rounded-2xl text-sm font-black transition-all ${formData[field].length === limit ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
-          {formData[field].length} / {limit}
+    <div className="w-full space-y-4 py-2">
+      {/* Encabezado */}
+      <div className="flex justify-between items-center px-2">
+        <h4 className="font-black text-gray-800">
+          Tablero {isPremium ? 'Premium' : 'General'}
+        </h4>
+        <div role="status" className="bg-blue-600 text-white px-3 py-1 rounded-full text-[10px] font-black shadow-lg">
+          {formData[field].length} / {limit} seleccionados
         </div>
       </div>
 
-      <div
-        className="grid gap-1 overflow-x-auto pb-6 p-2 bg-gray-50 rounded-2xl border border-gray-100"
-        style={{ gridTemplateColumns: `repeat(${cols}, minmax(32px, 1fr))` }}
-      >
-        {Array.from({ length: rows * cols }).map((_, i) => {
-          const id = `${type}-${i + 1}`;
-          const status = ticketsDB[id]?.status || 'available';
-          const isSelected = formData[field].includes(id);
+      {/* CONTENEDOR DE LA TABLA (Con soporte para scroll táctil) */}
+      <div className="bg-gray-50 p-4 rounded-[2.5rem] border-2 border-gray-100 shadow-inner overflow-hidden">
+        <p className="text-[9px] text-center font-black text-gray-400 mb-3 uppercase tracking-[0.2em]">
+          Tickets del {startTicket} al {endTicket}
+        </p>
+        
+        <div 
+          className="grid grid-cols-10 gap-2 overflow-x-auto snap-x snap-mandatory"
+          style={{ WebkitOverflowScrolling: 'touch' }} // Suavidad en iPhone
+        >
+          {currentTickets.map((num) => {
+            const rawId = num.toString().padStart(4, '0');
+            const fullId = isPremium ? `premium-${rawId}` : `general-${rawId}`; // ID con prefijo
+            const status = ticketsDB[fullId]?.status || 'available';
+            const isSelected = formData[field].includes(fullId); 
 
-          let bgColor = 'bg-yellow-400 hover:scale-110';
-          if (status === 'reserved' || status === 'sold') bgColor = 'bg-red-500 opacity-80 cursor-not-allowed';
-          if (isSelected) bgColor = 'bg-blue-600 ring-4 ring-blue-100 z-10';
+            let colorClasses = "bg-yellow-400 text-white hover:bg-yellow-500 shadow-sm";
+            if (isSelected) colorClasses = "bg-blue-600 text-white ring-4 ring-blue-100 scale-105 z-10 shadow-lg";
+            if (status === 'reserved' || status === 'sold') colorClasses = "bg-red-600 text-white font-black shadow-inner cursor-not-allowed";
 
-          return (
-            <button
-              key={id}
-              type="button"
-              onClick={() => toggleTicket(id, type)}
-              disabled={status === 'reserved' || status === 'sold'}
-              className={`w-full aspect-square text-[10px] sm:text-xs font-bold rounded-md flex items-center justify-center text-white transition-all shadow-sm ${bgColor}`}
-            >
-              {i + 1}
-            </button>
-          );
-        })}
+            return (
+              <button
+                key={fullId}
+                type="button"
+                aria-label={`Ticket ${num}`}
+                onClick={() => toggleTicket(num, type)}
+                disabled={status === 'reserved' || status === 'sold'}
+                className={`${colorClasses} aspect-square rounded-xl text-[10px] font-black transition-all flex items-center justify-center snap-center`}
+                style={{ minWidth: '32px' }}
+              >
+                {num}
+              </button>
+            );
+          })}
+        </div>
       </div>
+
+      {/* NAVEGACIÓN ABAJO (Flechas y página) */}
+      <div className="flex items-center justify-center gap-6 pt-2">
+        <button 
+          type="button"
+          aria-label="Página anterior"
+          onClick={() => setCurrentGridPage(prev => Math.max(0, prev - 1))}
+          disabled={currentGridPage === 0}
+          className="p-3 rounded-full bg-white border-2 border-gray-100 shadow-sm text-blue-600 disabled:opacity-20 hover:bg-blue-50 active:scale-90 transition-all"
+        >
+          <ArrowRight className="rotate-180" size={20} />
+        </button>
+
+        <div className="text-center min-w-[100px]">
+          <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
+            Pág. {currentGridPage + 1} de {totalPages}
+          </span>
+        </div>
+
+        <button 
+          type="button"
+          aria-label="Siguiente página"
+          onClick={() => setCurrentGridPage(prev => Math.min(totalPages - 1, prev + 1))}
+          disabled={currentGridPage === totalPages - 1}
+          className="p-3 rounded-full bg-white border-2 border-gray-100 shadow-sm text-blue-600 disabled:opacity-20 hover:bg-blue-50 active:scale-90 transition-all"
+        >
+          <ArrowRight size={20} />
+        </button>
+      </div>
+
+      {/* Guía visual para móviles */}
+      <p className="text-center text-[9px] text-gray-300 font-bold italic">
+        Tip: También puedes deslizar los números hacia los lados
+      </p>
     </div>
   );
 };
@@ -526,7 +606,7 @@ return (
                 Este <strong>tablero de tickets</strong> es para el sorteo del <strong>Premio Sorpresa</strong>, solo disponible para planes de apoyo Milla Extra y Milla de Impacto. Elige tus {selectedPlan.premium} números.
               </p>
             </div>
-            {renderTicketGrid(10, 10, 'premium')}
+            {renderTicketGrid(100, 10, 'premium')}
           </div>
         )}
 
@@ -538,7 +618,7 @@ return (
                 Este es el tablero de tickets general. Tienes {selectedPlan.general} números disponibles para los premios principales.
               </p>
             </div>
-            {renderTicketGrid(12, 25, 'general')}
+            {renderTicketGrid(2500, 10, 'general')}
           </div>
         )}
 
@@ -608,7 +688,7 @@ return (
               <input
                 required
                 type="file"
-                accept="image/*,.pdf"
+                accept="image/png, image/jpeg, image/jpg, image/webp" // <--- ESTO RESTRINGE A IMÁGENES
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 onChange={e => setFormData({ ...formData, comprobante: e.target.files[0] })}
               />
