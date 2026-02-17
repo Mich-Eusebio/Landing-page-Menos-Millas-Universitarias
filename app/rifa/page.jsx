@@ -109,6 +109,7 @@ export default function App() {
     nombreReferidor: '',
     fuente: '',
     comprobante: null,
+    terms_accepted: false,
     selectedPremium: [],
     selectedGeneral: [],
     support_reason: ""
