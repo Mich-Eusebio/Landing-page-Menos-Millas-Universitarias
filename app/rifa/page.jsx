@@ -535,21 +535,21 @@ return (
             </div>
             <div>
               <label className="block text-sm font-black text-gray-700 mb-2">Nombre y Apellido *</label>
-              <input required type="text" className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none" placeholder="Ej: Michael Eusebio" value={formData.nombre} onChange={e => setFormData({ ...formData, nombre: e.target.value })} />
+              <input required type="text" className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none text-gray-900" placeholder="Ej: Michael Eusebio" value={formData.nombre} onChange={e => setFormData({ ...formData, nombre: e.target.value })} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-black text-gray-700 mb-2">Últimos 4 dígitos de la cédula *</label>
-                <input required type="text" maxLength="4" className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none" placeholder="1234" value={formData.cedula} onChange={e => setFormData({ ...formData, cedula: e.target.value.replace(/\D/g, '') })} />
+                <input required type="text" maxLength="4" className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none text-gray-900" placeholder="1234" value={formData.cedula} onChange={e => setFormData({ ...formData, cedula: e.target.value.replace(/\D/g, '') })} />
               </div>
               <div>
                 <label className="block text-sm font-black text-gray-700 mb-2">WhatsApp Principal *</label>
-                <input required type="tel" className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none" placeholder="Ej: 18295551234" value={formData.telefono} onChange={e => setFormData({ ...formData, telefono: e.target.value.replace(/[^0-9]/g, '') })} />
+                <input required type="tel" className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none text-gray-900" placeholder="Ej: 18295551234" value={formData.telefono} onChange={e => setFormData({ ...formData, telefono: e.target.value.replace(/[^0-9]/g, '') })} />
               </div>
             </div>
             <div>
               <label className="block text-sm font-black text-gray-700 mb-2">Teléfono Secundario (Opcional)</label>
-              <input type="tel" className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none" placeholder="Ej: 18092224444" value={formData.telefonoSecundario} onChange={e => setFormData({ ...formData, telefonoSecundario: e.target.value.replace(/[^0-9]/g, '') })} />
+              <input type="tel" className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none text-gray-900" placeholder="Ej: 18092224444" value={formData.telefonoSecundario} onChange={e => setFormData({ ...formData, telefonoSecundario: e.target.value.replace(/[^0-9]/g, '') })} />
             </div>
             {/* Campo de Email - Paso 1 */}
             <div className="md:col-span-2">
@@ -558,7 +558,7 @@ return (
             </div>
             <div>
               <label className="block text-sm font-black text-gray-700 mb-2">Ubicación Completa (Opcional)</label>
-              <textarea rows="3" className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none" placeholder="País, Estado/Provincia, Sector, Calle..." value={formData.ubicacion} onChange={e => setFormData({ ...formData, ubicacion: e.target.value })} />
+              <textarea rows="3" className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none text-gray-900" placeholder="País, Estado/Provincia, Sector, Calle..." value={formData.ubicacion} onChange={e => setFormData({ ...formData, ubicacion: e.target.value })} />
             </div>
           </div>
         )}
