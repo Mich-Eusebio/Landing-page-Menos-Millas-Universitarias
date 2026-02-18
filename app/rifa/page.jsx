@@ -129,8 +129,9 @@ export default function App() {
   }, []);
 
 useEffect(() => {
-  if (!user) return;
+  //if (!user) return;
   // escuchar la colección de premiun tickets y general tickets
+ -console.log("el valor de user es", user);
   const genRef = collection(db, 'tickets_sold_general');
   const premRef = collection(db, 'tickets_sold_premium');
 
@@ -232,7 +233,8 @@ const handleBack = () => {
 
 const handleSubmit = async (e) => {
   e.preventDefault();
-  if (!user || !formData.comprobante || !formData.terms_accepted) return;
+  //if (!user || !formData.comprobante || !formData.terms_accepted) return;
+  if (!formData.comprobante || !formData.terms_accepted) return;
   setLoading(true);
 
   try {
