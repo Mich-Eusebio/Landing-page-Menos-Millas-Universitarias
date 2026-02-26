@@ -74,7 +74,7 @@ const App = () => {
   ];
 
   const premios = [
-    { lugar: '1er Lugar', nombre: 'iPhone 15 Plus', img: 'https://cdn.jiostore.online/v2/jmd-asp/jdprod/wrkr/products/pictures/item/free/resize-w:450/apple/493839337/0/jDXEAvENvS-IMHWPqFPhN-Apple-iPhone-15-Plus-512-GB-Blue-493839337-i-1-1200Wx1200H.jpeg', disponibilidad: 'Todos los participantes' },
+    { lugar: '1er Lugar', nombre: 'Iphone 16 Pro', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcREAF22_unWfzVdKNGzFH9o-ZLnPGPckweP5ZWUH-ZHqg&s' },
     { lugar: '2do Lugar', nombre: 'iPad 10th Gen', img: 'https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/ipad-10th-gen-storage-select-202212-blue?wid=5120&hei=2880&fmt=webp&qlt=90&.v=K0VQT3FFaHFhTWU0ME1DRnlHMFM3bEIvTXY5NjBUQVhVcnFORUt4SFI2QXVydldlTjVqQnhYWVhaM3FCVnF1VE9UVDVQbVhkcDIxQlRzeDZXVVpQSzNPRWVyeSszMEt5U205VEFxelFHR21ZZ2lWdVRBc0YzbEJkM3NURkZpSy8&traceId=1', disponibilidad: 'Todos los participantes' },
     { lugar: '3er Lugar', nombre: 'AirPods 4', img: 'https://portatilshoprd.com/wp-content/uploads/2024/12/2e373d_fceb919ac4404e6f8e4f9cffc8fa78dcmv2.png', disponibilidad: 'Todos los participantes' },
     { lugar: 'Premio SORPRESA', nombre: 'Dispositivo Especial O Efectivo', img: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=800&auto=format&fit=crop', disponibilidad: 'Solo Millas de Impacto y Millas Extras', especial: true }

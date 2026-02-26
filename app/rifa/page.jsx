@@ -460,7 +460,7 @@ if (step === 0) return (
     <section className="py-20 px-4 bg-gray-50">
       <div className="max-w-7xl mx-auto">
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <PrizeCard number="1" name="iPhone 15 Plus" eligibility="Todos los planes" image="https://cdn.jiostore.online/v2/jmd-asp/jdprod/wrkr/products/pictures/item/free/resize-w:450/apple/493839337/0/jDXEAvENvS-IMHWPqFPhN-Apple-iPhone-15-Plus-512-GB-Blue-493839337-i-1-1200Wx1200H.jpeg" />
+          <PrizeCard number="1" name="IPhone 16 Pro" eligibility="Todos los planes" image="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcREAF22_unWfzVdKNGzFH9o-ZLnPGPckweP5ZWUH-ZHqg&s" />
           <PrizeCard number="2" name="iPad 10th Gen" eligibility="Todos los planes" image="https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/ipad-10th-gen-storage-select-202212-blue" />
           <PrizeCard number="3" name="AirPods 4" eligibility="Todos los planes" image="https://portatilshoprd.com/wp-content/uploads/2024/12/2e373d_fceb919ac4404e6f8e4f9cffc8fa78dcmv2.png" />
           <PrizeCard number="🎁" name="Premio Sorpresa" eligibility="Solo Milla Extra & Impacto" isSpecial={true} />
