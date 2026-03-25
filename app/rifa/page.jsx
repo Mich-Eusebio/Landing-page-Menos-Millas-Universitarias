@@ -336,7 +336,7 @@ const renderTicketGrid = (totalTickets, cols, type) => {
   const field = isPremium ? 'selectedPremium' : 'selectedGeneral';
   const limit = isPremium ? (selectedPlan?.premium || 0) : (selectedPlan?.general || 0);
 
-  const pageSize = 100; 
+  const pageSize = 120; 
   const totalPages = Math.ceil(totalTickets / pageSize);
 
   const startTicket = currentGridPage * pageSize + 1;
@@ -615,7 +615,7 @@ return (
                 Este <strong>tablero de tickets</strong> es para el sorteo del <strong>Premio Sorpresa</strong>, solo disponible para planes de apoyo Milla Extra y Milla de Impacto. Elige tus {selectedPlan.premium} números.
               </p>
             </div>
-            {renderTicketGrid(100, 10, 'premium')}
+            {renderTicketGrid(120, 12, 'premium')}
           </div>
         )}
 
