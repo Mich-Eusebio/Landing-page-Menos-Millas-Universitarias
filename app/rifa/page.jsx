@@ -160,6 +160,45 @@ const [visibleCount, setVisibleCount] = useState(200); // Empezamos mostrando 20
 const [currentGridPage, setCurrentGridPage] = useState(0);
 const selectedPlan = PLANS.find(p => p.id === formData.plan);
 
+//Auto-posicionar en la primera página con tickets disponibles al entrar al tablero
+  useEffect(() => {
+    if (step === 4 || step === 5) {
+      const isPremium = step === 4;
+      // Estos totales vienen de cómo llamas a renderTicketGrid en tu JSX
+      const totalTickets = isPremium ? 240 : 2500; 
+      const pageSize = 120;
+      const totalPages = Math.ceil(totalTickets / pageSize);
+
+      let firstAvailablePage = 0;
+
+      // Escaneamos página por página
+      for (let p = 0; p < totalPages; p++) {
+        let hasAvailable = false;
+        const startTicket = p * pageSize + 1;
+        const endTicket = Math.min(startTicket + pageSize - 1, totalTickets);
+
+        // Verificamos los tickets dentro de esta página
+        for (let num = startTicket; num <= endTicket; num++) {
+          const rawId = num.toString().padStart(4, '0');
+          const fullId = isPremium ? `premium-${rawId}` : `general-${rawId}`;
+          const status = ticketsDB[fullId]?.status || 'available';
+
+          if (status !== 'sold' && status !== 'reserved') {
+            hasAvailable = true;
+            break; // Encontramos uno libre, no hace falta revisar más en esta página
+          }
+        }
+
+        // Si esta página tiene disponibilidad, la seteamos y dejamos de buscar
+        if (hasAvailable) {
+          firstAvailablePage = p;
+          break; 
+        }
+      }
+      setCurrentGridPage(firstAvailablePage);
+    }
+  }, [step]); // Solo se ejecuta al cambiar de paso para evitar saltos en la UI
+
 const toggleTicket = (id, type) => {
   const rawId = id.toString().padStart(4, '0');
   const fullId = type === 'premium' ? `premium-${rawId}` : `general-${rawId}`;
@@ -615,7 +654,7 @@ return (
                 Este <strong>tablero de tickets</strong> es para el sorteo del <strong>Premio Sorpresa</strong>, solo disponible para planes de apoyo Milla Extra y Milla de Impacto. Elige tus {selectedPlan.premium} números.
               </p>
             </div>
-            {renderTicketGrid(120, 12, 'premium')}
+            {renderTicketGrid(240, 12, 'premium')}
           </div>
         )}
 
