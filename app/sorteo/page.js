@@ -458,10 +458,11 @@ export default function App() {
                     <h3 className="text-4xl font-black mb-2 uppercase italic">{ganadorActual.userName}</h3>
                     <p className="text-slate-400 font-bold uppercase tracking-widest text-sm mb-8">Gestión de Ganador</p>
                     
-                    <button className="w-full mb-8 flex items-center justify-center gap-4 py-6 bg-white/10 hover:bg-white/20 rounded-[2rem] border border-white/10 transition-all font-black text-blue-400 uppercase tracking-widest group">
-                        <MessageSquare size={24} className="group-hover:scale-125 transition-transform" />
-                        Contactar al Ganador
-                    </button>
+                    <a href={`https://wa.me/1${ganadorActual.phone1}`} target="_blank"
+                        className="w-full mb-8 flex items-center justify-center gap-4 py-6 bg-green-500/10 hover:bg-green-500/20 rounded-[2rem] border border-green-500/20 transition-all font-black text-green-400 uppercase tracking-widest group">
+                        <MessageSquare size={24} />
+                        Contactar por WhatsApp
+                    </a>
                     <div className="h-px bg-white/10 w-full mb-8"></div>
                 </div>
 
