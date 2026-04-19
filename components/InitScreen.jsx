@@ -15,7 +15,7 @@ const InitScreen = ({ onStart }) => {
       <div className="relative mb-12 shrink-0 group">
         <div className="absolute inset-0 bg-blue-600/20 blur-[120px] rounded-full"></div>
         <div className="relative w-[30vh] h-[30vh] md:w-[40vh] md:h-[40vh] max-w-[400px] max-h-[400px]">
-          <svg viewBox="0 0 100 100" className="w-full h-full opacity-80 animate-spin-slow">
+          <svg viewBox="0 0 100 100" className="w-full h-full opacity-80">
             {[...Array(24)].map((_, i) => (
               <path 
                 key={i} 

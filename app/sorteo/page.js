@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/sitebar';
 import RaffleModal from '@/components/RaffleModal';
 import InitScreen from "@/components/InitScreen";
+import StatusScreen from '@/components/StatusScreen'; 
 import { auth, db, appId } from '@/lib/FirebaseConfig';
 import { signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
 import { collection, onSnapshot, doc, updateDoc, Timestamp } from 'firebase/firestore';
@@ -115,7 +116,9 @@ const MegaConfetti = () => {
 export default function App() {
 
 
-    const [sidebarOpen, setSidebarOpen] = useState(false); // Empezamos cerrado en móvil
+    const [sidebarOpen, setSidebarOpen] = useState(false); 
+    const [selectedOption, setSelectedOption] = useState(null);
+
     const [user, setUser] = useState(null);
     const [view, setView] = useState('home');
     const [modalOpen, setModalOpen] = useState(false);
@@ -185,22 +188,22 @@ export default function App() {
             }
 
             // 5. Preparar objeto para Firebase (Igual que antes pero con datos reales)
-            const expDate = new Date();
-            expDate.setHours(expDate.getHours() + 48);
+            const ahora = new Date();
+            const expira = new Date(ahora.getTime() + (48 * 60 * 60 * 1000));
 
             const docData = {
                 userName: datosPersonales.owner_name,
                 owner_numbers: datosPersonales.general_raffle_tickets || datosPersonales.premium_raffle_tickets,
-                user_id: datosPersonales.user_id,
+                user_id: datosPersonales.userid,
                 ticketNumber: ganadorTicket.id,
-                phone1: ganadorTicket.phone1,
+                phone1: datosPersonales.phone1,
                 premio: premioObj.nombre,
                 premioId: premioObj.id,
                 PlanMilla: { 1: 'Milla Inicial', 3: 'Milla Impulso', 5: 'Milla Impacto', 10: 'Milla Extra' }[(premioObj.highTicket ? datosPersonales.premium_raffle_tickets : datosPersonales.general_raffle_tickets)?.length] || 'no se pudo determinar',
                 TipoRifa: premioObj.highTicket ? "Premium" : "General",
                 status: 'Pendiente',
-                expiration_date: Timestamp.fromDate(expDate),
-                timestamp: Timestamp.now()
+                expiration_date: expira.toISOString(), 
+                timestamp: ahora.toISOString(),       
             };
 
             // Simular un pequeño delay para la animación de "spinning" antes de mostrar resultado
@@ -210,7 +213,8 @@ export default function App() {
 
             // 6. Guardar en la colección de 'winners'
             const result = await actions.saveWinner(docData);
-            setGanadorActual({ id: result.id, ...docData });
+            setGanadorActual(docData)
+            
 
         } catch (error) {
             console.error("Error durante el sorteo:", error);
@@ -366,54 +370,14 @@ if (view === 'status' && ganadorActual) {
     ];
 
     return (
-        <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 md:p-6 text-white relative overflow-hidden">
-            {/* BOTÓN CERRAR: Reposicionado para que no se salga en móviles */}
-            <button
-                onClick={() => setView('home')}
-                className="absolute top-4 right-4 md:top-8 md:right-8 p-3 md:p-5 bg-slate-900 border border-white/10 rounded-full hover:bg-slate-800 transition-all z-50 shadow-xl"
-            >
-                <X size={24} className="md:w-8 md:h-8" />
-            </button>
-
-            {/* CARD PRINCIPAL: max-h-[90vh] y overflow-y-auto para evitar que se corte */}
-            <div className="max-w-2xl w-full bg-slate-900 rounded-[2rem] md:rounded-[4rem] p-6 md:p-12 border border-white/10 shadow-2xl relative z-10 flex flex-col max-h-[95vh] md:max-h-none overflow-y-auto custom-scrollbar">
-
-                <div className="mb-6 md:mb-10 text-center shrink-0">
-                    <h3 className="text-3xl md:text-4xl font-black mb-1 uppercase italic break-words">{ganadorActual.userName}</h3>
-                    <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] md:text-sm mb-6">Gestión de Ganador</p>
-
-                    {/* BOTÓN WHATSAPP: Más compacto en móvil */}
-                    <a href={`https://wa.me/1${ganadorActual.phone1}`} target="_blank"
-                        className="w-full mb-6 flex items-center justify-center gap-3 py-4 md:py-6 bg-green-500/10 hover:bg-green-500/20 rounded-[1.5rem] md:rounded-[2rem] border border-green-500/20 transition-all font-black text-green-400 uppercase tracking-widest text-xs md:text-base group">
-                        <MessageSquare size={20} className="md:w-6 md:h-6" />
-                        Contactar por WhatsApp
-                    </a>
-                    <div className="h-px bg-white/10 w-full"></div>
-                </div>
-
-                {/* LISTA DE ESTADOS: Espaciado inteligente */}
-                <div className="space-y-3 md:space-y-4 overflow-visible">
-                    {statusOptions.map((opt) => (
-                        <button
-                            key={opt.id}
-                            onClick={() => updateStatus(opt.id)}
-                            className="w-full flex items-center p-3 md:p-5 rounded-[1.5rem] md:rounded-[2rem] border-2 border-transparent bg-slate-800/40 hover:bg-slate-800 hover:border-slate-700 transition-all active:scale-95 text-left group"
-                        >
-                            {/* Iconos: Más pequeños en móvil para ahorrar espacio */}
-                            <div className="mr-4 md:mr-6 p-3 md:p-4 bg-slate-950 rounded-xl md:rounded-2xl shadow-inner shrink-0 group-hover:scale-110 transition-transform">
-                                {React.cloneElement(opt.icon, { size: 20, className: opt.icon.props.className + " md:w-7 md:h-7" })}
-                            </div>
-                            <span className="font-black text-sm md:text-lg uppercase tracking-tighter leading-tight">
-                                {opt.label}
-                            </span>
-                        </button>
-                    ))}
-                </div>
-            </div>
-        </div>
+        <StatusScreen
+            ganadorActual={ganadorActual} 
+            updateStatus={updateStatus} 
+            setView={setView} 
+        />
     );
-}
-
+  }
+ 
 if (view === 'congrats') {
     const messages = {
         'Dispositivo': '¡EQUIPO LISTO PARA ENTREGA! 📱',
