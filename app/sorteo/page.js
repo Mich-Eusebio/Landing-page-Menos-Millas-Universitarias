@@ -213,6 +213,7 @@ export default function App() {
 
             // 6. Guardar en la colección de 'winners'
             const result = await actions.saveWinner(docData);
+            console.log("result:", result);
             setGanadorActual(docData)
             
 
@@ -223,11 +224,16 @@ export default function App() {
         }
     };
 
+    
     const updateStatus = async (newStatus) => {
-        if (!ganadorActual) return;
-        const winnerRef = doc(db, 'artifacts', appId, 'public', 'data', 'winners', ganadorActual.id);
+        // Busca el winner más reciente en la lista que ya tienes
+        const winner = winnersList.find(w => w.premioId === selectedPremioId);
+        console.log("winner encontrado:", winner);
+        
+        if (!winner?.id) return;
+        
+        const winnerRef = doc(db, 'artifacts', appId, 'public', 'data', 'winners', winner.id);
         await updateDoc(winnerRef, { status: newStatus });
-
         if (newStatus === 'Pendiente') {
             setGanadorActual(null);
             setView('home');
