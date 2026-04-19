@@ -215,6 +215,12 @@ export default function App() {
             const result = await actions.saveWinner(docData);
             console.log("result:", result);
             setGanadorActual(docData)
+
+            // Eliminar el ticket ganador de la colección
+            await actions.eliminarTicketGanador(
+                ganadorTicket.id,  // ej: "general-775"
+                coleccionTickets
+            );
             
 
         } catch (error) {
