@@ -2,13 +2,13 @@
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Instagram, 
-  MessageCircle, 
-  ChevronRight, 
-  Cpu, 
+import {
+  Instagram,
+  MessageCircle,
+  ChevronRight,
+  Cpu,
   Loader2,
-  Check, 
+  Check,
   Sparkles,
   Lock,
   Youtube,
@@ -21,11 +21,20 @@ import {
   Zap,
   Target,
   Trophy,
-  Newspaper
+  Newspaper,
+  Users
 } from 'lucide-react';
+import { getSupporters, getCampaignProgress } from '../lib/apis/SorteoActions';
 
 const App = () => {
-  const [activeTab, setActiveTab] = useState('historia');
+  const [activeTab, setActiveTab] = useState('supporters');
+  const [supporters, setSupporters] = useState([]);
+  const [loadingSupporters, setLoadingSupporters] = useState(false);
+  const [progressData, setProgressData] = useState({
+    totalPercentage: 17.5,
+    currentYearProgress: 70
+  });
+  const [visibleCount, setVisibleCount] = useState(7);
   const [agreedValues, setAgreedValues] = useState({
     talento: false,
     tecnologia: false,
@@ -42,6 +51,22 @@ const App = () => {
   };
 
   const allChecked = agreedValues.talento && agreedValues.tecnologia && agreedValues.inclusion;
+
+  useEffect(() => {
+    if (activeTab === 'supporters' && supporters.length === 0) {
+      setLoadingSupporters(true);
+      getSupporters().then(data => {
+        setSupporters(data);
+        setLoadingSupporters(false);
+      });
+    }
+  }, [activeTab, supporters.length]);
+
+  useEffect(() => {
+    getCampaignProgress().then(data => {
+      setProgressData(data);
+    });
+  }, []);
 
   const faqs = [
     {
@@ -68,11 +93,9 @@ const App = () => {
     { label: 'Alpha Puesto de Bolsa', value: 'Software Dev', desc: 'Colaborador enfocado en soluciones de alto impacto y accesibilidad' }
   ];
 
-  const progress = 28; // Ejemplo de porcentaje actual
 
   return (
     <div className="min-h-screen bg-[#0a192f] text-slate-100 font-sans selection:bg-blue-500 selection:text-white relative">
-      
       {/* BACKGROUND ELEMENTS */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/20 blur-[150px] rounded-full"></div>
@@ -95,7 +118,7 @@ const App = () => {
       {/* HERO SECTION */}
       <header className="relative pt-40 pb-16 px-6 overflow-hidden">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center text-center lg:text-left">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
@@ -104,30 +127,22 @@ const App = () => {
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600/10 border border-blue-500/20 text-blue-400 text-xs font-black uppercase tracking-widest">
               <span className="flex items-center gap-2"><Sparkles className="w-4 h-4" /> Camino a la Universidad · Menos Millas</span>
             </div>
-            <h1 className="text-4xl md:text-5xl xl:text-7xl font-black leading-tight text-white tracking-tighter">
-              Invertir en mi educación es <br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-amber-200">
-                Invertir en un camino que no existía.
+            <h1 className="text-3xl md:text-4xl xl:text-6xl font-black leading-tight text-white tracking-tighter">
+              Soy Michael Eusebio. <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-blue-500">
+                Fui aceptado en una universidad top en EE. UU. y necesito tu apoyo para llegar.
               </span>
             </h1>
             <p className="text-lg md:text-xl text-blue-100/70 leading-relaxed font-medium max-w-2xl mx-auto lg:mx-0">
-              Soy Michael Eusebio. Fui aceptado en una universidad top en EE. UU. y necesito tu apoyo para llegar. Acompáñame a convertirme en el primer ingeniero dominicano en IA con discapacidad visual formado en una universidad americana de élite.
+              Acompáñame en el camino para convertirme en el primer ingeniero dominicano en IA con discapacidad visual, abriendo un camino que no existía.
             </p>
-            <div className="flex flex-col gap-6 justify-center lg:justify-start items-center lg:items-start">
-              <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
-                <a href="#apoyar" className="inline-flex items-center justify-center gap-3 px-10 py-5 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl shadow-xl shadow-blue-600/20 transition-all uppercase group">
-                  Elegir cómo apoyar <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </a>
-                <a href="#apoyar" className="inline-flex items-center justify-center gap-3 px-10 py-5 bg-amber-400 hover:bg-amber-300 text-slate-900 font-black rounded-2xl shadow-xl transition-all uppercase">
-                  Cómprame un día
-                </a>
-              </div>
-              <p className="text-sm font-bold text-red-400/90 uppercase tracking-widest bg-red-400/5 px-4 py-2 rounded-lg border border-red-400/10 italic">
-                "Si este hito se concreta, abrimos la puerta para miles más."
-              </p>
+            <div className="flex flex-col gap-8 items-center lg:items-start">
+              <a href="#apoyar" className="inline-flex items-center justify-center gap-3 px-12 py-6 bg-amber-400 hover:bg-amber-300 text-slate-900 font-black rounded-2xl shadow-2xl shadow-amber-400/20 transition-all uppercase text-lg group">
+                👉 QUIERO HACER REAL ESTA HISTORIA
+              </a>
             </div>
           </motion.div>
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1 }}
@@ -138,15 +153,11 @@ const App = () => {
               <div className="relative rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl">
                 <img src="/foto trabajando .jpg" className="w-full grayscale hover:grayscale-0 transition-all duration-700 object-cover aspect-[4/5]" alt="Michael Eusebio concentrado en oficina programando" />
                 <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-[#0a192f] to-transparent">
-                   <div className="flex items-center gap-3 text-white">
-                      <div className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20">
-                        <Target className="w-6 h-6 text-amber-400" />
-                      </div>
-                      <div>
-                        <div className="text-xs font-black uppercase tracking-widest opacity-60">Próximo Destino</div>
-                        <div className="font-bold">Boulder, Colorado, USA</div>
-                      </div>
-                   </div>
+                  <div className="flex items-center gap-3 text-white">
+                    <div className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20">
+                      <Target className="w-6 h-6 text-amber-400" />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -163,11 +174,11 @@ const App = () => {
               <div className="text-3xl font-black text-white">PROGRESO ACADÉMICO</div>
             </div>
             <div className="text-right">
-              <div className="text-3xl font-black text-amber-400">{progress}%</div>
+              <div className="text-3xl font-black text-amber-400">{progressData.totalPercentage}%</div>
               <div className="text-xs font-bold uppercase tracking-widest opacity-40">Completado</div>
             </div>
           </div>
-          
+
           <div className="relative h-16 bg-white/5 rounded-3xl p-2 border border-white/10 flex gap-2">
             {[1, 2, 3, 4].map((year) => (
               <div key={year} className="flex-1 relative group">
@@ -176,19 +187,24 @@ const App = () => {
                 <div className="absolute -top-10 left-1/2 -translate-x-1/2 text-[10px] font-black uppercase tracking-widest opacity-30 group-hover:opacity-100 transition-opacity">
                   Año {year}
                 </div>
-                {/* Active fill logic - this is a simplified visual representation */}
-                <div 
-                  className={`absolute inset-0 rounded-2xl transition-all duration-1000 ${
-                    progress >= (year * 25) ? 'bg-blue-600 shadow-[0_0_20px_rgba(37,99,235,0.4)]' : 
-                    progress > ((year - 1) * 25) ? 'bg-gradient-to-r from-blue-600 to-transparent overflow-hidden' : ''
-                  }`}
+                {/* Active fill logic */}
+                <div
+                  className={`absolute inset-0 rounded-2xl transition-all duration-1000 flex items-center justify-center overflow-hidden ${progressData.totalPercentage >= (year * 25) ? 'bg-green-500 shadow-[0_0_20px_rgba(34,197,94,0.4)]' :
+                      progressData.totalPercentage > ((year - 1) * 25) ? 'bg-gradient-to-r from-green-500 to-transparent' : ''
+                    }`}
                   style={{
-                    width: progress > ((year - 1) * 25) && progress < (year * 25) 
-                      ? `${(progress - (year - 1) * 25) / 25 * 100}%` 
-                      : '100%'
+                    width: progressData.totalPercentage > ((year - 1) * 25) && progressData.totalPercentage < (year * 25)
+                      ? `${(progressData.totalPercentage - (year - 1) * 25) / 25 * 100}%`
+                      : progressData.totalPercentage >= (year * 25) ? '100%' : '0%'
                   }}
                 >
-                  {progress > ((year - 1) * 25) && (
+                  {/* Show percentage inside the active year bar */}
+                  {progressData.totalPercentage > ((year - 1) * 25) && progressData.totalPercentage < (year * 25) && (
+                    <span className="text-[10px] font-black text-white relative z-20 animate-pulse">
+                      {progressData.currentYearProgress}%
+                    </span>
+                  )}
+                  {progressData.totalPercentage > ((year - 1) * 25) && (
                     <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.1)_50%,transparent_75%)] bg-[length:20px_20px] animate-[shimmer_2s_linear_infinite]"></div>
                   )}
                 </div>
@@ -204,25 +220,6 @@ const App = () => {
         </div>
       </section>
 
-      {/* KPI STATS */}
-      <section className="py-20 px-6 border-y border-white/5">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
-          {kpis.map((kpi, i) => (
-            <motion.div 
-              whileHover={{ y: -10 }}
-              key={i} 
-              className="p-10 bg-white/5 border border-white/10 rounded-[2.5rem] backdrop-blur relative overflow-hidden group"
-            >
-              <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-110 transition-transform">
-                <Trophy className="w-24 h-24" />
-              </div>
-              <div className="text-4xl font-black text-blue-400 mb-2">{kpi.value}</div>
-              <div className="text-xs font-black uppercase tracking-widest text-white mb-4">{kpi.label}</div>
-              <p className="text-blue-100/60 text-sm leading-relaxed">{kpi.desc}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
 
       {/* TABS SECTION - COMPACTING HISTORY AND VALIDATION */}
       <section id="historia" className="py-32 px-6 relative">
@@ -230,16 +227,17 @@ const App = () => {
           {/* Custom Tab Switcher */}
           <div className="flex flex-wrap justify-center gap-2 mb-16 bg-slate-900/50 p-2 rounded-3xl border border-white/10 w-fit mx-auto">
             {[
-              { id: 'historia', label: 'El Sistema', icon: Target },
-              { id: 'validacion', label: 'Validación', icon: Newspaper },
-              { id: 'manifiesto', label: 'Por qué apoyo', icon: Quote }
+              { id: 'logros', label: 'Mis logros', icon: Trophy },
+              { id: 'historia', label: 'El problema', icon: Target },
+              { id: 'validacion', label: 'Validación pública', icon: Newspaper },
+              { id: 'manifiesto', label: '¿Por qué apoyar?', icon: Quote },
+              { id: 'supporters', label: '¿Quiénes ya están apoyando?', icon: Users }
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-3 px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${
-                  activeTab === tab.id ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'
-                }`}
+                onClick={() => setActiveTab(activeTab === tab.id ? null : tab.id)}
+                className={`flex items-center gap-3 px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'
+                  }`}
               >
                 <tab.icon className="w-4 h-4" />
                 {tab.label}
@@ -249,6 +247,40 @@ const App = () => {
 
           <div className="min-h-[500px]">
             <AnimatePresence mode="wait">
+              {activeTab === 'logros' && (
+                <motion.div
+                  key="logros"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="space-y-12"
+                >
+                  <div className="text-center mb-16">
+                    <h2 className="text-4xl md:text-6xl font-black uppercase italic tracking-tighter text-white">
+                      Mis <span className="text-blue-400">Logros</span>
+                    </h2>
+                    <p className="text-blue-100/60 text-lg font-medium mt-4">
+                      Hitos que validan mi compromiso y capacidad profesional.
+                    </p>
+                  </div>
+                  <div className="grid md:grid-cols-3 gap-8">
+                    {kpis.map((kpi, i) => (
+                      <motion.div
+                        whileHover={{ y: -10 }}
+                        key={i}
+                        className="p-10 bg-white/5 border border-white/10 rounded-[2.5rem] backdrop-blur relative overflow-hidden group"
+                      >
+                        <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-110 transition-transform">
+                          <Trophy className="w-24 h-24" />
+                        </div>
+                        <div className="text-4xl font-black text-blue-400 mb-2">{kpi.value}</div>
+                        <div className="text-xs font-black uppercase tracking-widest text-white mb-4">{kpi.label}</div>
+                        <p className="text-blue-100/60 text-sm leading-relaxed">{kpi.desc}</p>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
               {activeTab === 'historia' && (
                 <motion.div
                   key="historia"
@@ -259,7 +291,7 @@ const App = () => {
                 >
                   <div className="text-center md:text-left space-y-8">
                     <h2 className="text-4xl md:text-6xl font-black uppercase italic tracking-tighter text-white">
-                      El talento existe. <br/><span className="text-blue-400">El sistema no lo acompaña.</span>
+                      El talento existe. <br /><span className="text-blue-400">El sistema no lo acompaña.</span>
                     </h2>
                     <div className="grid md:grid-cols-2 gap-12 items-center">
                       <div className="space-y-6">
@@ -273,7 +305,7 @@ const App = () => {
                         </div>
                       </div>
                       <div className="space-y-6">
-                         <p className="text-lg text-blue-100/80 leading-relaxed">
+                        <p className="text-lg text-blue-100/80 leading-relaxed">
                           En mi caso, aprender a programar fue una decisión de riesgo. Lo hice de forma autodidacta con recursos como los programas de Harvard CS50 y Samsung Innovation Campus.
                         </p>
                         <p className="text-lg text-blue-100/80 leading-relaxed">
@@ -304,12 +336,12 @@ const App = () => {
 
                   <div className="grid md:grid-cols-2 gap-8 items-start">
                     <div className="bg-white/5 border border-white/10 p-4 rounded-[2rem]">
-                      <iframe 
-                        src="https://www.instagram.com/reel/DMLiTVHRYxN/embed" 
-                        width="100%" 
-                        height="500" 
-                        frameBorder="0" 
-                        scrolling="no" 
+                      <iframe
+                        src="https://www.instagram.com/reel/DMLiTVHRYxN/embed"
+                        width="100%"
+                        height="500"
+                        frameBorder="0"
+                        scrolling="no"
                         allowtransparency="true"
                         style={{ borderRadius: '1.5rem', border: 'none' }}
                         title="Instagram Reel Michael Eusebio"
@@ -361,6 +393,74 @@ const App = () => {
                   </div>
                 </motion.div>
               )}
+
+              {activeTab === 'supporters' && (
+                <motion.div
+                  key="supporters"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="space-y-12"
+                >
+                  <div className="text-center mb-16">
+                    <h2 className="text-4xl md:text-6xl font-black uppercase italic tracking-tighter text-white">
+                      Quiénes ya están <span className="text-blue-400">apoyando</span>
+                    </h2>
+                    <p className="text-blue-100/60 text-lg font-medium mt-4">
+                      Personas que han decidido ser parte de esta historia.
+                    </p>
+                  </div>
+
+                  {loadingSupporters ? (
+                    <div className="p-20 flex flex-col items-center justify-center gap-4">
+                      <Loader2 className="w-10 h-10 text-blue-400 animate-spin" />
+                      <p className="text-blue-100/40 uppercase font-black tracking-widest text-xs">Cargando aliados...</p>
+                    </div>
+                  ) : supporters.length > 0 ? (
+                    <div className="relative group">
+                      <div className="flex gap-6 overflow-x-auto pb-8 snap-x no-scrollbar">
+                        {supporters.slice(0, visibleCount).map((s, i) => (
+                          <motion.div
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            key={i}
+                            className="min-w-[300px] md:min-w-[400px] p-8 bg-white/5 border border-white/10 rounded-[2.5rem] hover:border-blue-500/30 transition-all flex flex-col gap-4 snap-center group/card"
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="font-bold text-white tracking-tight text-lg">{s.owner_name}</span>
+                              <Quote className="w-5 h-5 text-blue-500/30 group-hover/card:text-blue-400 transition-colors" />
+                            </div>
+                            <p className="text-blue-100/70 italic font-serif leading-relaxed text-lg">"{s.support_reason}"</p>
+                          </motion.div>
+                        ))}
+
+                        {visibleCount < supporters.length && (
+                          <div className="flex items-center min-w-[200px] px-4">
+                            <button
+                              onClick={() => setVisibleCount(prev => prev + 7)}
+                              className="w-full h-full max-h-[100px] flex flex-col items-center justify-center gap-3 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/20 text-blue-400 font-black rounded-[2rem] transition-all uppercase text-[10px] tracking-widest"
+                            >
+                              <Plus className="w-5 h-5" />
+                              Ver más
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Indicador visual de scroll */}
+                      <div className="flex justify-center gap-2 mt-4">
+                        <div className="h-1 w-12 bg-blue-600 rounded-full"></div>
+                        <div className="h-1 w-4 bg-white/10 rounded-full"></div>
+                        <div className="h-1 w-4 bg-white/10 rounded-full"></div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-20 text-center bg-white/5 border border-white/10 rounded-[2.5rem]">
+                      <p className="text-blue-100/40 uppercase font-black tracking-widest text-xs">Aún no hay mensajes públicos. ¡Sé el primero!</p>
+                    </div>
+                  )}
+                </motion.div>
+              )}
             </AnimatePresence>
           </div>
         </div>
@@ -371,106 +471,84 @@ const App = () => {
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[100%] h-[100%] bg-blue-600/5 blur-[120px] rounded-full"></div>
         </div>
-        
+
         <div className="max-w-7xl mx-auto text-center relative z-10">
           <h2 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter mb-4 leading-none">ELIGE TU <span className="text-blue-400">IMPACTO</span></h2>
           <p className="text-blue-100/60 text-lg mb-20 max-w-2xl mx-auto">No es una donación. Es tu lugar en una historia que estamos escribiendo juntos.</p>
-          
-          <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto mb-32">
+
+          <div className="grid lg:grid-cols-2 gap-6 max-w-4xl mx-auto mb-32">
             {/* Cómprame un día */}
-            <motion.div 
+            <motion.div
               id="comprame-un-dia"
               whileHover={{ y: -10 }}
-              className="p-10 md:p-12 rounded-[3.5rem] bg-gradient-to-br from-white/10 to-white/5 border border-white/10 text-left flex flex-col h-full shadow-2xl relative group"
+              className="p-10 rounded-[2.5rem] bg-blue-700 text-left flex flex-col h-full shadow-2xl relative group"
             >
-              <div className="absolute top-8 right-8 w-16 h-16 bg-blue-600/20 rounded-2xl flex items-center justify-center border border-blue-500/20 group-hover:bg-blue-600 transition-colors">
-                <Calendar className="w-8 h-8 text-blue-400 group-hover:text-white" />
+              <div className="absolute top-6 right-6 w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center border border-white/20 group-hover:bg-white transition-colors">
+                <Calendar className="w-6 h-6 text-white group-hover:text-blue-700" />
               </div>
               <div className="flex-grow">
-                <span className="inline-block px-4 py-2 rounded-full bg-blue-600/20 text-blue-400 text-[10px] font-black uppercase tracking-widest mb-6 border border-blue-500/20">
+                <span className="inline-block px-3 py-1.5 rounded-full bg-white/10 text-white text-[9px] font-black uppercase tracking-widest mb-4 border border-white/10">
                   Patrocinio Directo
                 </span>
-                <h3 className="text-4xl font-black uppercase tracking-tighter mb-4 text-white">Cómprame un día</h3>
-                <div className="text-5xl font-black text-amber-400 mb-8 tracking-tighter">RD$3,100 <span className="text-lg text-white/40 font-medium">/ día</span></div>
-                
-                <div className="space-y-6 text-blue-100/70 text-base leading-relaxed mb-10">
+                <h3 className="text-3xl font-black uppercase tracking-tighter mb-2 text-white">Cómprame un día</h3>
+                <div className="text-4xl font-black text-white mb-6 tracking-tighter italic">RD$3,000 <span className="text-base text-white/40 font-medium not-italic">/ día</span></div>
+
+                <div className="space-y-4 text-white/80 text-sm leading-relaxed mb-8 font-medium">
                   <p>Invierte un día de mis estudios y a cambio yo te dedico esa fecha públicamente.</p>
-                  <div className="text-sm italic border-l-2 border-blue-500 pl-4 bg-blue-500/5 py-3 space-y-2">
+                  <div className="text-xs italic border-l-2 border-white/40 pl-4 bg-white/5 py-2.5 space-y-1.5 text-white/70">
                     <p>"Voy a estudiar ingeniería en Nueva York. Ciego. Dominicano. Sin mapa."</p>
-                    <p className="opacity-60 text-xs">El día que llegué al campus. El día de mi primer examen. El día que entregué mi primer proyecto. El día que me perdí en el metro. El día que lo encontré todo.</p>
+                    <p className="opacity-50">El día que llegué al campus. El día de mi primer examen. El día que entregué mi primer proyecto.</p>
                   </div>
-                  <p>Tú puedes ser parte de uno de esos días. No es una donación. Es tu lugar en mi historia.</p>
-                  <p className="text-sm">Cuando ese día llegue — te mando una foto, un audio, un momento real. Tuyo.</p>
+                  <p className="font-bold text-white">Te comparto y publico dicho momento real dedicado a tu nombre.</p>
                 </div>
               </div>
-              
-              <Link href="/comprame-un-dia" className="w-full py-6 rounded-3xl bg-blue-600 hover:bg-blue-500 text-white font-black text-center text-sm uppercase tracking-widest shadow-xl shadow-blue-600/20 transition-all flex items-center justify-center gap-3">
-                [Ver días disponibles] <ChevronRight className="w-5 h-5" />
+
+              <Link href="/comprame-un-dia" className="w-full py-5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-black text-center text-xs uppercase tracking-widest shadow-xl transition-all flex items-center justify-center gap-2">
+                Ver días disponibles <ChevronRight className="w-4 h-4" />
               </Link>
             </motion.div>
 
             {/* En primera fila */}
-            <motion.div 
+            <motion.div
               whileHover={{ y: -10 }}
-              className="p-10 md:p-12 rounded-[3.5rem] bg-gradient-to-br from-white/10 to-white/5 border border-amber-400/30 text-left flex flex-col h-full shadow-2xl relative group"
+              className="p-10 rounded-[2.5rem] bg-amber-400 text-left flex flex-col h-full shadow-2xl relative group"
             >
-              <div className="absolute top-8 right-8 w-16 h-16 bg-amber-400/20 rounded-2xl flex items-center justify-center border border-amber-400/20 group-hover:bg-amber-400 transition-colors">
-                <Newspaper className="w-8 h-8 text-amber-400 group-hover:text-slate-900" />
+              <div className="absolute top-6 right-6 w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                <Newspaper className="w-6 h-6 text-amber-400" />
               </div>
               <div className="flex-grow">
-                <span className="inline-block px-4 py-2 rounded-full bg-amber-400/20 text-amber-500 text-[10px] font-black uppercase tracking-widest mb-6 border border-amber-400/20">
-                  Early Believers
-                </span>
-                <h3 className="text-4xl font-black uppercase tracking-tighter mb-4 text-white">En primera fila</h3>
-                <div className="text-5xl font-black text-blue-400 mb-8 tracking-tighter">RD$2,000 <span className="text-lg text-white/40 font-medium">/ mes</span></div>
-                
-                <div className="space-y-4 text-blue-100/70 text-sm leading-relaxed mb-10">
-                  <p>Cada semana te informo desde adentro: lo que aprendo en tecnología y negocios, lo que escucho, lo que vivo. <span className="text-white font-bold">No es inspiración genérica.</span> Es el journey sin filtro de alguien abriendo un camino que no existía.</p>
-                  <p className="font-bold text-amber-400 uppercase tracking-widest text-[10px]">Los Early Believers</p>
-                  <ul className="space-y-3 mt-6">
-                    <li className="flex items-center gap-3 font-bold text-white"><Check className="w-4 h-4 text-amber-400" /> Reporte semanal desde NYC</li>
-                    <li className="flex items-center gap-3 font-bold text-white"><Check className="w-4 h-4 text-amber-400" /> Acceso a La Caja Negra (recursos, herramientas)</li>
-                    <li className="flex items-center gap-3 font-bold text-white"><Check className="w-4 h-4 text-amber-400" /> Tu nombre en el Muro de Fundadores</li>
+                <h3 className="text-3xl font-black uppercase tracking-tighter mb-2 text-slate-900">En primera fila</h3>
+                <div className="text-4xl font-black text-slate-900 mb-6 tracking-tighter italic">RD$2,000 <span className="text-base text-slate-700/60 font-medium not-italic">/ mes</span></div>
+
+                <div className="space-y-4 text-slate-800 text-sm leading-relaxed mb-8 font-medium">
+                  <p>Cada semana te informo desde adentro: lo que aprendo en tecnología y negocios, lo que vivo. <span className="text-slate-900 font-bold underline decoration-slate-900/30 underline-offset-4">No es inspiración genérica.</span></p>
+                  <ul className="space-y-2 mt-4">
+                    <li className="flex items-center gap-3 font-bold text-slate-900"><Check className="w-4 h-4 text-slate-900" /> Reporte semanal desde NYC</li>
+                    <li className="flex items-center gap-3 font-bold text-slate-900"><Check className="w-4 h-4 text-slate-900" /> Acceso a La Caja Negra (Recursos)</li>
+                    <li className="flex items-center gap-3 font-bold text-slate-900"><Check className="w-4 h-4 text-slate-900" /> Tu nombre en el Muro de Fundadores</li>
                   </ul>
-                  <p className="text-[10px] uppercase font-black tracking-widest text-amber-400/40 mt-4 italic">Cancela cuando quieras.</p>
+                  <p className="text-[9px] uppercase font-black tracking-widest text-slate-900/40 mt-4 italic">Cancela cuando quieras.</p>
                 </div>
               </div>
-              
-              <Link href="/en-primera-fila" className="w-full py-6 rounded-3xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-black text-center text-sm uppercase tracking-widest shadow-xl shadow-amber-400/20 transition-all flex items-center justify-center gap-3">
-                Unirse ahora <ChevronRight className="w-5 h-5" />
+
+              <Link href="/en-primera-fila" className="w-full py-5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-black text-center text-xs uppercase tracking-widest shadow-xl shadow-slate-900/20 transition-all flex items-center justify-center gap-2">
+                Unirse ahora <ChevronRight className="w-4 h-4" />
               </Link>
             </motion.div>
           </div>
 
-          {/* MANIFIESTO FINAL */}
-          <div className="max-w-4xl mx-auto bg-blue-600/5 border border-white/5 rounded-[4rem] p-10 md:p-20">
-            <h2 className="text-4xl md:text-6xl font-black uppercase italic tracking-tighter mb-12 leading-none">HOY DECIDES QUÉ <span className="text-blue-400">CONSTRUIR.</span></h2>
-            <div className="max-w-md mx-auto space-y-4 mb-12">
-              {[
-                { label: 'EL TALENTO DOMINICANO', key: 'talento' },
-                { label: 'LA TECNOLOGÍA COMO MOTOR', key: 'tecnologia' },
-                { label: 'LA INCLUSIÓN REAL', key: 'inclusion' }
-              ].map((v, i) => (
-                <div 
-                  key={i} 
-                  onClick={() => toggleValue(v.key)} 
-                  className={`flex items-center gap-4 p-6 rounded-3xl border-2 cursor-pointer transition-all ${agreedValues[v.key] ? 'bg-blue-600 border-blue-400' : 'bg-white/5 border-white/10'}`}
-                >
-                  <Check className={`w-6 h-6 ${agreedValues[v.key] ? 'text-white' : 'text-transparent'}`} />
-                  <span className="font-black uppercase tracking-tighter text-lg">{v.label}</span>
-                </div>
-              ))}
-            </div>
-
-            <p className="text-lg md:text-xl text-blue-100/70 font-bold italic mb-8 max-w-2xl mx-auto leading-relaxed">
-              “El apoyo que reciba en esta etapa define si puedo llegar a la universidad este año o no.”
-            </p>
-
+          {/* CONTACT CTA */}
+          <div className="max-w-2xl mx-auto text-center mt-16 pt-16 border-t border-white/5">
+            <h3 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter text-white mb-2">¿Tienes dudas?</h3>
+            <p className="text-blue-100/60 text-lg mb-8">Prefiero explicártelo yo mismo.</p>
             <a 
-              href={allChecked ? "https://wa.me/18295705985?text=Hola!%20He%20completado%20el%20manifiesto%20y%20quiero%20apoyar%20tu%20camino%20a%20Colorado." : "#"} 
-              className={`w-full py-8 rounded-3xl font-black text-2xl flex items-center justify-center gap-4 shadow-2xl transition-all ${allChecked ? 'bg-green-600 hover:scale-105' : 'bg-slate-800 text-slate-600 cursor-not-allowed'}`}
+              href="https://wa.me/18295705985?text=Hola%20Michael!%20Tengo%20algunas%20dudas%20sobre%20cómo%20apoyar%20tu%20camino%20a%20Colorado." 
+              target="_blank"
+              className="inline-flex items-center gap-4 px-10 py-5 bg-green-600 hover:bg-green-500 text-white font-black rounded-2xl shadow-2xl shadow-green-600/20 transition-all uppercase tracking-widest text-sm group"
             >
-               CONTACTAR POR WHATSAPP {allChecked && <ChevronRight />}
+              <MessageCircle className="w-5 h-5 fill-white" />
+              HABLEMOS
+              <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </a>
           </div>
         </div>
@@ -483,7 +561,7 @@ const App = () => {
           <div className="space-y-4">
             {faqs.map((faq, i) => (
               <div key={i} className="border-b border-white/10 pb-4">
-                <button 
+                <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   className="w-full flex items-center justify-between py-4 text-left group transition-all"
                 >
@@ -494,7 +572,7 @@ const App = () => {
                 </button>
                 <AnimatePresence>
                   {openFaq === i && (
-                    <motion.div 
+                    <motion.div
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
@@ -520,7 +598,7 @@ const App = () => {
             <a href="https://wa.me/18295705985" target="_blank" className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center text-blue-400 hover:bg-blue-600 hover:text-white transition-all shadow-lg"><MessageCircle /></a>
             <a href="mailto:michaeleusebiodelorbe@gmail.com" className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center text-blue-400 hover:bg-blue-600 hover:text-white transition-all shadow-lg"><Mail /></a>
           </div>
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">© 2024 Michael Eusebio · Menos Millas Universitarias</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">© 2026 Michael Eusebio · Menos Millas Universitarias</p>
         </div>
       </footer>
 
@@ -537,4 +615,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default App;
