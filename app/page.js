@@ -190,7 +190,7 @@ const App = () => {
                 {/* Active fill logic */}
                 <div
                   className={`absolute inset-0 rounded-2xl transition-all duration-1000 flex items-center justify-center overflow-hidden ${progressData.totalPercentage >= (year * 25) ? 'bg-green-500 shadow-[0_0_20px_rgba(34,197,94,0.4)]' :
-                      progressData.totalPercentage > ((year - 1) * 25) ? 'bg-gradient-to-r from-green-500 to-transparent' : ''
+                    progressData.totalPercentage > ((year - 1) * 25) ? 'bg-gradient-to-r from-green-500 to-transparent' : ''
                     }`}
                   style={{
                     width: progressData.totalPercentage > ((year - 1) * 25) && progressData.totalPercentage < (year * 25)
@@ -499,7 +499,8 @@ const App = () => {
                     <p>"Voy a estudiar ingeniería en Nueva York. Ciego. Dominicano. Sin mapa."</p>
                     <p className="opacity-50">El día que llegué al campus. El día de mi primer examen. El día que entregué mi primer proyecto.</p>
                   </div>
-                  <p className="font-bold text-white">Te comparto y publico dicho momento real dedicado a tu nombre.</p>
+                  <p className="font-bold text-white">Tú puedes ser parte de uno de esos días. No es una donación. Es tu lugar en mi historia.</p>
+                  <p className="text-xs text-white/70 italic">Cuando ese día llegue — te mando una foto, un audio, un momento real. Tuyo.</p>
                 </div>
               </div>
 
@@ -521,9 +522,9 @@ const App = () => {
                 <div className="text-4xl font-black text-slate-900 mb-6 tracking-tighter italic">RD$2,000 <span className="text-base text-slate-700/60 font-medium not-italic">/ mes</span></div>
 
                 <div className="space-y-4 text-slate-800 text-sm leading-relaxed mb-8 font-medium">
-                  <p>Cada semana te informo desde adentro: lo que aprendo en tecnología y negocios, lo que vivo. <span className="text-slate-900 font-bold underline decoration-slate-900/30 underline-offset-4">No es inspiración genérica.</span></p>
+                  <p>Cada semana te informo desde adentro: lo que aprendo en tecnología y negocios, lo que escucho, lo que vivo. <span className="text-slate-900 font-bold underline decoration-slate-900/30 underline-offset-4">No es inspiración genérica.</span> Es el journey sin filtro de alguien abriendo un camino que no existía.</p>
                   <ul className="space-y-2 mt-4">
-                    <li className="flex items-center gap-3 font-bold text-slate-900"><Check className="w-4 h-4 text-slate-900" /> Reporte semanal desde NYC</li>
+                    <li className="flex items-center gap-3 font-bold text-slate-900"><Check className="w-4 h-4 text-slate-900" /> Reporte semanal desde adentro</li>
                     <li className="flex items-center gap-3 font-bold text-slate-900"><Check className="w-4 h-4 text-slate-900" /> Acceso a La Caja Negra (Recursos)</li>
                     <li className="flex items-center gap-3 font-bold text-slate-900"><Check className="w-4 h-4 text-slate-900" /> Tu nombre en el Muro de Fundadores</li>
                   </ul>
@@ -541,8 +542,8 @@ const App = () => {
           <div className="max-w-2xl mx-auto text-center mt-16 pt-16 border-t border-white/5">
             <h3 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter text-white mb-2">¿Tienes dudas?</h3>
             <p className="text-blue-100/60 text-lg mb-8">Prefiero explicártelo yo mismo.</p>
-            <a 
-              href="https://wa.me/18295705985?text=Hola%20Michael!%20Tengo%20algunas%20dudas%20sobre%20cómo%20apoyar%20tu%20camino%20a%20Colorado." 
+            <a
+              href="https://wa.me/18295705985?text=Hola%20Michael!%20Tengo%20algunas%20dudas%20sobre%20cómo%20apoyar%20tu%20camino%20a%20Colorado."
               target="_blank"
               className="inline-flex items-center gap-4 px-10 py-5 bg-green-600 hover:bg-green-500 text-white font-black rounded-2xl shadow-2xl shadow-green-600/20 transition-all uppercase tracking-widest text-sm group"
             >
