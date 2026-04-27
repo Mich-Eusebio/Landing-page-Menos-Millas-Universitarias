@@ -9,10 +9,52 @@ import CheckoutModal from '@/components/calendar/CheckoutModal';
 import { saveComprameUnDia, uploadFile } from '@/lib/apis/SorteoActions';
 
 const ComprameUnDia = () => {
+  const [selectedTier, setSelectedTier] = useState(null);
   const [selectedDates, setSelectedDates] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [view, setView] = useState('tiers'); // 'tiers' or 'calendar'
+
+  const presencias = [
+    { 
+      id: 7, 
+      days: 7, 
+      price: 15000, 
+      title: "Semana de Ingeniería", 
+      subtitle: "Impacto total. Tu marca o nombre será el protagonista absoluto durante 7 días.", 
+      color: "#FF6B00", // Vivid Safety Orange
+      badge: "MÁXIMO IMPACTO",
+      height: "min-h-[600px]",
+      tier: 'premium'
+    },
+    { 
+      id: 3, 
+      days: 3, 
+      price: 9000, 
+      title: "Sprint de Carrera", 
+      subtitle: "Tres días de alta visibilidad en momentos clave del semestre.", 
+      color: "#BF00FF", // Electric Purple
+      badge: "MÁS POPULAR",
+      height: "min-h-[520px]",
+      tier: 'pro'
+    },
+    { 
+      id: 1, 
+      days: 1, 
+      price: 3000, 
+      title: "Día Universitario", 
+      subtitle: "Presencia directa en un día específico de mi viaje académico.", 
+      color: "#00FFFF", // Neon Aqua
+      badge: "APOYO DIRECTO",
+      height: "min-h-[440px]",
+      tier: 'basic'
+    }
+  ];
+
+  const specialDates = [
+    '2027-01-25', '2027-02-14', '2027-03-10', '2027-05-15', '2027-08-20', '2027-12-15'
+  ];
 
   const [soldDates] = useState([
     '2027-02-14', '2027-02-27', '2027-03-01', '2027-03-15'
@@ -98,6 +140,8 @@ const ComprameUnDia = () => {
         proofName: formData.proof ? formData.proof.name : null,
         comprobante_url: comprobante_url,
         selectedDates: selectedDates,
+        tier: selectedTier ? selectedTier.id : null,
+        totalPrice: selectedTier ? selectedTier.price : 0,
         termsAccepted: formData.terms
       };
       
@@ -126,12 +170,13 @@ const ComprameUnDia = () => {
   ];
 
   const handleDateClick = (dateStr, isSold) => {
-    if (isSold) return;
+    if (isSold || !selectedTier) return;
     
     setSelectedDates(prev => {
       if (prev.includes(dateStr)) {
         return prev.filter(d => d !== dateStr);
       } else {
+        if (prev.length >= selectedTier.days) return prev;
         return [...prev, dateStr];
       }
     });
@@ -142,31 +187,187 @@ const ComprameUnDia = () => {
     setStep(1);
   };
 
+  const handleTierSelect = (tier) => {
+    setSelectedTier(tier);
+    setView('calendar');
+    setSelectedDates([]); // Reset selection when changing tiers
+  };
+
+  const handleBackToTiers = () => {
+    setView('tiers');
+    setSelectedTier(null);
+    setSelectedDates([]);
+  };
+
   return (
-    <div className="min-h-screen bg-[#0a192f] text-slate-100 font-sans selection:bg-blue-500 selection:text-white relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#000000] text-slate-100 font-sans selection:bg-blue-500 selection:text-white relative overflow-x-hidden">
       <CalendarHeader />
 
       <main className="pt-32 pb-48 px-4 md:px-8">
-        <div className="max-w-7xl mx-auto space-y-20">
-          <CalendarLegend />
+        <div className="max-w-7xl mx-auto">
+          <AnimatePresence mode="wait">
+            {view === 'tiers' ? (
+              <motion.div
+                key="tiers-view"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 1.05 }}
+                className="space-y-16"
+              >
+                <div className="text-center space-y-4">
+                  <h2 className="text-5xl md:text-8xl font-black text-white italic tracking-tighter uppercase leading-[0.8]">
+                    Elige tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Presencia</span>
+                  </h2>
+                  <p className="text-white/40 font-bold uppercase tracking-[0.5em] text-xs">
+                    Impacto directo en mi carrera profesional
+                  </p>
+                </div>
 
-          <div className="space-y-32">
-            {months.map((m, idx) => (
-              <MonthGrid
-                key={idx}
-                monthData={m}
-                selectedDates={selectedDates}
-                soldDates={soldDates}
-                onDateClick={handleDateClick}
-              />
-            ))}
-          </div>
+                <div className="flex flex-col md:flex-row items-end justify-center gap-8 md:gap-12 px-4">
+                  {presencias.map((presencia) => (
+                    <motion.button
+                      key={presencia.id}
+                      whileHover={{ 
+                        y: -25, 
+                        scale: 1.05,
+                        boxShadow: `0 0 50px ${presencia.color}60`,
+                        borderColor: presencia.color
+                      }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => handleTierSelect(presencia)}
+                      className={`
+                        relative group flex flex-col p-8 md:p-12 rounded-[3rem] border-2 transition-all duration-700 text-left w-full md:max-w-[380px]
+                        bg-[#050505]
+                        ${presencia.height}
+                      `}
+                      style={{ 
+                        boxShadow: `0 0 30px ${presencia.color}30`,
+                        borderColor: `${presencia.color}20`
+                      }}
+                    >
+                      {/* Internal glow effect */}
+                      <div 
+                        className="absolute inset-0 opacity-30 pointer-events-none group-hover:opacity-60 transition-opacity duration-1000 rounded-[3rem] overflow-hidden"
+                        style={{ background: `radial-gradient(circle at 50% 0%, ${presencia.color}40, transparent 80%)` }}
+                      />
+
+                      <div className="flex flex-col h-full relative z-10 w-full">
+                        {/* High Saturated Badge */}
+                        <div 
+                          className="self-start px-6 py-2.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] mb-12 shadow-2xl"
+                          style={{ 
+                            backgroundColor: presencia.color, 
+                            color: '#000',
+                            boxShadow: `0 0 30px ${presencia.color}60`
+                          }}
+                        >
+                          {presencia.badge}
+                        </div>
+
+                        {/* Bold Typography - Fixed Wrapping */}
+                        <div className="flex-1 space-y-8">
+                          <h3 className="text-4xl md:text-5xl font-black text-white italic tracking-tighter uppercase leading-[0.9] break-normal">
+                            {presencia.title}
+                          </h3>
+                          <p className="text-white/60 font-black leading-relaxed text-sm md:text-base uppercase tracking-[0.1em]">
+                            {presencia.subtitle}
+                          </p>
+                        </div>
+
+                        {/* Price and Electric Button */}
+                        <div className="mt-auto pt-10 border-t border-white/10 space-y-10">
+                          <div className="flex flex-col">
+                            <span className="text-[12px] font-black text-white/30 uppercase tracking-[0.5em] mb-3">Inversión Total</span>
+                            <span className="text-5xl md:text-6xl font-black text-white tracking-tighter italic drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]">
+                              RD${presencia.price.toLocaleString()}
+                            </span>
+                          </div>
+
+                          <div 
+                            className={`
+                              w-full py-6 rounded-3xl flex items-center justify-center gap-4 font-black uppercase tracking-[0.3em] text-[12px] transition-all duration-700
+                              ${presencia.tier === 'premium' 
+                                ? `bg-[#FF6B00] text-black shadow-[0_0_40px_rgba(255,107,0,0.5)] hover:shadow-[0_0_60px_rgba(255,107,0,0.7)]` 
+                                : 'bg-transparent border-2 text-white'}
+                            `}
+                            style={{ 
+                              borderColor: presencia.tier !== 'premium' ? `${presencia.color}80` : 'transparent',
+                              color: presencia.tier !== 'premium' ? presencia.color : '#000',
+                              boxShadow: presencia.tier !== 'premium' ? `inset 0 0 15px ${presencia.color}30` : `0 0 40px ${presencia.color}50`
+                            }}
+                          >
+                            Seleccionar <ArrowRight className={`w-5 h-5 ${presencia.tier === 'premium' ? 'text-black' : 'text-current'} group-hover:translate-x-3 transition-transform duration-500`} />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* External Border Glow (Light Source Effect) */}
+                      <div 
+                        className="absolute inset-0 rounded-[3rem] pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-700 border-[3px]"
+                        style={{ borderColor: presencia.color, boxShadow: `0 0 30px ${presencia.color}80, inset 0 0 20px ${presencia.color}40` }}
+                      />
+                    </motion.button>
+                  ))}
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="calendar-view"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-16"
+              >
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                  <div className="space-y-2">
+                    <button 
+                      onClick={handleBackToTiers}
+                      className="text-[10px] font-black text-blue-500 uppercase tracking-widest flex items-center gap-2 hover:gap-3 transition-all"
+                    >
+                      ← Volver a Presencia
+                    </button>
+                    <h2 className="text-4xl md:text-5xl font-black text-white italic tracking-tighter uppercase">
+                      Selecciona tus <span className="text-blue-500">Días</span>
+                    </h2>
+                  </div>
+                  
+                  <div className="bg-white/5 border border-white/10 p-4 rounded-2xl flex items-center gap-6">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Paquete</p>
+                      <p className="text-lg font-black text-white italic">{selectedTier.title}</p>
+                    </div>
+                    <div className="w-px h-8 bg-white/10"></div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Progreso</p>
+                      <p className="text-lg font-black text-white italic">
+                        {selectedDates.length} / {selectedTier.days}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <CalendarLegend />
+
+                <div className="space-y-32">
+                  {months.map((m, idx) => (
+                    <MonthGrid
+                      key={idx}
+                      monthData={m}
+                      selectedDates={selectedDates}
+                      soldDates={soldDates}
+                      onDateClick={handleDateClick}
+                    />
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </main>
 
-      {/* STICKY FOOTER FOR BATCH SELECTION */}
+      {/* STICKY FOOTER FOR BATCH SELECTION (AC 5) */}
       <AnimatePresence>
-        {selectedDates.length > 0 && !isModalOpen && (
+        {selectedTier && !isModalOpen && (
           <motion.div
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -181,7 +382,7 @@ const ComprameUnDia = () => {
                   <p className="text-[10px] font-black uppercase tracking-widest text-blue-400">Días seleccionados</p>
                   <div className="flex items-end gap-2 mt-1">
                     <p className="text-3xl md:text-4xl font-black text-white leading-none">{selectedDates.length}</p>
-                    <p className="text-xs text-white/50 font-bold mb-1 uppercase">/ 365</p>
+                    <p className="text-xs text-white/50 font-bold mb-1 uppercase">/ {selectedTier.days}</p>
                   </div>
                 </div>
 
@@ -190,25 +391,31 @@ const ComprameUnDia = () => {
                 <div className="text-right md:text-left">
                   <p className="text-[10px] font-black uppercase tracking-widest text-blue-400">Inversión Total</p>
                   <p className="text-xl md:text-2xl font-black text-white mt-1 italic tracking-tighter">
-                    RD${(selectedDates.length * 3000).toLocaleString()}
+                    RD${selectedTier.price.toLocaleString()}
                   </p>
                 </div>
               </div>
 
-              {selectedDates.length >= 7 && (
+              {selectedDates.length === selectedTier.days && (
                 <motion.div 
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   className="hidden xl:flex items-center gap-2 bg-gradient-to-r from-amber-400/20 to-amber-600/20 border border-amber-500/30 px-4 py-2 rounded-xl text-amber-400 relative z-10"
                 >
                   <Trophy className="w-4 h-4" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">¡Milla Semanal Completada!</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest">¡Selección Lista!</span>
                 </motion.div>
               )}
 
               <button
                 onClick={handleContinue}
-                className="w-full md:w-auto bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-widest text-xs px-8 py-4 md:py-5 rounded-2xl shadow-xl shadow-blue-600/20 transition-all flex items-center justify-center gap-2 relative z-10"
+                disabled={selectedDates.length !== selectedTier.days}
+                className={`
+                  w-full md:w-auto font-black uppercase tracking-widest text-xs px-8 py-4 md:py-5 rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2 relative z-10
+                  ${selectedDates.length === selectedTier.days 
+                    ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/20' 
+                    : 'bg-white/5 text-white/20 cursor-not-allowed border border-white/5'}
+                `}
               >
                 Continuar <ArrowRight className="w-4 h-4" />
               </button>
