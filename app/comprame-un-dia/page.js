@@ -42,25 +42,28 @@ const ComprameUnDia = () => {
   const presencias = [
     { 
       id: 7, 
-      days: 7, 
+      days: 5, 
       price: 15000, 
       title: "Semana de Ingeniería", 
-      subtitle: "Impacto total. Tu marca o nombre será el protagonista absoluto durante 7 días.", 
+      subtitle: "Impacto total. Tu marca o nombre será el protagonista absoluto durante 5 días.", 
       color: "#FF6B00", // Vivid Safety Orange
       badge: "MÁXIMO IMPACTO",
       height: "min-h-[600px]",
-      tier: 'premium'
+      tier: 'premium',
+      offerText: "Antes 7 días"
     },
     { 
       id: 3, 
-      days: 3, 
-      price: 9000, 
+      days: 2, 
+      price: 6000, 
       title: "Sprint de Carrera", 
-      subtitle: "Tres días de alta visibilidad en momentos clave del semestre.", 
+      subtitle: "Dos días de alta visibilidad en momentos clave del semestre.", 
       color: "#BF00FF", // Electric Purple
-      badge: "MÁS POPULAR",
+      badge: "OFERTA ESPECIAL",
       height: "min-h-[520px]",
-      tier: 'pro'
+      tier: 'pro',
+      offerText: "Precio Promocional",
+      saving: "Ahorra RD$1,000" // Assuming the previous 2-day value would be higher or highlighting the deal
     },
     { 
       id: 1, 
@@ -339,6 +342,13 @@ const ComprameUnDia = () => {
                           <p className="text-white/60 font-black leading-relaxed text-sm md:text-base uppercase tracking-[0.1em]">
                             {presencia.subtitle}
                           </p>
+                          {presencia.offerText && (
+                            <div className="inline-block px-3 py-1 bg-white/10 rounded-lg border border-white/20">
+                              <p className="text-[9px] font-black text-white/80 uppercase tracking-widest">
+                                ✨ {presencia.offerText}
+                              </p>
+                            </div>
+                          )}
                         </div>
 
                         {/* Price and Electric Button */}
@@ -423,6 +433,7 @@ const ComprameUnDia = () => {
                       selectedDates={selectedDates}
                       soldDaysData={soldDaysData}
                       onDateClick={handleDateClick}
+                      limitReached={selectedDates.length >= (selectedTier?.days || 0)}
                     />
                   ))}
                 </div>
@@ -457,9 +468,16 @@ const ComprameUnDia = () => {
 
                 <div className="text-right md:text-left">
                   <p className="text-[10px] font-black uppercase tracking-widest text-blue-400">Inversión Total</p>
-                  <p className="text-xl md:text-2xl font-black text-white mt-1 italic tracking-tighter">
-                    RD${selectedTier.price.toLocaleString()}
-                  </p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <p className="text-xl md:text-2xl font-black text-white italic tracking-tighter">
+                      RD${selectedTier.price.toLocaleString()}
+                    </p>
+                    {selectedTier.saving && (
+                      <span className="text-[8px] font-black text-green-400 bg-green-500/10 px-1.5 py-0.5 rounded-md uppercase">
+                        {selectedTier.saving}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
 

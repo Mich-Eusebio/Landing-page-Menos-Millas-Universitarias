@@ -65,6 +65,25 @@ const CheckoutModal = ({
           />
         </div>
 
+        {/* Summary Card (HU-006) */}
+        <div className="mx-6 mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex items-center justify-between">
+          <div className="flex gap-4">
+            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black italic">
+              {selectedDates.length}
+            </div>
+            <div>
+              <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Resumen de Selección</p>
+              <p className="text-sm font-black text-white italic tracking-tight">RD$ {selectedDates.length * 3000 > 6000 && selectedDates.length === 2 ? '6,000 (Oferta)' : (selectedDates.length * 3000).toLocaleString()}</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-[8px] font-black text-white/30 uppercase tracking-widest">Estado</p>
+            <p className="text-[10px] font-black text-green-400 uppercase tracking-widest flex items-center gap-1 justify-end">
+              <Check className="w-3 h-3" /> Listo
+            </p>
+          </div>
+        </div>
+
         <form onSubmit={onSubmit} className="p-6">
           <AnimatePresence mode="wait">
 

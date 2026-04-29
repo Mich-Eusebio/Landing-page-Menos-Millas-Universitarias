@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const MonthGrid = ({ monthData, selectedDates, soldDaysData = [], onDateClick }) => {
+const MonthGrid = ({ monthData, selectedDates, soldDaysData = [], onDateClick, limitReached }) => {
   const { name, year, month } = monthData;
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -43,22 +43,25 @@ const MonthGrid = ({ monthData, selectedDates, soldDaysData = [], onDateClick })
           const soldInfo = soldMap[dateStr];
           const isSold = !!soldInfo;
           const isSpecial = specialDates.includes(dateStr);
+          const isBlocked = limitReached && !isSelected && !isSold;
 
           return (
             <motion.button
               key={day}
-              whileHover={!isSold ? { scale: 1.08, y: -4 } : {}}
-              whileTap={!isSold ? { scale: 0.95 } : {}}
-              onClick={() => !isSold && onDateClick(dateStr, isSold)}
-              disabled={isSold}
-              aria-disabled={isSold}
+              whileHover={!isSold && !isBlocked ? { scale: 1.08, y: -4 } : {}}
+              whileTap={!isSold && !isBlocked ? { scale: 0.95 } : {}}
+              onClick={() => !isSold && !isBlocked && onDateClick(dateStr, isSold)}
+              disabled={isSold || isBlocked}
+              aria-disabled={isSold || isBlocked}
               className={`
                 aspect-square rounded-2xl md:rounded-[1.5rem] border flex flex-col items-center justify-center relative transition-all duration-300 overflow-hidden
                 ${isSold 
                   ? 'bg-amber-500/20 border-amber-500/50 cursor-not-allowed shadow-[inset_0_0_20px_rgba(245,158,11,0.15)]' 
                   : isSelected
                     ? 'bg-blue-600 border-blue-400 shadow-[0_0_30px_rgba(37,99,235,0.4),inset_0_0_20px_rgba(255,255,255,0.2)] z-10'
-                    : 'bg-[#161b22] border-[#30363d] hover:bg-[#1f2937] hover:border-[#8b949e]'
+                    : isBlocked
+                      ? 'bg-white/5 border-white/5 opacity-20 cursor-not-allowed'
+                      : 'bg-[#161b22] border-[#30363d] hover:bg-[#1f2937] hover:border-[#8b949e]'
                 }
               `}
             >
