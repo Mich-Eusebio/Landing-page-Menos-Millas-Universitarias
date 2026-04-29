@@ -16,7 +16,8 @@ const CheckoutModal = ({
   onSubmit,
   nextStep,
   prevStep,
-  selectedDates
+  selectedDates,
+  selectedTier
 }) => {
   const sponsorInputRef = useRef(null);
   if (!isOpen) return null;
@@ -241,6 +242,23 @@ const CheckoutModal = ({
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
               >
+                {/* Total amount preview (HU-007) */}
+                <div className="bg-blue-600/20 border border-blue-500/30 rounded-2xl p-5 flex items-center justify-between relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl -mr-16 -mt-16 group-hover:bg-blue-500/20 transition-colors" />
+                  <div className="relative z-10">
+                    <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Total a transferir</p>
+                    <p className="text-2xl font-black text-white italic tracking-tighter mt-1">
+                      RD$ {selectedTier?.price.toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="text-right relative z-10">
+                    <p className="text-[8px] font-black text-white/40 uppercase tracking-widest mb-1">Por {selectedDates.length} días</p>
+                    <span className="text-[10px] font-black text-blue-400 bg-blue-500/10 px-2 py-1 rounded-lg uppercase tracking-wider">
+                      {selectedTier?.title}
+                    </span>
+                  </div>
+                </div>
+
                 {/* Bank selector */}
                 <div>
                   <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-3">Selecciona tu banco</p>

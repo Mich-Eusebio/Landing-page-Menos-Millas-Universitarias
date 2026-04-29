@@ -15,6 +15,7 @@ const ComprameUnDia = () => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [view, setView] = useState('tiers'); // 'tiers' or 'calendar'
+  const [hasManuallyClosed, setHasManuallyClosed] = useState(false);
 
   // HU1: load sold days from Firestore
   const [soldDaysData, setSoldDaysData] = useState([]); // [{ dateStr, nombre, foto_url, plan_seleccionado }]
@@ -28,7 +29,8 @@ const ComprameUnDia = () => {
     if (
       selectedTier &&
       selectedDates.length === selectedTier.days &&
-      !isModalOpen
+      !isModalOpen &&
+      !hasManuallyClosed
     ) {
       // Pequeño delay para que el usuario vea el último día seleccionado antes del modal
       const timer = setTimeout(() => {
@@ -37,7 +39,7 @@ const ComprameUnDia = () => {
       }, 400);
       return () => clearTimeout(timer);
     }
-  }, [selectedDates, selectedTier, isModalOpen]);
+  }, [selectedDates, selectedTier, isModalOpen, hasManuallyClosed]);
 
   const presencias = [
     { 
@@ -243,6 +245,9 @@ const ComprameUnDia = () => {
     if (isSold || !selectedTier) return;
     
     setSelectedDates(prev => {
+      // Reset manual close state when selection changes
+      setHasManuallyClosed(false);
+      
       if (prev.includes(dateStr)) {
         return prev.filter(d => d !== dateStr);
       } else {
@@ -253,6 +258,7 @@ const ComprameUnDia = () => {
   };
 
   const handleContinue = () => {
+    setHasManuallyClosed(false);
     setIsModalOpen(true);
     setStep(1);
   };
@@ -511,7 +517,10 @@ const ComprameUnDia = () => {
 
       <CheckoutModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          setIsModalOpen(false);
+          setHasManuallyClosed(true);
+        }}
         step={step}
         setStep={setStep}
         formData={formData}
@@ -524,6 +533,7 @@ const ComprameUnDia = () => {
         nextStep={nextStep}
         prevStep={prevStep}
         selectedDates={selectedDates}
+        selectedTier={selectedTier}
       />
 
       <style jsx global>{`
