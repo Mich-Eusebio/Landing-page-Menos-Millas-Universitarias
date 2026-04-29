@@ -89,16 +89,28 @@ const CheckoutModal = ({
                     {errors.instagram && <p className="text-red-400 text-[10px] font-bold uppercase ml-1 mt-1">{errors.instagram}</p>}
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-black text-blue-400 uppercase tracking-widest ml-1">WhatsApp</label>
+                    <label className="text-[10px] font-black text-blue-400 uppercase tracking-widest ml-1">Email</label>
                     <input
-                      type="text"
-                      name="phone"
-                      value={formData.phone}
+                      type="email"
+                      name="email"
+                      value={formData.email}
                       onChange={handleInputChange}
-                      placeholder="809-000-0000"
+                      placeholder="email@ejemplo.com"
                       className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:border-blue-500/50 transition-colors"
                     />
+                    {errors.email && <p className="text-red-400 text-[10px] font-bold uppercase ml-1 mt-1">{errors.email}</p>}
                   </div>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black text-blue-400 uppercase tracking-widest ml-1">WhatsApp</label>
+                  <input
+                    type="text"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    placeholder="809-000-0000"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:border-blue-500/50 transition-colors"
+                  />
                 </div>
                 <button
                   type="button"

@@ -98,6 +98,9 @@ const ComprameUnDia = () => {
     if (!formData.instagram.trim()) {
       newErrors.instagram = 'El usuario de Instagram es obligatorio.';
     }
+    if (!formData.email.trim() || !formData.email.includes('@')) {
+      newErrors.email = 'Por favor, ingresa un correo electrónico válido.';
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -120,7 +123,7 @@ const ComprameUnDia = () => {
       if (formData.proof) {
         const timestamp = Date.now();
         const safeName = formData.proof.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-        const path = `comprame-un-dia/proofs/${timestamp}_${safeName}`;
+        const path = `comprame-un-dia-comprobantes/proofs/${timestamp}_${safeName}`;
         
         const uploadData = new FormData();
         uploadData.append('file', formData.proof);
