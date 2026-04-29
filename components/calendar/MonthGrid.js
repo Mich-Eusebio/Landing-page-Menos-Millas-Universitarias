@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const MonthGrid = ({ monthData, selectedDates, soldDates, onDateClick }) => {
+const MonthGrid = ({ monthData, selectedDates, soldDaysData = [], onDateClick }) => {
   const { name, year, month } = monthData;
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -17,6 +17,9 @@ const MonthGrid = ({ monthData, selectedDates, soldDates, onDateClick }) => {
   const getDateStr = (day) => {
     return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
   };
+
+  // Build a map for O(1) lookup: dateStr -> { nombre, foto_url }
+  const soldMap = Object.fromEntries(soldDaysData.map(d => [d.dateStr, d]));
 
   return (
     <div className="space-y-8">
@@ -37,7 +40,8 @@ const MonthGrid = ({ monthData, selectedDates, soldDates, onDateClick }) => {
         {days.map(day => {
           const dateStr = getDateStr(day);
           const isSelected = selectedDates.includes(dateStr);
-          const isSold = soldDates.includes(dateStr);
+          const soldInfo = soldMap[dateStr];
+          const isSold = !!soldInfo;
           const isSpecial = specialDates.includes(dateStr);
 
           return (
@@ -45,38 +49,50 @@ const MonthGrid = ({ monthData, selectedDates, soldDates, onDateClick }) => {
               key={day}
               whileHover={!isSold ? { scale: 1.08, y: -4 } : {}}
               whileTap={!isSold ? { scale: 0.95 } : {}}
-              onClick={() => onDateClick(dateStr, isSold)}
+              onClick={() => !isSold && onDateClick(dateStr, isSold)}
+              disabled={isSold}
+              aria-disabled={isSold}
               className={`
-                aspect-square rounded-2xl md:rounded-[1.5rem] border flex flex-col items-center justify-center relative transition-all duration-300
+                aspect-square rounded-2xl md:rounded-[1.5rem] border flex flex-col items-center justify-center relative transition-all duration-300 overflow-hidden
                 ${isSold 
-                  ? 'bg-amber-500/20 border-amber-500/40 cursor-not-allowed shadow-[inset_0_0_20px_rgba(245,158,11,0.1)]' 
+                  ? 'bg-amber-500/20 border-amber-500/50 cursor-not-allowed shadow-[inset_0_0_20px_rgba(245,158,11,0.15)]' 
                   : isSelected
                     ? 'bg-blue-600 border-blue-400 shadow-[0_0_30px_rgba(37,99,235,0.4),inset_0_0_20px_rgba(255,255,255,0.2)] z-10'
                     : 'bg-[#161b22] border-[#30363d] hover:bg-[#1f2937] hover:border-[#8b949e]'
                 }
               `}
             >
-              <span className={`
-                text-lg md:text-2xl font-black transition-colors
-                ${isSold 
-                  ? 'text-amber-500/40' 
-                  : isSelected 
-                    ? 'text-white' 
-                    : 'text-white/70'
-                }
-              `}>
-                {day}
-              </span>
-              
-              {isSpecial && !isSelected && !isSold && (
-                <div className="absolute top-3 right-3 w-2 h-2 bg-blue-500 rounded-full shadow-[0_0_12px_rgba(37,99,235,0.8)]" />
-              )}
-
-              {isSold && (
-                <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
-                  <div className="w-full h-px bg-amber-500 rotate-45 transform" />
-                  <div className="w-full h-px bg-amber-500 -rotate-45 transform" />
+              {isSold ? (
+                /* --- SOLD DAY: show sponsor info --- */
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 p-1">
+                  {soldInfo.foto_url ? (
+                    <img
+                      src={soldInfo.foto_url}
+                      alt={soldInfo.nombre || 'Patrocinador'}
+                      className="w-8 h-8 md:w-10 md:h-10 rounded-full object-cover border-2 border-amber-400/60 shadow-md flex-shrink-0"
+                      onError={e => { e.currentTarget.style.display = 'none'; }}
+                    />
+                  ) : null}
+                  <span className="text-[7px] md:text-[8px] font-black text-amber-400 text-center leading-tight tracking-tight px-0.5 line-clamp-2 w-full">
+                    {soldInfo.nombre || ''}
+                  </span>
+                  <span className="text-[8px] md:text-[9px] font-black text-amber-500/50 leading-none">
+                    {day}
+                  </span>
                 </div>
+              ) : (
+                <>
+                  <span className={`
+                    text-lg md:text-2xl font-black transition-colors
+                    ${isSelected ? 'text-white' : 'text-white/70'}
+                  `}>
+                    {day}
+                  </span>
+
+                  {isSpecial && !isSelected && (
+                    <div className="absolute top-3 right-3 w-2 h-2 bg-blue-500 rounded-full shadow-[0_0_12px_rgba(37,99,235,0.8)]" />
+                  )}
+                </>
               )}
             </motion.button>
           );

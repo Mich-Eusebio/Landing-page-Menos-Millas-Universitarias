@@ -1,30 +1,32 @@
 rules_version = '2';
 
-// REGLAS DE STORAGE (Para la foto del comprobante)
-service firebase.storage {
-  match /b/{bucket}/o {
-    match /{allPaths=**} {
-      // Permite leer y subir si el usuario está autenticado (incluye anónimos)
-      allow read, write: if request.auth != null;
-    }
-  }
-}
-
 // REGLAS DE FIRESTORE (Para los datos de los tickets)
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Ruta corregida para tu colección de tickets
+    // Ruta para los tickets de rifa
     match /Millas-michael-rifa-tickets/{ticketId} {
       allow read: if true; // Cualquiera debe poder ver qué tickets están libres
       allow update: if request.auth != null; // Para marcar como "reservado"
       allow create, delete: if false; // Solo tú creas los tickets manualmente
     }
 
-    // Ruta para que los usuarios guarden sus datos de compra
+    // Ruta para que los usuarios guarden sus datos de compra (rifa)
     match /registrations/{regId} {
       allow create: if request.auth != null;
       allow read: if request.auth != null; 
+    }
+
+    // Cómprame un día: registros de compra
+    match /comprame-un-dia/{docId} {
+      allow create: if request.auth != null;
+      allow read: if request.auth != null;
+    }
+
+    // HU1: Días vendidos — lectura pública para el calendario, escritura solo autenticados
+    match /comprame-un-dia/sold-days/days/{dateId} {
+      allow read: if true;            // El calendario lo lee sin login
+      allow write: if request.auth != null;  // Solo admins / backend autenticado
     }
   }
 }

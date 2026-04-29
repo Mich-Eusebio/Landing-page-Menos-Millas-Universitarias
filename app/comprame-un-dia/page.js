@@ -1,12 +1,12 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Trophy } from 'lucide-react';
 import CalendarHeader from '@/components/calendar/CalendarHeader';
 import CalendarLegend from '@/components/calendar/CalendarLegend';
 import MonthGrid from '@/components/calendar/MonthGrid';
 import CheckoutModal from '@/components/calendar/CheckoutModal';
-import { saveComprameUnDia, uploadFile } from '@/lib/apis/SorteoActions';
+import { saveComprameUnDia, uploadFile, getSoldDays, saveSoldDays } from '@/lib/apis/SorteoActions';
 
 const ComprameUnDia = () => {
   const [selectedTier, setSelectedTier] = useState(null);
@@ -15,6 +15,29 @@ const ComprameUnDia = () => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [view, setView] = useState('tiers'); // 'tiers' or 'calendar'
+
+  // HU1: load sold days from Firestore
+  const [soldDaysData, setSoldDaysData] = useState([]); // [{ dateStr, nombre, foto_url, plan_seleccionado }]
+
+  useEffect(() => {
+    getSoldDays().then(data => setSoldDaysData(data));
+  }, []);
+
+  // Cambio 1: auto-abrir el modal cuando el usuario termina de seleccionar todos sus días
+  useEffect(() => {
+    if (
+      selectedTier &&
+      selectedDates.length === selectedTier.days &&
+      !isModalOpen
+    ) {
+      // Pequeño delay para que el usuario vea el último día seleccionado antes del modal
+      const timer = setTimeout(() => {
+        setIsModalOpen(true);
+        setStep(1);
+      }, 400);
+      return () => clearTimeout(timer);
+    }
+  }, [selectedDates, selectedTier, isModalOpen]);
 
   const presencias = [
     { 
@@ -52,22 +75,16 @@ const ComprameUnDia = () => {
     }
   ];
 
-  const specialDates = [
-    '2027-01-25', '2027-02-14', '2027-03-10', '2027-05-15', '2027-08-20', '2027-12-15'
-  ];
-
-  const [soldDates] = useState([
-    '2027-02-14', '2027-02-27', '2027-03-01', '2027-03-15'
-  ]);
 
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
     email: '',
     instagram: '',
-    paymentMethod: '',
+    paymentMethod: 'transfer', // only transfer available
     bankSelection: 'popular',
     proof: null,
+    sponsorPhoto: null,  // HU2: optional sponsor photo
     terms: false
   });
 
@@ -90,6 +107,13 @@ const ComprameUnDia = () => {
     }
   };
 
+  // HU2: handler for optional sponsor photo
+  const handleSponsorPhotoChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setFormData(prev => ({ ...prev, sponsorPhoto: e.target.files[0] }));
+    }
+  };
+
   const validateStep1 = () => {
     const newErrors = {};
     if (!formData.fullName.trim() || formData.fullName.split(' ').length < 2) {
@@ -107,7 +131,6 @@ const ComprameUnDia = () => {
 
   const nextStep = () => {
     if (step === 1 && !validateStep1()) return;
-    if (step === 2 && !formData.paymentMethod) return;
     setStep(prev => prev + 1);
   };
 
@@ -119,6 +142,23 @@ const ComprameUnDia = () => {
     
     setLoading(true);
     try {
+      // Cambio 2: validación de concurrencia — re-fetch sold-days justo antes de guardar
+      const latestSoldDays = await getSoldDays();
+      const latestSoldDates = latestSoldDays.map(d => d.dateStr);
+      const conflictedDates = selectedDates.filter(d => latestSoldDates.includes(d));
+
+      if (conflictedDates.length > 0) {
+        // Actualizar el calendario con los datos frescos para mostrar los días dorados
+        setSoldDaysData(latestSoldDays);
+        // Deseleccionar los días en conflicto
+        setSelectedDates(prev => prev.filter(d => !conflictedDates.includes(d)));
+        setIsModalOpen(false);
+        setLoading(false);
+        alert(`⚠️ ¡Lo sentimos! ${conflictedDates.length > 1 ? 'Los días' : 'El día'} ${conflictedDates.join(', ')} ${conflictedDates.length > 1 ? 'acaban de ser comprados' : 'acaba de ser comprado'} por otra persona. Por favor elige otro día.`);
+        return;
+      }
+
+      // Upload proof of payment
       let comprobante_url = null;
       if (formData.proof) {
         const timestamp = Date.now();
@@ -132,16 +172,31 @@ const ComprameUnDia = () => {
         comprobante_url = await uploadFile(uploadData);
       }
 
+      // HU2: Upload optional sponsor photo
+      let sponsor_foto_url = null;
+      if (formData.sponsorPhoto) {
+        const timestamp = Date.now();
+        const safeName = formData.sponsorPhoto.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const path = `comprame-un-dia-sponsors/${timestamp}_${safeName}`;
+        
+        const uploadData = new FormData();
+        uploadData.append('file', formData.sponsorPhoto);
+        uploadData.append('path', path);
+        
+        sponsor_foto_url = await uploadFile(uploadData);
+      }
+
       const payload = {
         fullName: formData.fullName,
         phone: formData.phone,
         email: formData.email,
         instagram: formData.instagram,
-        paymentMethod: formData.paymentMethod,
-        bankSelection: formData.paymentMethod === 'transfer' ? formData.bankSelection : null,
+        paymentMethod: 'transfer',
+        bankSelection: formData.bankSelection,
         hasProof: !!formData.proof,
         proofName: formData.proof ? formData.proof.name : null,
         comprobante_url: comprobante_url,
+        sponsor_foto_url: sponsor_foto_url,
         selectedDates: selectedDates,
         tier: selectedTier ? selectedTier.id : null,
         totalPrice: selectedTier ? selectedTier.price : 0,
@@ -149,6 +204,15 @@ const ComprameUnDia = () => {
       };
       
       await saveComprameUnDia(payload);
+
+      // Opción A: marcar los días como vendidos inmediatamente al submit
+      await saveSoldDays({
+        dates: selectedDates,
+        nombre: formData.fullName,
+        foto_url: sponsor_foto_url,
+        plan: selectedTier ? selectedTier.title : 'dia seleccionado'
+      });
+
       window.location.href = '/gracias';
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -357,7 +421,7 @@ const ComprameUnDia = () => {
                       key={idx}
                       monthData={m}
                       selectedDates={selectedDates}
-                      soldDates={soldDates}
+                      soldDaysData={soldDaysData}
                       onDateClick={handleDateClick}
                     />
                   ))}
@@ -435,6 +499,7 @@ const ComprameUnDia = () => {
         formData={formData}
         handleInputChange={handleInputChange}
         handleFileChange={handleFileChange}
+        handleSponsorPhotoChange={handleSponsorPhotoChange}
         errors={errors}
         loading={loading}
         onSubmit={handleSubmit}
