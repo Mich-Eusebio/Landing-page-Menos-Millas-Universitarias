@@ -147,20 +147,31 @@ const EnPrimeraFila = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#D4D4D8] font-sans selection:bg-[#7C3AED] selection:text-white relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#111111] text-[#D4D4D8] font-sans selection:bg-[#8B5CF6] selection:text-white relative overflow-x-hidden">
       
-      {/* Subtle Radial Gradient Background */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[radial-gradient(circle_at_center,_#111111_0%,_#050505_100%)] rounded-full blur-[100px] opacity-80" />
-      </div>
+      {/* Aspirational Background Gradient */}
+      <div 
+        className="fixed inset-0 pointer-events-none z-0"
+        style={{
+          background: 'radial-gradient(circle at 30% 30%, #1A1A1A 0%, #111111 40%, #0D0D0D 100%)'
+        }}
+      />
+
+      {/* Subtle Energy Glow behind text */}
+      <div 
+        className="absolute top-0 left-0 w-full h-full pointer-events-none z-0"
+        style={{
+          background: 'radial-gradient(circle at 20% 40%, rgba(139, 92, 246, 0.15), transparent 50%)'
+        }}
+      />
 
       {/* Navigation */}
       <nav className="fixed top-0 left-0 w-full z-50 p-6 flex justify-between items-center backdrop-blur-xl border-b border-white/5">
         <div className="flex items-center gap-3 opacity-80 hover:opacity-100 transition-opacity">
-          <div className="w-8 h-8 bg-white/10 rounded-md flex items-center justify-center text-white font-medium text-xs">
+          <div className="w-8 h-8 bg-white/10 rounded-md flex items-center justify-center text-white font-semibold text-xs">
             M
           </div>
-          <span className="font-medium tracking-tight text-sm text-white">
+          <span className="font-semibold tracking-tight text-sm text-white">
             Michael Eusebio
           </span>
         </div>
@@ -169,25 +180,25 @@ const EnPrimeraFila = () => {
             setStep(1);
             setIsModalOpen(true);
           }}
-          className="text-xs font-medium text-[#A1A1AA] hover:text-white transition-colors"
+          className="text-xs font-medium text-[#A1A1AA] hover:text-[#E5E5E5] transition-colors"
         >
           Unirse
         </button>
       </nav>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center pt-24 pb-24 z-10">
-        <div className="w-full max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-8 items-center">
+      <section className="relative min-h-screen flex items-center pt-32 pb-24 z-10">
+        <div className="w-full max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-20 lg:gap-12 items-center">
           
           {/* Text Container (60%) */}
-          <div className="col-span-1 lg:col-span-7 space-y-12 pr-0 lg:pr-12">
+          <div className="col-span-1 lg:col-span-7 space-y-14 pr-0 lg:pr-12">
             
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <span className="text-[#6B7280] font-medium text-xs tracking-[0.2em] uppercase">
+              <span className="text-[#6B7280] font-semibold text-xs tracking-[0.2em] uppercase">
                 MICHAEL EUSEBIO
               </span>
             </motion.div>
@@ -196,10 +207,10 @@ const EnPrimeraFila = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1 }}
-              className="text-5xl md:text-7xl lg:text-[5.5rem] font-medium text-[#F5F5F5] leading-[0.95] tracking-tight"
+              className="text-5xl md:text-7xl lg:text-[5.5rem] font-bold text-[#E5E5E5] leading-[1.05] tracking-tight"
             >
               NO ESTÁS VIENDO UNA<br/>
-              <span className="text-[#7C3AED]">HISTORIA.</span><br/>
+              <span className="text-[#8B5CF6]">HISTORIA.</span><br/>
               ESTÁS A TIEMPO DE<br/>
               ENTRAR EN ELLA.
             </motion.h1>
@@ -208,19 +219,19 @@ const EnPrimeraFila = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="space-y-6 max-w-lg"
+              className="space-y-8 max-w-lg"
             >
               <p className="text-[#A1A1AA] text-lg leading-relaxed">
                 Soy Michael Eusebio y voy a convertirme en el primer ciego dominicano en estudiar ingeniería en IA en EE.UU. No es una idea, es el proceso en vivo.
               </p>
               
-              <div className="space-y-3 pt-4">
-                <p className="text-[#D4D4D8] font-medium">Cada semana te muestro:</p>
-                <ul className="space-y-2 text-[#A1A1AA]">
-                  <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 bg-[#7C3AED] rounded-full"></span> Qué está funcionando</li>
-                  <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 bg-[#7C3AED] rounded-full"></span> Qué no</li>
-                  <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 bg-[#7C3AED] rounded-full"></span> Qué cambia</li>
-                  <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 bg-[#7C3AED] rounded-full"></span> Qué se aprende realmente</li>
+              <div className="space-y-4 pt-4">
+                <p className="text-[#D4D4D8] font-semibold">Cada semana te muestro:</p>
+                <ul className="space-y-3 text-[#A1A1AA]">
+                  <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 bg-[#8B5CF6] rounded-full"></span> Qué está funcionando</li>
+                  <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 bg-[#8B5CF6] rounded-full"></span> Qué no</li>
+                  <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 bg-[#8B5CF6] rounded-full"></span> Qué cambia</li>
+                  <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 bg-[#8B5CF6] rounded-full"></span> Qué se aprende realmente</li>
                 </ul>
               </div>
             </motion.div>
@@ -229,19 +240,19 @@ const EnPrimeraFila = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 1, delay: 0.4 }}
-              className="pt-8"
+              className="pt-12"
             >
-              <div className="flex flex-col items-start gap-4">
+              <div className="flex flex-col items-start gap-5">
                 <button 
                   onClick={() => {
                     setStep(1);
                     setIsModalOpen(true);
                   }}
-                  className="bg-[#F5F5F5] text-[#0A0A0A] px-10 py-4 rounded-md font-medium text-sm hover:bg-white transition-colors"
+                  className="bg-[#FFFFFF] text-[#111111] px-12 py-5 rounded-md font-bold text-sm hover:bg-[#E4E4E7] transition-colors shadow-lg shadow-black/5"
                 >
                   UNIRME A LOS PRIMEROS 100
                 </button>
-                <p className="text-[#71717A] text-sm">
+                <p className="text-[#71717A] text-sm font-medium pl-1">
                   Acceso inmediato · Cancela cuando quieras
                 </p>
               </div>
@@ -256,7 +267,7 @@ const EnPrimeraFila = () => {
             transition={{ duration: 1, delay: 0.3 }}
             className="col-span-1 lg:col-span-5 relative order-first lg:order-last mb-10 lg:mb-0"
           >
-            <div className="aspect-[3/4] relative rounded-xl overflow-hidden grayscale contrast-125 opacity-80 mix-blend-luminosity">
+            <div className="aspect-[3/4] relative rounded-xl overflow-hidden brightness-110 contrast-100">
               <Image 
                 src="/Michael_Eusebio.png" 
                 alt="Michael Eusebio" 
@@ -264,13 +275,13 @@ const EnPrimeraFila = () => {
                 className="object-cover"
                 priority
               />
-              {/* Dark 40% overlay as requested */}
-              <div className="absolute inset-0 bg-black/40" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent" />
+              {/* Light overlay as requested */}
+              <div className="absolute inset-0 bg-white/5" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-transparent to-transparent opacity-80" />
             </div>
             
-            <div className="absolute -bottom-6 -left-6 bg-[#111111] p-6 rounded-xl border border-white/5 shadow-2xl max-w-xs hidden md:block">
-               <p className="text-[#F5F5F5] font-medium text-lg leading-snug">
+            <div className="absolute -bottom-6 -left-6 bg-[#1A1A1A] p-6 rounded-xl border border-white/5 shadow-2xl max-w-xs hidden md:block backdrop-blur-md">
+               <p className="text-[#E5E5E5] font-semibold text-lg leading-snug">
                 “Si esto funciona… tú fuiste de los primeros 100.”
                </p>
             </div>
