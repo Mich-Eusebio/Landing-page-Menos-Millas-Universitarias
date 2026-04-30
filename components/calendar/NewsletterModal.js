@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Check, Landmark, Upload, Loader2, Copy, ChevronRight, Calendar } from 'lucide-react';
+import { X, Check, Landmark, Upload, Loader2, Copy, ChevronRight, Calendar, Image as ImageIcon } from 'lucide-react';
 
 const NewsletterModal = ({
   isOpen,
@@ -10,15 +10,17 @@ const NewsletterModal = ({
   formData,
   handleInputChange,
   handleFileChange,
+  handleSponsorPhotoChange,
   errors,
   loading,
   onSubmit,
   nextStep,
   prevStep
 }) => {
+  const photoInputRef = useRef(null);
   if (!isOpen) return null;
 
-  const TOTAL_STEPS = 3; // Step 1: Info, Step 2: Payment, Step 3: Proof
+  const TOTAL_STEPS = 4; // 1: Info, 2: Photo, 3: Payment, 4: Proof
 
   const totalPrice = (formData.monthsSubscribed || 1) * 2000;
 
@@ -128,15 +130,90 @@ const NewsletterModal = ({
                   onClick={nextStep}
                   className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-widest py-5 rounded-2xl transition-all shadow-lg shadow-blue-600/20 mt-4"
                 >
-                  Continuar al Pago
+                  Continuar
                 </button>
               </motion.div>
             )}
 
-            {/* ── STEP 2: Datos de Transferencia ── */}
+            {/* ── STEP 2: Foto para el Muro de Fundadores ── */}
             {step === 2 && (
               <motion.div
                 key="step2"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-6"
+              >
+                <div className="text-center space-y-2 pb-2">
+                  <div className="w-16 h-16 bg-blue-500/10 rounded-[1.5rem] flex items-center justify-center border border-blue-500/20 mx-auto">
+                    <ImageIcon className="w-8 h-8 text-blue-400" />
+                  </div>
+                  <h3 className="text-lg font-black text-white uppercase tracking-tight">
+                    Muro de Fundadores ✨
+                  </h3>
+                  <p className="text-[11px] text-white/50 font-medium leading-relaxed max-w-xs mx-auto">
+                    Sube una foto para aparecer en el Muro de Fundadores de Michael Eusebio. <span className="text-blue-400 font-bold italic">Totalmente opcional.</span>
+                  </p>
+                </div>
+
+                <label
+                  htmlFor="founder-photo-upload"
+                  className="flex flex-col items-center justify-center w-full aspect-square max-w-[280px] mx-auto border-2 border-dashed border-white/10 rounded-[3rem] bg-white/5 hover:bg-blue-500/5 hover:border-blue-500/30 cursor-pointer transition-all group relative overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  {formData.founderPhoto ? (
+                    <div className="flex flex-col items-center gap-4 relative z-10 p-4">
+                      <img
+                        src={URL.createObjectURL(formData.founderPhoto)}
+                        alt="Vista previa"
+                        className="w-32 h-32 rounded-full object-cover border-4 border-blue-500/40 shadow-2xl"
+                      />
+                      <div className="text-center">
+                        <span className="text-[10px] text-white/70 font-bold block line-clamp-1">{formData.founderPhoto.name}</span>
+                        <p className="text-[10px] text-blue-400 font-black uppercase tracking-widest mt-2">Click para cambiar</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-4 relative z-10">
+                      <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center border border-white/10 group-hover:border-blue-500/50 transition-all">
+                        <Upload className="w-8 h-8 text-white/20 group-hover:text-blue-400 transition-colors" />
+                      </div>
+                      <div className="text-center">
+                        <span className="text-xs text-white/60 font-black uppercase tracking-widest block">Subir tu foto</span>
+                        <span className="text-[10px] text-white/30 font-medium mt-1 block">JPG o PNG</span>
+                      </div>
+                    </div>
+                  )}
+                  <input
+                    id="founder-photo-upload"
+                    ref={photoInputRef}
+                    type="file"
+                    onChange={handleSponsorPhotoChange}
+                    className="absolute inset-0 opacity-0 cursor-pointer z-20"
+                    accept="image/*"
+                  />
+                </label>
+
+                <div className="flex gap-4 pt-4">
+                  <button type="button" onClick={prevStep} className="flex-1 bg-white/5 hover:bg-white/10 text-white font-black uppercase tracking-widest py-5 rounded-2xl transition-all">
+                    Atrás
+                  </button>
+                  <button
+                    type="button"
+                    onClick={nextStep}
+                    className="flex-[2] bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-widest py-5 rounded-2xl transition-all flex items-center justify-center gap-3"
+                  >
+                    {formData.founderPhoto ? 'Continuar con foto' : 'Saltar este paso'}
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+
+            {/* ── STEP 3: Datos de Transferencia ── */}
+            {step === 3 && (
+              <motion.div
+                key="step3"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
@@ -222,10 +299,10 @@ const NewsletterModal = ({
               </motion.div>
             )}
 
-            {/* ── STEP 3: Comprobante ── */}
-            {step === 3 && (
+            {/* ── STEP 4: Comprobante ── */}
+            {step === 4 && (
               <motion.div
-                key="step3"
+                key="step4"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
@@ -280,7 +357,7 @@ const NewsletterModal = ({
                       <Check className="w-4 h-4 text-white scale-0 peer-checked:scale-100 transition-transform duration-300" />
                     </div>
                   </div>
-                  <span className="text-[10px] font-bold text-white/40 group-hover:text-white/60 transition-colors uppercase leading-relaxed tracking-wider">
+                  <span className="text-[10px] font-bold text-white/40 group-hover:text-white/60 transition-colors uppercase leading-relaxed tracking-wider text-balance">
                     Entiendo que mi suscripción comenzará una vez sea verificada y que puedo cancelar en cualquier momento.
                   </span>
                 </label>

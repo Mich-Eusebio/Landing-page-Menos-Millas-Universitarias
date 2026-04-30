@@ -15,11 +15,13 @@ import {
 import NewsletterModal from '@/components/calendar/NewsletterModal';
 import { saveNewsletterSubscription, uploadFile } from '@/lib/apis/SorteoActions';
 
+import { useRouter } from 'next/navigation';
+
 const EnPrimeraFila = () => {
+  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -27,6 +29,7 @@ const EnPrimeraFila = () => {
     monthsSubscribed: 1,
     bankSelection: 'popular',
     proof: null,
+    founderPhoto: null,
     terms: false
   });
 
@@ -46,6 +49,12 @@ const EnPrimeraFila = () => {
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       setFormData(prev => ({ ...prev, proof: e.target.files[0] }));
+    }
+  };
+
+  const handleSponsorPhotoChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setFormData(prev => ({ ...prev, founderPhoto: e.target.files[0] }));
     }
   };
 
@@ -74,7 +83,21 @@ const EnPrimeraFila = () => {
     
     setLoading(true);
     try {
-      // 1. Upload proof
+      // 1. Upload founder photo (optional)
+      let founder_photo_url = null;
+      if (formData.founderPhoto) {
+        const timestamp = Date.now();
+        const safeName = formData.founderPhoto.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const path = `en-primera-fila/fundadores/fotos/${timestamp}_${safeName}`;
+        
+        const uploadData = new FormData();
+        uploadData.append('file', formData.founderPhoto);
+        uploadData.append('path', path);
+        
+        founder_photo_url = await uploadFile(uploadData);
+      }
+
+      // 2. Upload proof (mandatory)
       let comprobante_url = null;
       if (formData.proof) {
         const timestamp = Date.now();
@@ -88,22 +111,22 @@ const EnPrimeraFila = () => {
         comprobante_url = await uploadFile(uploadData);
       }
 
-      // 2. Save to Firestore
+      // 3. Save to Firestore
       const payload = {
         name: formData.fullName,
         email: formData.email,
         monthsSubscribed: formData.monthsSubscribed,
-        comprobante_url: comprobante_url
+        comprobante_url: comprobante_url,
+        founder_photo_url: founder_photo_url
       };
       
       await saveNewsletterSubscription(payload);
 
-      setSuccess(true);
-      // Optional: keep modal open to show success or redirect
+      // Redirect to success page
+      router.push('/en-primera-fila/bienvenido');
     } catch (error) {
       console.error("Error submitting subscription:", error);
       alert("Hubo un error al procesar tu suscripción. Por favor intenta de nuevo.");
-    } finally {
       setLoading(false);
     }
   };
@@ -144,7 +167,6 @@ const EnPrimeraFila = () => {
         </div>
         <button 
           onClick={() => {
-            setSuccess(false);
             setStep(1);
             setIsModalOpen(true);
           }}
@@ -185,7 +207,6 @@ const EnPrimeraFila = () => {
           >
             <button 
               onClick={() => {
-                setSuccess(false);
                 setStep(1);
                 setIsModalOpen(true);
               }}
@@ -361,7 +382,6 @@ const EnPrimeraFila = () => {
 
                 <button 
                   onClick={() => {
-                    setSuccess(false);
                     setStep(1);
                     setIsModalOpen(true);
                   }}
@@ -406,39 +426,6 @@ const EnPrimeraFila = () => {
         nextStep={nextStep}
         prevStep={prevStep}
       />
-
-      {/* Success Success Screen Overlay */}
-      <AnimatePresence>
-        {success && (
-          <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/95 backdrop-blur-xl">
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="text-center space-y-8 max-w-sm"
-            >
-              <div className="w-24 h-24 bg-green-500/20 rounded-full flex items-center justify-center mx-auto border border-green-500/40">
-                <CheckCircle2 className="w-12 h-12 text-green-500" />
-              </div>
-              <div className="space-y-2">
-                <h2 className="text-4xl font-black text-white italic uppercase tracking-tighter">¡Ya estás adentro!</h2>
-                <p className="text-sm text-white/60 leading-relaxed font-medium">
-                  Tu suscripción a <span className="text-white italic">En Primera Fila</span> ha sido registrada. 
-                  Una vez verifiquemos tu pago, recibirás el primer reporte semanal.
-                </p>
-              </div>
-              <button 
-                onClick={() => {
-                  setSuccess(false);
-                  setIsModalOpen(false);
-                }}
-                className="w-full bg-blue-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl"
-              >
-                Cerrar
-              </button>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
 
       <style jsx global>{`
         @keyframes gradient-x {
