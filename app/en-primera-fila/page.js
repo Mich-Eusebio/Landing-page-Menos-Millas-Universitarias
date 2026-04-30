@@ -2,9 +2,9 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  CheckCircle2, 
-  ChevronRight, 
+import {
+  CheckCircle2,
+  ChevronRight,
   Landmark,
   Calendar,
   Users,
@@ -80,7 +80,7 @@ const EnPrimeraFila = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.terms || !formData.proof) return;
-    
+
     setLoading(true);
     try {
       // 1. Upload founder photo (optional)
@@ -89,11 +89,11 @@ const EnPrimeraFila = () => {
         const timestamp = Date.now();
         const safeName = formData.founderPhoto.name.replace(/[^a-zA-Z0-9.-]/g, '_');
         const path = `en-primera-fila/fundadores/fotos/${timestamp}_${safeName}`;
-        
+
         const uploadData = new FormData();
         uploadData.append('file', formData.founderPhoto);
         uploadData.append('path', path);
-        
+
         founder_photo_url = await uploadFile(uploadData);
       }
 
@@ -103,11 +103,11 @@ const EnPrimeraFila = () => {
         const timestamp = Date.now();
         const safeName = formData.proof.name.replace(/[^a-zA-Z0-9.-]/g, '_');
         const path = `en-primera-fila/fundadores/archivo/${timestamp}_${safeName}`;
-        
+
         const uploadData = new FormData();
         uploadData.append('file', formData.proof);
         uploadData.append('path', path);
-        
+
         comprobante_url = await uploadFile(uploadData);
       }
 
@@ -119,7 +119,7 @@ const EnPrimeraFila = () => {
         comprobante_url: comprobante_url,
         founder_photo_url: founder_photo_url
       };
-      
+
       await saveNewsletterSubscription(payload);
 
       // Redirect to success page
@@ -147,22 +147,21 @@ const EnPrimeraFila = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#000000] text-slate-100 font-sans selection:bg-blue-500 selection:text-white relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#0A0A0A] text-[#D4D4D8] font-sans selection:bg-[#7C3AED] selection:text-white relative overflow-x-hidden">
       
-      {/* Glow effects */}
-      <div className="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/10 blur-[120px] rounded-full" />
+      {/* Subtle Radial Gradient Background */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[radial-gradient(circle_at_center,_#111111_0%,_#050505_100%)] rounded-full blur-[100px] opacity-80" />
       </div>
 
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 w-full z-50 p-6 flex justify-between items-center backdrop-blur-md bg-black/5 border-b border-white/5">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-black italic">
+      <nav className="fixed top-0 left-0 w-full z-50 p-6 flex justify-between items-center backdrop-blur-xl border-b border-white/5">
+        <div className="flex items-center gap-3 opacity-80 hover:opacity-100 transition-opacity">
+          <div className="w-8 h-8 bg-white/10 rounded-md flex items-center justify-center text-white font-medium text-xs">
             M
           </div>
-          <span className="font-black uppercase tracking-tighter text-sm md:text-base italic">
-            Michael <span className="text-blue-500 italic">Eusebio</span>
+          <span className="font-medium tracking-tight text-sm text-white">
+            Michael Eusebio
           </span>
         </div>
         <button 
@@ -170,65 +169,94 @@ const EnPrimeraFila = () => {
             setStep(1);
             setIsModalOpen(true);
           }}
-          className="text-[10px] font-black uppercase tracking-widest text-blue-400 border border-blue-500/30 px-6 py-2.5 rounded-full hover:bg-blue-500/10 transition-all"
+          className="text-xs font-medium text-[#A1A1AA] hover:text-white transition-colors"
         >
-          Unirse Ahora
+          Unirse
         </button>
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-48 pb-24 px-6 z-10">
-        <div className="max-w-5xl mx-auto text-center space-y-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <span className="px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-[10px] font-black uppercase tracking-[0.4em] text-blue-400">
-              Membresía Exclusiva
-            </span>
-          </motion.div>
+      <section className="relative min-h-screen flex items-center pt-24 pb-24 z-10">
+        <div className="w-full max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-8 items-center">
           
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-6xl md:text-9xl font-black text-white italic tracking-tighter uppercase leading-[0.85] text-balance"
-          >
-            No estás viendo una <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-blue-600 animate-gradient-x">historia</span>. <br />
-            Estás a tiempo de <span className="italic">entrar</span> en ella.
-          </motion.h1>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.6 }}
-            className="flex flex-col md:flex-row items-center justify-center gap-6 pt-12"
-          >
-            <button 
-              onClick={() => {
-                setStep(1);
-                setIsModalOpen(true);
-              }}
-              className="group relative bg-white text-black px-12 py-6 rounded-[2rem] font-black uppercase tracking-widest text-sm shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:scale-105 transition-all"
+          {/* Text Container (60%) */}
+          <div className="col-span-1 lg:col-span-7 space-y-12 pr-0 lg:pr-12">
+            
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
             >
-              UNIRME A LOS PRIMEROS 100
-              <div className="absolute inset-0 rounded-[2rem] border-2 border-white/50 animate-ping opacity-20" />
-            </button>
-          </motion.div>
-        </div>
-      </section>
+              <span className="text-[#6B7280] font-medium text-xs tracking-[0.2em] uppercase">
+                MICHAEL EUSEBIO
+              </span>
+            </motion.div>
+            
+            <motion.h1 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.1 }}
+              className="text-5xl md:text-7xl lg:text-[5.5rem] font-medium text-[#F5F5F5] leading-[0.95] tracking-tight"
+            >
+              NO ESTÁS VIENDO UNA<br/>
+              <span className="text-[#7C3AED]">HISTORIA.</span><br/>
+              ESTÁS A TIEMPO DE<br/>
+              ENTRAR EN ELLA.
+            </motion.h1>
 
-      {/* Bio / Identity Section */}
-      <section className="relative py-24 px-6 z-10">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="space-y-6 max-w-lg"
+            >
+              <p className="text-[#A1A1AA] text-lg leading-relaxed">
+                Soy Michael Eusebio y voy a convertirme en el primer ciego dominicano en estudiar ingeniería en IA en EE.UU. No es una idea, es el proceso en vivo.
+              </p>
+              
+              <div className="space-y-3 pt-4">
+                <p className="text-[#D4D4D8] font-medium">Cada semana te muestro:</p>
+                <ul className="space-y-2 text-[#A1A1AA]">
+                  <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 bg-[#7C3AED] rounded-full"></span> Qué está funcionando</li>
+                  <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 bg-[#7C3AED] rounded-full"></span> Qué no</li>
+                  <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 bg-[#7C3AED] rounded-full"></span> Qué cambia</li>
+                  <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 bg-[#7C3AED] rounded-full"></span> Qué se aprende realmente</li>
+                </ul>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 0.4 }}
+              className="pt-8"
+            >
+              <div className="flex flex-col items-start gap-4">
+                <button 
+                  onClick={() => {
+                    setStep(1);
+                    setIsModalOpen(true);
+                  }}
+                  className="bg-[#F5F5F5] text-[#0A0A0A] px-10 py-4 rounded-md font-medium text-sm hover:bg-white transition-colors"
+                >
+                  UNIRME A LOS PRIMEROS 100
+                </button>
+                <p className="text-[#71717A] text-sm">
+                  Acceso inmediato · Cancela cuando quieras
+                </p>
+              </div>
+            </motion.div>
+
+          </div>
+
+          {/* Image Container (40%) */}
           <motion.div 
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="relative"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, delay: 0.3 }}
+            className="col-span-1 lg:col-span-5 relative order-first lg:order-last mb-10 lg:mb-0"
           >
-            <div className="relative aspect-[4/5] rounded-[3rem] overflow-hidden border-2 border-white/10 shadow-2xl">
+            <div className="aspect-[3/4] relative rounded-xl overflow-hidden grayscale contrast-125 opacity-80 mix-blend-luminosity">
               <Image 
                 src="/Michael_Eusebio.png" 
                 alt="Michael Eusebio" 
@@ -236,182 +264,34 @@ const EnPrimeraFila = () => {
                 className="object-cover"
                 priority
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-              <div className="absolute bottom-10 left-10 right-10 p-8 bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl">
-                <p className="text-xl md:text-2xl font-black text-white italic leading-tight">
-                  "Voy a convertirme en el primer ciego dominicano en estudiar ingeniería en IA en EE.UU."
-                </p>
-                <div className="mt-4 flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-white/50">Proceso en Vivo</span>
-                </div>
-              </div>
+              {/* Dark 40% overlay as requested */}
+              <div className="absolute inset-0 bg-black/40" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent" />
             </div>
             
-            {/* Acceptance Letter Preview */}
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
-              whileInView={{ opacity: 1, scale: 1, rotate: -12 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-              className="absolute -top-12 -right-12 w-64 aspect-[3/4] bg-white rounded-2xl shadow-2xl p-2 hidden xl:block border-8 border-white/10"
-            >
-              <div className="relative w-full h-full rounded-lg overflow-hidden">
-                <Image src="/carta_aceptación.png" alt="Carta de Aceptación" fill className="object-cover" />
-              </div>
-            </motion.div>
-          </motion.div>
-
-          <div className="space-y-12">
-            <div className="space-y-6">
-              <h2 className="text-4xl md:text-6xl font-black text-white italic tracking-tighter uppercase leading-tight">
-                No es una idea. <br />
-                No es un plan. <br />
-                <span className="text-blue-500">Es el proceso en vivo.</span>
-              </h2>
-              <p className="text-lg text-white/60 font-medium max-w-xl">
-                Soy Michael Eusebio y estoy documentando el viaje más ambicioso de mi vida. 
-                Cada semana abro las puertas de mi oficina, mis pensamientos y mis estrategias para que veas la realidad de lo que significa construir un futuro en IA desde cero.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {weeklyUpdates.map((item, idx) => (
-                <motion.div 
-                  key={item}
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: idx * 0.1 }}
-                  className="flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-2xl"
-                >
-                  <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center">
-                    <CheckCircle2 className="w-5 h-5 text-blue-500" />
-                  </div>
-                  <span className="font-black uppercase tracking-widest text-[11px] text-white/80">{item}</span>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Authority Section */}
-      <section className="relative py-32 px-6 z-10 bg-[#050505]">
-        <div className="max-w-5xl mx-auto text-center space-y-16">
-          <div className="space-y-4">
-            <h2 className="text-5xl md:text-8xl font-black text-white italic tracking-tighter uppercase leading-none">
-              “Si esto funciona… <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-600">tú fuiste de los primeros 100.</span>”
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-left">
-            <div className="p-8 border-l-2 border-white/5 space-y-4">
-              <span className="text-amber-500 font-black text-4xl italic">P</span>
-              <p className="text-sm font-bold text-white/40 uppercase tracking-widest">Dolor</p>
-              <p className="text-white/80">Todo el mundo quiere entrar cuando algo ya explotó.</p>
-            </div>
-            <div className="p-8 border-l-2 border-white/5 space-y-4">
-              <span className="text-orange-500 font-black text-4xl italic">A</span>
-              <p className="text-sm font-bold text-white/40 uppercase tracking-widest">Agitación</p>
-              <p className="text-white/80">Pero en ese punto, ya es tarde.</p>
-            </div>
-            <div className="p-8 border-l-2 border-white/5 space-y-4">
-              <span className="text-red-500 font-black text-4xl italic">I</span>
-              <p className="text-sm font-bold text-white/40 uppercase tracking-widest">Inacción</p>
-              <p className="text-white/80">Pierdes la oportunidad de ser parte del origen.</p>
-            </div>
-            <div className="p-8 border-l-2 border-white/5 space-y-4 bg-white/5 rounded-r-3xl">
-              <span className="text-blue-500 font-black text-4xl italic">N</span>
-              <p className="text-sm font-bold text-white/40 uppercase tracking-widest">Nueva Realidad</p>
-              <p className="text-white/80 font-black text-white">Estoy buscando los primeros 100.</p>
-            </div>
-          </div>
-
-          <div className="pt-12 text-center space-y-6">
-            <p className="text-2xl font-black italic text-white/60 uppercase tracking-tighter">
-              No miles. No masivo. <span className="text-white underline decoration-blue-500 underline-offset-8">Los primeros.</span>
-            </p>
-            <p className="text-lg text-white/40 font-bold uppercase tracking-widest">
-              👉 Cuando esto crezca, vas a poder decir que estuviste ahí.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Benefits & Pricing */}
-      <section className="relative py-32 px-6 z-10">
-        <div className="max-w-4xl mx-auto">
-          <motion.div 
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="relative p-12 md:p-20 rounded-[4rem] bg-gradient-to-br from-[#0a0a0a] to-[#111] border-2 border-white/10 shadow-[0_0_100px_rgba(0,0,0,0.5)] overflow-hidden"
-          >
-            {/* Background elements */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-[100px] -mr-48 -mt-48" />
-            
-            <div className="relative z-10 flex flex-col md:flex-row gap-12 md:items-center">
-              <div className="flex-1 space-y-10">
-                <div className="space-y-4">
-                  <h3 className="text-4xl font-black text-white italic uppercase tracking-tighter">Beneficios: En Primera Fila</h3>
-                  <div className="w-20 h-1 bg-blue-500 rounded-full" />
-                </div>
-                
-                <ul className="space-y-6">
-                  {benefits.map((benefit, idx) => (
-                    <li key={idx} className="flex items-center gap-4 group">
-                      <div className="w-6 h-6 rounded-full bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-blue-500" />
-                      </div>
-                      <span className="text-xs md:text-sm font-black uppercase tracking-widest text-white/70">{benefit}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="w-full md:w-[350px] space-y-8 bg-white/5 border border-white/10 p-10 rounded-[3rem] backdrop-blur-xl">
-                <div className="text-center space-y-2">
-                  <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Suscripción Mensual</span>
-                  <div className="flex items-baseline justify-center gap-1">
-                    <span className="text-5xl font-black text-white italic tracking-tighter">RD$2,000</span>
-                    <span className="text-white/40 font-bold uppercase text-xs">/mes</span>
-                  </div>
-                </div>
-
-                <button 
-                  onClick={() => {
-                    setStep(1);
-                    setIsModalOpen(true);
-                  }}
-                  className="w-full bg-blue-600 hover:bg-blue-500 text-white py-6 rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-[0_10px_40px_rgba(37,99,235,0.3)] hover:scale-[1.02] transition-all flex items-center justify-center gap-3"
-                >
-                  QUIERO ESTAR EN PRIMERA FILA <ChevronRight className="w-4 h-4" />
-                </button>
-                
-                <p className="text-[9px] text-center font-bold text-white/30 uppercase tracking-widest leading-relaxed">
-                  Acceso instantáneo al reporte semanal. <br /> Cancela en un clic cuando quieras.
-                </p>
-              </div>
+            <div className="absolute -bottom-6 -left-6 bg-[#111111] p-6 rounded-xl border border-white/5 shadow-2xl max-w-xs hidden md:block">
+               <p className="text-[#F5F5F5] font-medium text-lg leading-snug">
+                “Si esto funciona… tú fuiste de los primeros 100.”
+               </p>
             </div>
           </motion.div>
+
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="relative py-24 px-6 z-10 border-t border-white/5 text-center">
-        <div className="max-w-7xl mx-auto space-y-8">
-          <div className="flex items-center justify-center gap-3 opacity-50 grayscale hover:grayscale-0 transition-all cursor-default">
-            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-black font-black italic text-xs">M</div>
-            <span className="font-black uppercase tracking-tighter text-xs italic">Michael <span className="text-blue-500 italic">Eusebio</span></span>
-          </div>
-          <p className="text-[10px] font-black uppercase tracking-widest text-white/20">
-            &copy; 2026 Menos Millas Universitarias. Todos los derechos reservados.
+      {/* Minimal Footer */}
+      <footer className="relative py-12 px-6 z-10 border-t border-white/5">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-xs text-[#71717A]">
+            &copy; 2026 Menos Millas Universitarias.
           </p>
+          <div className="flex gap-6 text-xs text-[#71717A]">
+            <span className="cursor-default">En Primera Fila — RD$2,000 / mes</span>
+          </div>
         </div>
       </footer>
 
+      {/* Modal */}
       <NewsletterModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -420,23 +300,13 @@ const EnPrimeraFila = () => {
         formData={formData}
         handleInputChange={handleInputChange}
         handleFileChange={handleFileChange}
+        handleSponsorPhotoChange={handleSponsorPhotoChange}
         errors={errors}
         loading={loading}
         onSubmit={handleSubmit}
         nextStep={nextStep}
         prevStep={prevStep}
       />
-
-      <style jsx global>{`
-        @keyframes gradient-x {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
-        .animate-gradient-x {
-          background-size: 200% 200%;
-          animation: gradient-x 5s ease infinite;
-        }
-      `}</style>
     </div>
   );
 };
