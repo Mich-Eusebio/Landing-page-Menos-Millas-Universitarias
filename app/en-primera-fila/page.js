@@ -207,7 +207,7 @@ const EnPrimeraFila = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1 }}
-              className="text-5xl md:text-7xl lg:text-[5.5rem] font-bold text-[#E5E5E5] leading-[1.05] tracking-tight"
+              className="text-4xl md:text-6xl lg:text-7xl font-bold text-[#E5E5E5] leading-[1.05] tracking-tight"
             >
               NO ESTÁS VIENDO UNA<br/>
               <span className="text-[#8B5CF6]">HISTORIA.</span><br/>
@@ -219,15 +219,15 @@ const EnPrimeraFila = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="space-y-8 max-w-lg"
+              className="space-y-8 max-w-xl"
             >
-              <p className="text-[#A1A1AA] text-lg leading-relaxed">
+              <p className="text-[#D4D4D8] text-xl md:text-2xl leading-relaxed">
                 Soy Michael Eusebio y voy a convertirme en el primer ciego dominicano en estudiar ingeniería en IA en EE.UU. No es una idea, es el proceso en vivo.
               </p>
               
               <div className="space-y-4 pt-4">
-                <p className="text-[#D4D4D8] font-semibold">Cada semana te muestro:</p>
-                <ul className="space-y-3 text-[#A1A1AA]">
+                <p className="text-[#E5E5E5] font-semibold text-lg">Cada semana te muestro:</p>
+                <ul className="space-y-3 text-[#D4D4D8] text-lg">
                   <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 bg-[#8B5CF6] rounded-full"></span> Qué está funcionando</li>
                   <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 bg-[#8B5CF6] rounded-full"></span> Qué no</li>
                   <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 bg-[#8B5CF6] rounded-full"></span> Qué cambia</li>
@@ -248,11 +248,11 @@ const EnPrimeraFila = () => {
                     setStep(1);
                     setIsModalOpen(true);
                   }}
-                  className="bg-[#FFFFFF] text-[#111111] px-12 py-5 rounded-md font-bold text-sm hover:bg-[#E4E4E7] transition-colors shadow-lg shadow-black/5"
+                  className="bg-yellow-400 text-black px-12 py-5 rounded-md font-bold text-sm hover:bg-yellow-500 transition-colors shadow-lg shadow-yellow-400/20"
                 >
                   UNIRME A LOS PRIMEROS 100
                 </button>
-                <p className="text-[#71717A] text-sm font-medium pl-1">
+                <p className="text-[#A1A1AA] text-sm font-medium pl-1">
                   Acceso inmediato · Cancela cuando quieras
                 </p>
               </div>
