@@ -129,7 +129,7 @@ const PainSection = () => (
           </div>
         </div>
         <div className="card" style={{ padding: 0, overflow: 'hidden', border: 'none' }}>
-          <img src="/assets/frenaki/friends_food.png" alt="Boring night" style={{ width: '100%', opacity: 0.7 }} />
+          <img src="/assets/frenaki/boring-friends.png" alt="Boring night" style={{ width: '100%', opacity: 0.7 }} />
           <div style={{ padding: '32px', textAlign: 'center' }}>
             <p style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--primary)' }}>Y ahí muere el día perfecto para un coro.</p>
           </div>

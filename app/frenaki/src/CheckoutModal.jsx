@@ -97,13 +97,13 @@ export default function FrenakiCheckoutModal({ isOpen, onClose }) {
   const handleFile = (selected) => {
     setFileError('')
     if (!selected) return
-    const allowed = ['image/jpeg', 'image/png', 'application/pdf']
+    const allowed = ['image/jpeg', 'image/png']
     if (!allowed.includes(selected.type)) {
-      setFileError('Solo se permiten JPG, PNG o PDF.')
+      setFileError('Solo se permiten JPG o PNG.')
       return
     }
-    if (selected.size > 10 * 1024 * 1024) {
-      setFileError('El archivo no puede superar 10 MB.')
+    if (selected.size > 15 * 1024 * 1024) {
+      setFileError('El archivo no puede superar 15 MB.')
       return
     }
     setFile(selected)
@@ -260,7 +260,7 @@ function SuccessView({ onClose }) {
         Validaremos tu comprobante en las próximas <strong style={{ color: '#FFC83D' }}>24 horas</strong>. Te notificaremos por correo cuando tu acceso esté activo.
       </p>
       <button
-        onClick={onClose}
+        onClick={() => window.location.href = '/frenaki/gracias'}
         style={{
           background: 'linear-gradient(135deg, #FFC83D, #ffaa00)',
           color: '#000', fontWeight: 900, fontSize: '1rem',
@@ -269,7 +269,7 @@ function SuccessView({ onClose }) {
           letterSpacing: '0.5px',
         }}
       >
-        Entendido
+        Continuar 🔥
       </button>
     </motion.div>
   )
@@ -444,7 +444,7 @@ function FormView({ step, form, setForm, file, fileError, errors, status, dragOv
                   <input
                     id="frenaki-comprobante"
                     type="file"
-                    accept=".jpg,.jpeg,.png,.pdf"
+                    accept=".jpg,.jpeg,.png"
                     style={{ display: 'none' }}
                     disabled={isLoading}
                     onChange={(e) => handleFile(e.target.files[0])}
@@ -466,7 +466,7 @@ function FormView({ step, form, setForm, file, fileError, errors, status, dragOv
                         Sube tu foto de transferencia
                       </span>
                       <span style={{ color: '#4a5568', fontSize: '0.78rem', textAlign: 'center' }}>
-                        Toca para subir o arrastra aquí <br/> Máximo 10 MB
+                        Toca para subir o arrastra aquí <br/> Solo imágenes · Máximo 15 MB
                       </span>
                     </>
                   )}
