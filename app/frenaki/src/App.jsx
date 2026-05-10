@@ -29,7 +29,7 @@ const Navbar = () => (
         </div>
         Frenaki
       </div>
-      <div style={{ display: 'flex', gap: '30px', alignItems: 'center' }}>
+      <div className="navbar-links" style={{ display: 'flex', gap: '30px', alignItems: 'center' }}>
         <a href="#features" style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text-muted)' }}>Features</a>
         <a href="#pricing" className="btn btn-primary" style={{ padding: '12px 24px', fontSize: '0.85rem' }}>DIME DONDE FRENO</a>
       </div>
@@ -39,7 +39,9 @@ const Navbar = () => (
 
 const Hero = () => (
   <header style={{ 
-    height: '100vh', 
+    minHeight: '100vh', 
+    height: 'auto',
+    padding: '120px 0 60px',
     position: 'relative', 
     display: 'flex', 
     alignItems: 'center', 
@@ -49,7 +51,7 @@ const Hero = () => (
     <div className="glow-bg animate-pulse-glow" style={{ top: '-10%', right: '-10%', background: 'radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%)' }} />
     <div className="glow-bg animate-pulse-glow" style={{ bottom: '-10%', left: '-10%', background: 'radial-gradient(circle, rgba(255, 200, 61, 0.15) 0%, transparent 70%)' }} />
     
-    <div className="container" style={{ position: 'relative', zIndex: 10, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '60px', alignItems: 'center' }}>
+    <div className="container grid grid-2" style={{ position: 'relative', zIndex: 10 }}>
       <motion.div 
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -109,7 +111,7 @@ const Hero = () => (
 const PainSection = () => (
   <section className="section-padding" style={{ background: 'var(--secondary)' }}>
     <div className="container">
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'center' }}>
+      <div className="grid grid-2">
         <div>
           <h2 style={{ fontSize: '3.5rem', marginBottom: '32px' }}>Siempre pasa lo mismo…</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -144,7 +146,7 @@ const SolutionSection = () => (
     <div className="glow-bg animate-pulse-glow" style={{ top: '20%', right: '-10%', background: 'radial-gradient(circle, rgba(255, 200, 61, 0.08) 0%, transparent 70%)' }} />
     
     <div className="container">
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '100px', alignItems: 'center' }}>
+      <div className="grid grid-2" style={{ gap: '100px' }}>
         {/* Left Column: Text & Filters */}
         <motion.div 
           initial={{ opacity: 0, x: -30 }}
@@ -229,6 +231,7 @@ const SolutionSection = () => (
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 1 }}
+            className="iphone-mockup"
             style={{ 
               width: '320px', 
               height: '650px',
@@ -467,7 +470,7 @@ const Pricing = ({ onOpenModal }) => (
   <section id="pricing" className="section-padding" style={{ background: 'var(--bg-darker)' }}>
     <div className="container">
       <h2 className="text-center" style={{ fontSize: '3.5rem', marginBottom: '80px' }}>Únete a la exploración</h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '40px', maxWidth: '1000px', margin: '0 auto' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px', maxWidth: '1000px', margin: '0 auto' }}>
         {/* User Plan */}
         <motion.div whileHover={{ scale: 1.02 }} className="card glass" style={{ border: '1px solid var(--primary)', position: 'relative' }}>
           <div style={{ position: 'absolute', top: '24px', right: '24px', background: 'var(--primary)', color: 'black', padding: '4px 12px', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 900 }}>TOP</div>

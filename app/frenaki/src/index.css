@@ -62,6 +62,29 @@ button {
   padding: 120px 0;
 }
 
+@media (max-width: 768px) {
+  .section-padding {
+    padding: 60px 0;
+  }
+}
+
+.grid {
+  display: grid;
+  gap: 60px;
+  align-items: center;
+}
+
+.grid-2 {
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 991px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+
 .text-center { text-align: center; }
 
 .text-gradient {
@@ -176,4 +199,40 @@ button {
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+/* Mobile Specific Fixes */
+@media (max-width: 768px) {
+  .mobile-hide {
+    display: none !important;
+  }
+  
+  .mobile-text-center {
+    text-align: center !important;
+  }
+  
+  .mobile-stack {
+    flex-direction: column !important;
+    gap: 20px !important;
+  }
+
+  h1 { font-size: 2.8rem !important; }
+  h2 { font-size: 2.2rem !important; }
+  
+  .navbar-links {
+    display: none !important;
+  }
+
+  .iphone-mockup {
+    transform: scale(0.85);
+    transform-origin: top center;
+    margin-bottom: -100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .iphone-mockup {
+    transform: scale(0.75);
+    margin-bottom: -150px;
+  }
 }
