@@ -60,7 +60,7 @@ const Hero = () => (
           <span style={{ fontSize: '0.8rem', fontWeight: 700, letterSpacing: '1px' }}>DESCUBRIMIENTO ESPONTÁNEO</span>
         </div>
         <h1 style={{ fontSize: 'clamp(3rem, 6vw, 5rem)', marginBottom: '24px', lineHeight: 1 }}>
-          ¿Cansado de no saber qué hacer entre el <span className="highlight">coro de panas?</span>
+          ¿Te ha pasado que quieres salir pero <span className="highlight">no sabes dónde?</span>
         </h1>
         <p style={{ fontSize: '1.4rem', color: 'var(--text-muted)', marginBottom: '48px', maxWidth: '600px' }}>
           La app que te manda experiencias sorpresa cerca de ti en segundos. Sin estrés. Sin discutir. <span style={{ color: 'white' }}>Solo aventura.</span>
@@ -73,7 +73,7 @@ const Hero = () => (
 
         <div style={{ marginTop: '40px', display: 'flex', gap: '30px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={16} color="var(--primary)" /> Pago único</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={16} color="var(--primary)" /> +100 spots en RD</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>✅ Destinos Confiables, revisados por nuestro equipo, en RD</div>
         </div>
       </motion.div>
 
