@@ -2,7 +2,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Copy, CheckCircle2, Upload, Loader2, AlertCircle, ArrowRight, ArrowLeft, MapPin, Briefcase } from 'lucide-react'
-import { uploadFrenakiBusinessComprobante, saveFrenakiBusiness } from '../../../lib/apis/FrenakiActions'
+import { uploadFrenakiBusinessComprobante, saveFrenakiBusiness, sendCheckoutEmail } from '../../../lib/apis/FrenakiActions'
 
 // ---------- Datos bancarios ----------
 const BANK_INFO = {
@@ -137,6 +137,13 @@ export default function FrenakiBusinessModal({ isOpen, onClose }) {
         businessId,
         ...form,
         comprobante_url,
+      })
+      
+      // 3. Notificar por correo
+      await sendCheckoutEmail({
+        ...form,
+        comprobante_url,
+        AccountType: 'Negocio'
       })
 
       setStatus('success')

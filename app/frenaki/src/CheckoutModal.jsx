@@ -2,7 +2,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Copy, CheckCircle2, Upload, Loader2, AlertCircle, ArrowRight, ArrowLeft } from 'lucide-react'
-import { uploadFrenakiComprobante, saveFrenakiUsuario } from '../../../lib/apis/FrenakiActions'
+import { uploadFrenakiComprobante, saveFrenakiUsuario, sendCheckoutEmail } from '../../../lib/apis/FrenakiActions'
 
 // ---------- Datos bancarios ----------
 const BANK_INFO = {
@@ -139,6 +139,15 @@ export default function FrenakiCheckoutModal({ isOpen, onClose }) {
         correo: form.correo,
         celular: form.celular,
         comprobante_url,
+      })
+      
+      // 3. Notificar por correo
+      await sendCheckoutEmail({
+        nombre: form.nombre,
+        correo: form.correo,
+        celular: form.celular,
+        comprobante_url,
+        AccountType: 'Persona'
       })
 
       window.location.href = '/frenaki/gracias'
