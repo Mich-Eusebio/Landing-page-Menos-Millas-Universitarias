@@ -226,13 +226,12 @@ export default function FrenakiBusinessModal({ isOpen, onClose }) {
     </AnimatePresence>
   )
 }
-
 function SuccessView({ onClose }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      style={{ padding: '56px 40px', textAlign: 'center' }}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      style={{ padding: '60px 40px', textAlign: 'center' }}
     >
       <motion.div
         initial={{ scale: 0 }}
@@ -243,31 +242,62 @@ function SuccessView({ onClose }) {
           background: 'rgba(34,197,94,0.1)',
           border: '2px solid rgba(34,197,94,0.3)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          margin: '0 auto 28px',
+          margin: '0 auto 32px',
         }}
       >
         <CheckCircle2 size={40} color="#4ade80" />
       </motion.div>
-      <h2 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '16px', color: '#fff' }}>
-        ¡Negocio Registrado! 🚀
+
+      <h2 style={{ fontSize: '2.2rem', fontWeight: 900, marginBottom: '24px', color: '#fff', letterSpacing: '-0.5px' }}>
+        Solicitud recibida
       </h2>
-      <p style={{ color: '#a0aec0', fontSize: '1.05rem', lineHeight: 1.6, maxWidth: '380px', margin: '0 auto 36px' }}>
-        Estamos procesando tu alta. Pronto aparecerás en los descubrimientos de Frenaki y empezarás a recibir tráfico nuevo.
+      
+      <div style={{ color: '#a0aec0', fontSize: '1.1rem', lineHeight: 1.6, marginBottom: '40px' }}>
+        <p style={{ marginBottom: '20px' }}>Gracias por unirte a Frenaki.</p>
+        <p style={{ marginBottom: '20px' }}>
+          Ahora nuestro equipo revisará tu negocio para asegurar que encaje con la <strong style={{ color: '#FFC83D' }}>grata experiencia sorpresa</strong> que queremos crear para nuestros usuarios.
+        </p>
+        <p>Te estaremos contactando por correo para el proceso de curaduría y aprobación.</p>
+      </div>
+
+      <div style={{ 
+        background: 'rgba(255,255,255,0.03)', 
+        borderRadius: '24px', 
+        padding: '32px', 
+        marginBottom: '48px',
+        border: '1px solid rgba(255,255,255,0.05)'
+      }}>
+        <p style={{ fontSize: '0.9rem', color: '#718096', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>
+          Si todo fluye bien…
+        </p>
+        <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#fff', lineHeight: 1.3 }}>
+          pronto la gente podrá <span style={{ color: '#FFC83D' }}>frenar en tu negocio</span> 🎉
+        </h3>
+      </div>
+
+      <p style={{ color: '#4a5568', fontSize: '0.95rem', marginBottom: '40px' }}>
+        Gracias por confiar en Frenaki.
       </p>
+
       <button
-        onClick={() => window.location.href = '/frenaki/gracias'}
+        onClick={() => window.location.href = '/frenaki'}
         style={{
-          background: 'linear-gradient(135deg, #FFC83D, #ffaa00)',
-          color: '#000', fontWeight: 900, fontSize: '1rem',
-          border: 'none', borderRadius: '14px',
-          padding: '16px 40px', cursor: 'pointer',
+          background: 'rgba(255,255,255,0.08)',
+          color: '#fff', fontWeight: 800, fontSize: '1rem',
+          border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px',
+          padding: '18px 48px', cursor: 'pointer',
+          transition: 'all 0.2s',
+          width: '100%'
         }}
+        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}
+        onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
       >
-        Continuar 🚀
+        Cerrar
       </button>
     </motion.div>
   )
 }
+
 
 function FormView({ step, form, setForm, file, fileError, errors, status, dragOver, setDragOver, handleFile, handleDrop, handleSubmit, handleClose, handleNextStep, handlePrevStep }) {
   const isLoading = status === 'loading'

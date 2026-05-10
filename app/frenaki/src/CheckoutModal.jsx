@@ -141,7 +141,7 @@ export default function FrenakiCheckoutModal({ isOpen, onClose }) {
         comprobante_url,
       })
 
-      setStatus('success')
+      window.location.href = '/frenaki/gracias'
     } catch (err) {
       console.error(err)
       setStatus('error')
@@ -205,73 +205,25 @@ export default function FrenakiCheckoutModal({ isOpen, onClose }) {
                 boxShadow: '0 40px 100px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,200,61,0.06)',
               }}
             >
-              {status === 'success' ? (
-                <SuccessView onClose={handleClose} />
-              ) : (
-                <FormView
-                  step={step}
-                  form={form} setForm={setForm}
-                  file={file} fileError={fileError}
-                  errors={errors}
-                  status={status}
-                  dragOver={dragOver} setDragOver={setDragOver}
-                  handleFile={handleFile}
-                  handleDrop={handleDrop}
-                  handleSubmit={handleSubmit}
-                  handleClose={handleClose}
-                  handleNextStep={handleNextStep}
-                  handlePrevStep={handlePrevStep}
-                />
-              )}
+              <FormView
+                step={step}
+                form={form} setForm={setForm}
+                file={file} fileError={fileError}
+                errors={errors}
+                status={status}
+                dragOver={dragOver} setDragOver={setDragOver}
+                handleFile={handleFile}
+                handleDrop={handleDrop}
+                handleSubmit={handleSubmit}
+                handleClose={handleClose}
+                handleNextStep={handleNextStep}
+                handlePrevStep={handlePrevStep}
+              />
             </div>
           </motion.div>
         </>
       )}
     </AnimatePresence>
-  )
-}
-
-// ---------- Vista de éxito ----------
-function SuccessView({ onClose }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      style={{ padding: '56px 40px', textAlign: 'center' }}
-    >
-      <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ type: 'spring', stiffness: 200, delay: 0.1 }}
-        style={{
-          width: '80px', height: '80px', borderRadius: '50%',
-          background: 'rgba(255,200,61,0.1)',
-          border: '2px solid rgba(255,200,61,0.3)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          margin: '0 auto 28px',
-        }}
-      >
-        <CheckCircle2 size={40} color="#FFC83D" />
-      </motion.div>
-      <h2 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '16px', color: '#fff' }}>
-        ¡Registro recibido! 🔥
-      </h2>
-      <p style={{ color: '#a0aec0', fontSize: '1.05rem', lineHeight: 1.6, maxWidth: '360px', margin: '0 auto 36px' }}>
-        Validaremos tu comprobante en las próximas <strong style={{ color: '#FFC83D' }}>24 horas</strong>. Te notificaremos por correo cuando tu acceso esté activo.
-      </p>
-      <button
-        onClick={() => window.location.href = '/frenaki/gracias'}
-        style={{
-          background: 'linear-gradient(135deg, #FFC83D, #ffaa00)',
-          color: '#000', fontWeight: 900, fontSize: '1rem',
-          border: 'none', borderRadius: '14px',
-          padding: '16px 40px', cursor: 'pointer',
-          letterSpacing: '0.5px',
-        }}
-      >
-        Continuar 🔥
-      </button>
-    </motion.div>
   )
 }
 
