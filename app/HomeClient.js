@@ -116,50 +116,48 @@ const App = () => {
       </nav>
 
       {/* HERO SECTION */}
-      <header className="relative pt-40 pb-16 px-6 overflow-hidden">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center text-center lg:text-left">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            className="space-y-8 z-10"
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600/10 border border-blue-500/20 text-blue-400 text-xs font-black uppercase tracking-widest">
-              <span className="flex items-center gap-2"><Sparkles className="w-4 h-4" /> Camino a la Universidad · Menos Millas</span>
-            </div>
-            <h1 className="text-3xl md:text-4xl xl:text-6xl font-black leading-tight text-white tracking-tighter">
-              Soy Michael Eusebio. <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-blue-500">
-                Fui aceptado en una universidad top en EE. UU. y necesito tu apoyo para llegar.
-              </span>
-            </h1>
-            <p className="text-lg md:text-xl text-blue-100/70 leading-relaxed font-medium max-w-2xl mx-auto lg:mx-0">
-              Acompáñame en el camino para convertirme en el primer ingeniero dominicano en IA con discapacidad visual, abriendo un camino que no existía.
-            </p>
-            <div className="flex flex-col gap-8 items-center lg:items-start">
-              <a href="#apoyar" className="inline-flex items-center justify-center gap-3 px-12 py-6 bg-amber-400 hover:bg-amber-300 text-slate-900 font-black rounded-2xl shadow-2xl shadow-amber-400/20 transition-all uppercase text-lg group">
-                👉 QUIERO HACER REAL ESTA HISTORIA
-              </a>
-            </div>
-          </motion.div>
+      <header className="relative pt-12 md:pt-40 pb-16 px-6 overflow-hidden">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-4 lg:gap-12 items-center lg:items-center text-center lg:text-left">
+          
+          {/* IMAGE CONTAINER - FIRST ON MOBILE */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1 }}
-            className="flex justify-center lg:justify-end"
+            className="w-full max-w-[240px] lg:max-w-[450px] order-1 lg:order-2"
           >
-            <div className="relative w-full max-w-[450px]">
+            <div className="relative">
               <div className="absolute -inset-10 bg-blue-600/20 blur-[100px] rounded-full opacity-40"></div>
-              <div className="relative rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl">
-                <img src="/EXCELENTE FOTO MÍA.png" className="w-full grayscale hover:grayscale-0 transition-all duration-700 object-cover aspect-[4/5]" alt="Michael Eusebio concentrado en oficina programando" />
-                <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-[#0a192f] to-transparent">
+              <div className="relative rounded-[2rem] md:rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl">
+                <img src="/EXCELENTE FOTO MÍA.png" className="w-full grayscale hover:grayscale-0 transition-all duration-700 object-cover aspect-square lg:aspect-[4/5] object-top" alt="Michael Eusebio" />
+                <div className="absolute bottom-0 left-0 right-0 p-4 md:p-8 bg-gradient-to-t from-[#0a192f] to-transparent">
                   <div className="flex items-center gap-3 text-white">
-                    <div className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20">
-                      <Target className="w-6 h-6 text-amber-400" />
+                    <div className="w-8 h-8 md:w-12 md:h-12 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20">
+                      <Target className="w-4 h-4 md:w-6 md:h-6 text-amber-400" />
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
+          </motion.div>
+
+          {/* TEXT CONTAINER */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+            className="flex-1 space-y-4 md:space-y-8 z-10 order-2 lg:order-1"
+          >
+            <h1 className="text-3xl md:text-5xl lg:text-7xl font-black leading-[1.1] text-white tracking-tighter">
+              Ciego, dominicano y programador. <br className="hidden lg:block" />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-100 to-blue-400">
+                Fui aceptado en EE.UU. y necesito tu apoyo para llegar.
+              </span>
+            </h1>
+            <div className="flex flex-col gap-8 items-center lg:items-start pt-4">
+              <a href="#apoyar" className="w-full lg:w-auto inline-flex items-center justify-center gap-3 px-8 py-5 md:px-12 md:py-6 bg-amber-400 hover:bg-amber-300 text-slate-900 font-black rounded-2xl shadow-2xl shadow-amber-400/20 transition-all uppercase text-base md:text-lg group">
+                👉 QUIERO HACER REAL ESTA HISTORIA
+              </a>
             </div>
           </motion.div>
         </div>
