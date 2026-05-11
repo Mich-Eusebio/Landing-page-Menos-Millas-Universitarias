@@ -83,12 +83,18 @@ const EnPrimeraFila = () => {
 
     setLoading(true);
     try {
+      const getFormattedTimestamp = () => {
+        const now = new Date();
+        const pad = (num) => String(num).padStart(2, '0');
+        return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}-${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
+      };
+
       // 1. Upload founder photo (optional)
       let founder_photo_url = null;
       if (formData.founderPhoto) {
-        const timestamp = Date.now();
+        const timestamp = getFormattedTimestamp();
         const safeName = formData.founderPhoto.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-        const path = `en-primera-fila/fundadores/fotos/${timestamp}_${safeName}`;
+        const path = `en-primera-fila/fotos/${timestamp}_${safeName}`;
 
         const uploadData = new FormData();
         uploadData.append('file', formData.founderPhoto);
@@ -100,9 +106,9 @@ const EnPrimeraFila = () => {
       // 2. Upload proof (mandatory)
       let comprobante_url = null;
       if (formData.proof) {
-        const timestamp = Date.now();
+        const timestamp = getFormattedTimestamp();
         const safeName = formData.proof.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-        const path = `en-primera-fila/fundadores/archivo/${timestamp}_${safeName}`;
+        const path = `en-primera-fila/pagos/${timestamp}_${safeName}`;
 
         const uploadData = new FormData();
         uploadData.append('file', formData.proof);

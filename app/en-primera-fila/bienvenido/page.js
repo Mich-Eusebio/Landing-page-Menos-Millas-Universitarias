@@ -80,7 +80,7 @@ export default function Bienvenido() {
             </Link>
 
             <Link 
-              href="https://drive.google.com/drive/folders/1JxN90p9UR_0EkZw3v9kkOXAU" 
+              href="https://drive.google.com/open?id=1JxN90p9KKg5NVp9UR_0EkZw3v9kkOXAU&usp=drive_fs" 
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-between p-6 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-2xl transition-all group"
