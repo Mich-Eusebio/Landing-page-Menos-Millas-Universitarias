@@ -151,7 +151,7 @@ const App = () => {
             <div className="relative w-full max-w-[450px]">
               <div className="absolute -inset-10 bg-blue-600/20 blur-[100px] rounded-full opacity-40"></div>
               <div className="relative rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl">
-                <img src="/foto trabajando .jpg" className="w-full grayscale hover:grayscale-0 transition-all duration-700 object-cover aspect-[4/5]" alt="Michael Eusebio concentrado en oficina programando" />
+                <img src="/EXCELENTE FOTO MÍA.png" className="w-full grayscale hover:grayscale-0 transition-all duration-700 object-cover aspect-[4/5]" alt="Michael Eusebio concentrado en oficina programando" />
                 <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-[#0a192f] to-transparent">
                   <div className="flex items-center gap-3 text-white">
                     <div className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20">

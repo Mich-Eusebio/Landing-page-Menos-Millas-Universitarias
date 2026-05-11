@@ -187,108 +187,115 @@ const EnPrimeraFila = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center pt-32 pb-24 z-10">
-        <div className="w-full max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-20 lg:gap-12 items-center">
+      <section className="relative min-h-screen flex items-center pt-20 pb-12 md:pt-32 md:pb-24 z-10">
+        <div className="w-full max-w-7xl mx-auto px-6 flex flex-col lg:grid lg:grid-cols-12 gap-6 md:gap-20 lg:gap-12 items-center">
           
-          {/* Text Container (60%) */}
-          <div className="col-span-1 lg:col-span-7 space-y-14 pr-0 lg:pr-12">
-            
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              <span className="text-[#6B7280] font-semibold text-xs tracking-[0.2em] uppercase">
-                MICHAEL EUSEBIO
-              </span>
-            </motion.div>
-            
-            <motion.h1 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.1 }}
-              className="text-4xl md:text-6xl lg:text-7xl font-bold text-[#E5E5E5] leading-[1.05] tracking-tight"
-            >
-              NO ESTÁS VIENDO UNA<br/>
-              <span className="text-[#8B5CF6]">HISTORIA.</span><br/>
-              ESTÁS A TIEMPO DE<br/>
-              ENTRAR EN ELLA.
-            </motion.h1>
+          {/* Image Container - NOW FIRST IN DOM FOR MOBILE */}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8 }}
+            className="w-full lg:col-span-5 order-1 lg:order-last flex flex-col items-center lg:items-start gap-6"
+          >
+            <div className="relative w-full max-w-[280px] md:max-w-none aspect-square md:aspect-[3/4] rounded-2xl md:rounded-xl overflow-hidden brightness-110 contrast-100 shadow-2xl border border-white/5">
+              <Image 
+                src="/EXCELENTE FOTO MÍA.png" 
+                alt="Michael Eusebio" 
+                fill 
+                className="object-cover object-top"
+                priority
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-transparent to-transparent opacity-60 md:opacity-80" />
+            </div>
 
-            <motion.div
+            {/* Quote - ONLY visible on PC, below photo */}
+            <div className="hidden lg:block bg-[#1A1A1A] p-5 md:p-6 rounded-xl border border-white/5 shadow-2xl max-w-xs backdrop-blur-md">
+               <p className="text-[#E5E5E5] font-semibold text-base md:text-lg leading-snug">
+                “Si esto funciona… tú fuiste de los primeros 100.”
+               </p>
+            </div>
+          </motion.div>
+
+          {/* Text Container (60%) */}
+          <div className="w-full lg:col-span-7 space-y-8 md:space-y-14 text-center lg:text-left order-2 lg:order-first">
+            
+            <div className="space-y-6 md:space-y-10">
+              <motion.h1 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.1 }}
+                className="text-xl md:text-6xl lg:text-7xl font-bold text-[#E5E5E5] leading-tight md:leading-[1.05] tracking-tight"
+              >
+                NO ESTÁS VIENDO UNA<br/>
+                <span className="text-[#8B5CF6]">HISTORIA.</span><br/>
+                ESTÁS A TIEMPO DE<br/>
+                ENTRAR EN ELLA.
+              </motion.h1>
+
+              <motion.p 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="text-[#D4D4D8] text-sm md:text-2xl leading-relaxed max-w-xl mx-auto lg:mx-0"
+              >
+                IA y Negocios en EE.UU.: un camino que no existía para un ciego dominicano. Sé uno de los 100 pilares que harán esto real y accede al proceso en vivo.
+              </motion.p>
+            </div>
+            
+            <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="space-y-8 max-w-xl"
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="flex flex-col items-center lg:items-start gap-8 md:gap-10"
             >
-              <p className="text-[#D4D4D8] text-xl md:text-2xl leading-relaxed">
-                Soy Michael Eusebio y voy a convertirme en el primer ciego dominicano en estudiar ingeniería en IA en EE.UU. No es una idea, es el proceso en vivo.
-              </p>
-              
-              <div className="space-y-4 pt-4">
-                <p className="text-[#E5E5E5] font-semibold text-lg">Cada semana te muestro:</p>
-                <ul className="space-y-3 text-[#D4D4D8] text-lg">
-                  <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 bg-[#8B5CF6] rounded-full"></span> Qué está funcionando</li>
-                  <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 bg-[#8B5CF6] rounded-full"></span> Qué no</li>
-                  <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 bg-[#8B5CF6] rounded-full"></span> Qué cambia</li>
-                  <li className="flex items-center gap-3"><span className="w-1.5 h-1.5 bg-[#8B5CF6] rounded-full"></span> Qué se aprende realmente</li>
+              {/* Benefits list: order-2 on mobile (below CTA), order-1 on PC (above CTA) */}
+              <div className="space-y-4 text-center lg:text-left order-2 lg:order-1">
+                <p className="text-[#E5E5E5] font-semibold text-lg md:text-xl">Cada semana te muestro:</p>
+                <ul className="space-y-3 text-[#D4D4D8] text-sm md:text-lg">
+                  <li className="flex items-center justify-center lg:justify-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-[#8B5CF6]/10 flex items-center justify-center">
+                      <Users className="w-3 h-3 text-[#8B5CF6]" />
+                    </div>
+                    Lo que estoy aprendiendo
+                  </li>
+                  <li className="flex items-center justify-center lg:justify-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-[#8B5CF6]/10 flex items-center justify-center">
+                      <Zap className="w-3 h-3 text-[#8B5CF6]" />
+                    </div>
+                    Mis herramientas de IA
+                  </li>
+                  <li className="flex items-center justify-center lg:justify-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-[#8B5CF6]/10 flex items-center justify-center">
+                      <Sparkles className="w-3 h-3 text-[#8B5CF6]" />
+                    </div>
+                    El proceso sin filtros
+                  </li>
                 </ul>
               </div>
-            </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 1, delay: 0.4 }}
-              className="pt-12"
-            >
-              <div className="flex flex-col items-start gap-5">
+              {/* CTA Block: order-1 on mobile (above benefits), order-2 on PC (below benefits) */}
+              <div className="flex flex-col items-center lg:items-start gap-4 w-full md:w-auto order-1 lg:order-2">
                 <button 
                   onClick={() => {
                     setStep(1);
                     setIsModalOpen(true);
                   }}
-                  className="bg-yellow-400 text-black px-12 py-5 rounded-md font-bold text-sm hover:bg-yellow-500 transition-colors shadow-lg shadow-yellow-400/20"
+                  className="w-full md:w-auto bg-yellow-400 text-black px-10 py-5 rounded-md font-bold text-sm hover:bg-yellow-500 transition-colors shadow-lg shadow-yellow-400/20"
                 >
                   UNIRME A LOS PRIMEROS 100
                 </button>
-                <p className="text-[#A1A1AA] text-sm font-medium pl-1">
-                  Acceso inmediato · Cancela cuando quieras
+                <p className="text-[#A1A1AA] text-xs md:text-sm font-medium">
+                  RD$2,000 / mes · cancela cuando quieras
                 </p>
               </div>
             </motion.div>
 
           </div>
 
-          {/* Image Container (40%) */}
-          <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1, delay: 0.3 }}
-            className="col-span-1 lg:col-span-5 relative order-first lg:order-last mb-10 lg:mb-0"
-          >
-            <div className="aspect-[3/4] relative rounded-xl overflow-hidden brightness-110 contrast-100">
-              <Image 
-                src="/Michael_Eusebio.png" 
-                alt="Michael Eusebio" 
-                fill 
-                className="object-cover"
-                priority
-              />
-              {/* Light overlay as requested */}
-              <div className="absolute inset-0 bg-white/5" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-transparent to-transparent opacity-80" />
-            </div>
-            
-            <div className="absolute -bottom-6 -left-6 bg-[#1A1A1A] p-6 rounded-xl border border-white/5 shadow-2xl max-w-xs hidden md:block backdrop-blur-md">
-               <p className="text-[#E5E5E5] font-semibold text-lg leading-snug">
-                “Si esto funciona… tú fuiste de los primeros 100.”
-               </p>
-            </div>
-          </motion.div>
-
         </div>
       </section>
+
+
 
       {/* Minimal Footer */}
       <footer className="relative py-12 px-6 z-10 border-t border-white/5">
