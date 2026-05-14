@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MillasMichael | Programa de Impacto Empresarial</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --azul-fondo: #05162e;
+            --azul-tarjeta: #0a1f3d;
+            --azul-tecnologico: #3A7BD5;
+            --dorado-elegante: #E0B44C;
+            --blanco-limpio: #F5F7FA;
+            --verde-contacto: #4ADE80; 
+            --rojo-alerta: #EF4444;
+            --amber-warm: #f59e0b;
+        }
+
+        body {
+            background-color: var(--azul-fondo);
+            color: var(--blanco-limpio);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* Estilo Tarjetas de Logros */
+        .card-logro {
+            background-color: var(--azul-tarjeta);
+            border-radius: 2.5rem;
+            padding: 3rem 2rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 320px;
+        }
+        .card-logro:hover {
+            transform: translateY(-5px);
+            border-color: var(--azul-tecnologico);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        /* Estilo Planes */
+        .card-plan {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            justify-content: space-between;
+        }
+        .card-fundador { background-color: var(--dorado-elegante); color: #05162e; min-height: 520px; z-index: 10; border: 2px solid white;}
+        .card-impacto { background-color: #1F4E79; color: white; min-height: 460px; z-index: 5; border: 1px solid rgba(255,255,255,0.1); }
+        .card-impulso { background-color: #B8C2CC; color: #05162e; min-height: 400px; z-index: 1; }
+
+        .btn-action {
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 1.2rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            transition: 0.3s;
+            cursor: pointer;
+            border: none;
+            width: 100%;
+        }
+        .card-fundador .btn-action, .card-impulso .btn-action { background: #05162e; color: white; }
+        .card-impacto .btn-action { background: var(--dorado-elegante); color: #05162e; }
+
+        .btn-contacto {
+            background-color: var(--verde-contacto);
+            color: #06200f;
+            font-weight: 900;
+            text-transform: uppercase;
+            padding: 1.25rem 2.5rem;
+            border-radius: 1.25rem; 
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(74, 222, 128, 0.2);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* NUEVO ESTILO MODAL REQUERIDO */
+        #modal-beneficios {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(8, 31, 58, 0.98);
+            backdrop-filter: blur(15px);
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .modal-container {
+            background: #0B2545;
+            width: 100%;
+            max-width: 1100px;
+            height: 85vh;
+            border-radius: 2.5rem;
+            border: 1px solid rgba(224, 180, 76, 0.3);
+            display: flex;
+            overflow: hidden;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.9);
+        }
+
+        .tab-menu {
+            width: 320px;
+            background: rgba(0,0,0,0.25);
+            border-right: 1px solid rgba(255,255,255,0.05);
+            padding: 2.5rem 0;
+            overflow-y: auto;
+        }
+
+        .tab-link {
+            padding: 1.2rem 2rem;
+            width: 100%;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.5);
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tab-link.active {
+            color: #FFFFFF;
+            background: rgba(16, 185, 129, 0.15); 
+            border-left: 6px solid #10B981; 
+            font-weight: 800;
+        }
+
+        .tab-content {
+            flex: 1;
+            padding: 4rem;
+            overflow-y: auto;
+        }
+
+        .btn-calendly {
+            background-color: var(--dorado-elegante) !important;
+            color: #05162e !important;
+            font-weight: 900 !important;
+        }
+
+        @media (max-width: 768px) {
+            .modal-container { flex-direction: column; height: 90vh; }
+            .tab-menu { width: 100%; height: auto; display: flex; overflow-x: auto; padding: 1rem 0; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.05); }
+            .tab-link { padding: 0.8rem 1.5rem; white-space: nowrap; border-left: none; border-bottom: 3px solid transparent; }
+            .tab-link.active { border-left: none; border-bottom: 3px solid #10B981; }
+            .tab-content { padding: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HERO -->
+    <section class="pt-32 pb-16 px-6">
+        <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+            <div class="text-left">
+                <span class="text-[#E0B44C] font-bold tracking-widest uppercase text-sm border-b-2 border-[#E0B44C] pb-1">Hito Nacional 2026</span>
+                <h1 class="text-5xl md:text-7xl font-black mt-8 leading-tight">Impulsando el talento dominicano <span class="text-azul-tecnologico">sin límites</span></h1>
+                <p class="mt-8 text-xl text-slate-400 leading-relaxed font-medium max-w-xl">
+                    Soy <strong>Michael Eusebio</strong>, el primer desarrollador ciego de RD admitido en CU Boulder. Mi misión es transformar mi formación en un activo de impacto para su empresa.
+                </p>
+                <div class="mt-12 flex flex-col sm:flex-row gap-6 items-start">
+                    <a href="#agenda" class="btn-contacto text-lg">Contáctame</a>
+                </div>
+            </div>
+            <div class="relative hidden md:block">
+                <div class="rounded-[3rem] overflow-hidden border-8 border-white/5 shadow-2xl bg-slate-800">
+                    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800" alt="Representación Michael" class="w-full h-auto object-cover grayscale-[20%] hover:grayscale-0 transition duration-700">
+                </div>
+                <div class="absolute -bottom-8 -right-8 bg-[#E0B44C] p-8 rounded-[2rem] text-[#05162e] shadow-2xl border-4 border-[#05162e]">
+                    <p class="font-black text-5xl">CU</p>
+                    <p class="text-xs font-bold uppercase tracking-widest">Boulder Admit</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- LOGROS -->
+    <section class="py-20 px-6">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
+            <div class="card-logro">
+                <h3 class="text-6xl font-black text-white mb-2">1 de 2,921</h3>
+                <p class="text-azul-tecnologico font-black uppercase tracking-widest mb-6">U. Colorado Boulder</p>
+                <p class="text-slate-400 text-lg leading-relaxed">
+                    Estudiantes internacionales admitidos en una de las universidades líderes en ingeniería de EE.UU.
+                </p>
+            </div>
+            <div class="card-logro border-azul-tecnologico/20">
+                <h3 class="text-6xl font-black text-white mb-2">SAT Score</h3>
+                <p class="text-azul-tecnologico font-black uppercase tracking-widest mb-6">Hito Nacional</p>
+                <p class="text-slate-400 text-lg leading-relaxed">
+                    Único estudiante ciego del país en rendir el SAT, sobrepasando a más de 3.9 Millones de estudiantes.
+                </p>
+            </div>
+            <div class="card-logro">
+                <h3 class="text-6xl font-black text-white mb-2">Top 18 LATAM</h3>
+                <p class="text-azul-tecnologico font-black uppercase tracking-widest mb-6">Alpha Puesto de Bolsa</p>
+                <p class="text-slate-400 text-lg leading-relaxed">
+                    Colaborador como Desarrollador de Software enfocado en soluciones de alto impacto.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECCIÓN DE DOLOR -->
+    <section class="py-32 px-6 bg-slate-900/40">
+        <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-20 items-center">
+            <div class="space-y-6">
+                <span class="text-[#E0B44C] font-black uppercase tracking-[0.3em] text-xs">Diagnóstico de Mercado</span>
+                <h2 class="text-5xl md:text-7xl font-black text-slate-200 leading-[1.15]">
+                    Los Retos Empresariales <br><span class="text-[#E0B44C]">Actuales</span>
+                </h2>
+            </div>
+            
+            <div class="space-y-16">
+                <!-- Items de estadísticas omitidos para brevedad visual, permanecen en el código -->
+                <div class="flex gap-6 group">
+                    <div class="mt-2 text-amber-500 text-2xl"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div>
+                        <div class="flex items-baseline gap-4 mb-2">
+                            <span class="text-7xl font-black text-white tracking-tighter">62%</span>
+                            <span class="text-amber-500 font-black uppercase tracking-widest text-[10px] bg-amber-500/10 px-2 py-1 rounded">Mckinsey</span>
+                        </div>
+                        <h4 class="text-white font-black text-lg uppercase tracking-tight mb-2">Crisis de Propósito</h4>
+                        <p class="text-slate-400 text-base leading-relaxed max-w-sm">Colaboradores desean que su trabajo tenga un impacto más profundo.</p>
+                    </div>
+                </div>
+                <div class="flex gap-6 group">
+                    <div class="mt-2 text-amber-500 text-2xl"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div>
+                        <div class="flex items-baseline gap-4 mb-2">
+                            <span class="text-7xl font-black text-white tracking-tighter">43%</span>
+                            <span class="text-amber-500 font-black uppercase tracking-widest text-[10px] bg-amber-500/10 px-2 py-1 rounded">Deloitte</span>
+                        </div>
+                        <h4 class="text-white font-black text-lg uppercase tracking-tight mb-2">Guerra por el Talento</h4>
+                        <p class="text-slate-400 text-base leading-relaxed max-w-sm">Jóvenes talentos rechazan empleadores por falta de valores sociales claros.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PLANES -->
+    <section id="planes" class="py-24 px-6">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-4xl md:text-6xl font-black text-center mb-16">Invierta en el futuro y la <span class="text-[#E0B44C]">cultura de su empresa.</span></h2>
+            <div class="grid md:grid-cols-3 gap-8 items-center">
+                
+                <!-- Aliado Fundador -->
+                <div class="card-plan card-fundador">
+                    <span class="absolute top-4 right-4 bg-red-600 text-white text-[10px] font-black px-3 py-1 rounded-full">SOLO 4 DISPONIBLES</span>
+                    <div>
+                        <h3 class="text-3xl font-black mb-2 uppercase">Aliado Fundador</h3>
+                        <p class="text-4xl font-black mb-4">$5,000</p>
+                        <p class="font-bold leading-tight italic">“Para líderes visionarios que buscan dejar un legado histórico en el talento nacional.”</p>
+                    </div>
+                    <button onclick="openModal('fundador')" class="btn-action mt-8">Ver Beneficios</button>
+                </div>
+
+                <!-- Aliado de Impacto -->
+                <div class="card-plan card-impacto">
+                    <div>
+                        <h3 class="text-2xl font-black mb-2 uppercase">Aliado de Impacto</h3>
+                        <p class="text-4xl font-black mb-4">$2,500</p>
+                        <p class="text-slate-300 font-medium leading-tight italic">“Para empresas que transforman su cultura interna a través del propósito y la inclusión.”</p>
+                    </div>
+                    <button onclick="openModal('impacto')" class="btn-action mt-8">Ver Beneficios</button>
+                </div>
+
+                <!-- Aliado de Impulso -->
+                <div class="card-plan card-impulso">
+                    <div>
+                        <h3 class="text-xl font-black mb-2 uppercase">Aliado de Impulso</h3>
+                        <p class="text-4xl font-black mb-4">$600</p>
+                        <p class="text-azul-1 font-medium leading-tight italic">“Para equipos dinámicos comprometidos con acelerar la excelencia tecnológica dominicana.”</p>
+                    </div>
+                    <button onclick="openModal('impulso')" class="btn-action mt-8">Ver Beneficios</button>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- MODAL DE BENEFICIOS REQUERIDO -->
+    <div id="modal-beneficios">
+        <div class="modal-container">
+            <!-- Menú lateral de pestañas -->
+            <div class="tab-menu" id="tab-menu-container"></div>
+            
+            <!-- Contenido dinámico -->
+            <div class="tab-content">
+                <div class="flex justify-between items-start mb-10">
+                    <div>
+                        <h2 class="text-4xl font-black text-white mb-1" id="content-title">Detalle</h2>
+                        <p class="text-[#E0B44C] font-black uppercase tracking-widest text-sm" id="content-subtitle"></p>
+                    </div>
+                    <button onclick="closeModal()" class="text-white/30 hover:text-white transition text-3xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="content-body" class="space-y-6"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA CALENDLY -->
+    <section id="agenda" class="py-32 text-center relative overflow-hidden">
+        <div class="max-w-4xl mx-auto px-6 relative z-10">
+            <h2 class="text-4xl md:text-6xl font-black text-white mb-10 leading-tight">¿Listo para ser parte de este hito?</h2>
+            <a href="https://calendly.com/michaeleusebiodelorbe/30min" target="_blank" class="btn-calendly inline-block font-black py-6 px-12 rounded-full transition-all transform hover:scale-105 shadow-[0_0_50px_rgba(224,180,76,0.3)] text-xl uppercase tracking-widest">
+                AGENDAR CONVERSACIÓN ESTRATÉGICA
+            </a>
+        </div>
+    </section>
+
+        <script>
+        function getBeneficiosPlan(planKey) {
+            const configs = {
+                fundador: { tickets: 350, charlas: 2, capsulas: 12 },
+                impacto: { tickets: 160, charlas: 1, capsulas: 6 },
+                impulso: { tickets: 60, charlas: 0, capsulas: 3 }
+            };
+            const config = configs[planKey];
+            const beneficios = [];
+
+            // CUADRO FÍSICO (Solo Fundador)
+            if (planKey === 'fundador') {
+                beneficios.push({
+                    label: "🖼️ Cuadro Físico",
+                    title: "Cuadro 'Aliado Fundador'",
+                    content: `<p class='text-dorado-elegante italic mb-4'>El estatus de haber creído primero.</p><p class='text-lg text-slate-300'>Más que un adorno, es un título de propiedad sobre una historia de éxito. Diseñado en negro mate y dorado...</p><p class='mt-6 text-sm font-black text-red-400 uppercase'>* Solo existirán 4 de estos cuadros en el país.</p>`
+                });
+            }
+
+            // CERTIFICADO DE RECONOCIMIENTO (Solo Estratégico)
+            if (planKey === 'impacto') {
+                beneficios.push({
+                    label: "📜 Certificado",
+                    title: "Certificado de Reconocimiento",
+                    content: `
+                        <p class='text-dorado-elegante italic mb-4'>Validación oficial de impacto social.</p>
+                        <div class='bg-white/5 p-6 rounded-2xl mt-6 border border-white/10'>
+                            <p class='text-slate-300 leading-relaxed text-lg'>
+                                Más que un certificado, es la validación oficial de que su empresa ha decidido ser un pilar en la creación del <strong>primer ingeniero dominicano en IA con discapacidad visual</strong>.
+                            </p>
+                        </div>
+                    `
+                });
+            }
+
+            // CONFERENCIAS
+            if (config.charlas > 0) {
+                beneficios.push({
+                    label: "🎤 Conferencias",
+                    title: `${config.charlas} Conferencia${config.charlas > 1 ? 's' : ''} Presencial${config.charlas > 1 ? 'es' : ''}`,
+                    content: `<p class='text-dorado-elegante italic mb-4'>Inyección de mentalidad de alto rendimiento.</p><p class='text-lg text-slate-300'>Michael habla de resolución de problemas bajo condiciones extremas para equipos de tecnología y liderazgo.</p>`
+                });
+            }
+
+            // MASTERCLASS
+            if (planKey !== 'impulso') {
+                beneficios.push({
+                    label: "🎓 Masterclass",
+                    title: "Cultura Inclusiva",
+                    content: `<p class='text-lg text-slate-300'>Enseña a integrar talento diverso de manera profesional y natural desde el primer día.</p>`
+                });
+            }
+
+            // CÁPSULAS
+            beneficios.push({
+                label: "📱 Cápsulas",
+                title: `${config.capsulas} Cápsulas Motivacionales`,
+                content: `<p class='text-lg text-slate-300'>Serie mensual de videos cortos de 60 segundos producidos específicamente para su intranet o Slack.</p>`
+            });
+
+            // MICHAEL AI
+            beneficios.push({
+                label: "🤖 Michael AI",
+                title: "Acceso a Michael AI",
+                content: `<p class='text-lg text-slate-300'>Modelo de IA personalizado entrenado con la filosofía de Michael para motivar y dar seguimiento.</p>`
+            });
+
+            // TICKETS
+            beneficios.push({
+                label: "🎟️ Tickets Impacto",
+                title: `${config.tickets} Tickets de Impacto`,
+                content: `<p class='text-lg text-slate-300'>Sus colaboradores participan en el sorteo de tecnología el 28 de marzo (iPhone 16 Pro, iPad, AirPods).</p>`
+            });
+
+            // REPORTE RSE
+            if (planKey !== 'impulso') {
+                beneficios.push({
+                    label: "📊 Reporte RSE",
+                    title: "Dossier Formal PR",
+                    content: `<p class='text-lg text-slate-300'>Cuantificamos el aporte de la empresa y el impacto generado para su memoria anual.</p>`
+                });
+            }
+
+            // PLUG & PLAY
+            beneficios.push({
+                label: "🛠️ Plug & Play",
+                title: "Activos Listos",
+                content: `<p class='text-lg text-slate-300'>Stickers, emojis y kits de Social Media listos para usar.</p>`
+            });
+
+            return beneficios;
+        }
+
+        const nombresPlanes = {
+            fundador: "EMPRESA FUNDADORA ($5,000)",
+            impacto: "ALIADO ESTRATÉGICO ($2,500)",
+            impulso: "ALIADO DE IMPULSO ($600)"
+        };
+
+        function openModal(planKey) {
+            const modal = document.getElementById('modal-beneficios');
+            const menu = document.getElementById('tab-menu-container');
+            const beneficios = getBeneficiosPlan(planKey);
+            
+            document.getElementById('content-subtitle').innerText = nombresPlanes[planKey];
+            menu.innerHTML = '';
+            
+            beneficios.forEach((tab, index) => {
+                const btn = document.createElement('button');
+                btn.className = `tab-link ${index === 0 ? 'active' : ''}`;
+                btn.innerText = tab.label;
+                btn.onclick = () => {
+                    document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
+                    btn.classList.add('active');
+                    updateContent(tab);
+                };
+                menu.appendChild(btn);
+            });
+            updateContent(beneficios[0]);
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function updateContent(tab) {
+            document.getElementById('content-title').innerText = tab.title;
+            document.getElementById('content-body').innerHTML = tab.content;
+        }
+
+        function closeModal() {
+            document.getElementById('modal-beneficios').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        window.onclick = function(event) { if (event.target == document.getElementById('modal-beneficios')) closeModal(); }
+    </script>
+
+    </script>
+</body>
+</html>

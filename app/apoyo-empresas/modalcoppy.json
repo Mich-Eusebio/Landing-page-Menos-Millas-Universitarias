@@ -1,0 +1,105 @@
+{
+  "nombresPlanes": {
+    "fundador": "IMPACTO 90 DÍAS (USD$4,500)",
+    "impacto": "IMPACTO 45 DÍAS (USD$2,250)",
+    "impulso": "IMPACTO 15 DÍAS (USD$750)"
+  },
+  "beneficios": {
+    "impulso": [
+      {
+        "label": "📱 Cápsulas",
+        "title": "2 Cápsulas Motivacionales",
+        "content": "Videos de 60 segundos grabados por Michael desde su día a día — para tu intranet o WhatsApp corporativo. El tipo de contenido que tu equipo realmente ve."
+      },
+      {
+        "label": "📧 Newsletter",
+        "title": "2 Ediciones de Newsletter",
+        "content": "Contenido editorial especializado para colaboradores, enfocado en mentalidad de crecimiento, resiliencia y tecnología."
+      },
+      {
+        "label": "📢 Menciones",
+        "title": "2 Menciones Públicas",
+        "content": "Tu marca aparece públicamente ligada a esta historia en Instagram, LinkedIn y la newsletter."
+      }
+    ],
+    "impacto": [
+      {
+        "label": "📱 Cápsulas",
+        "title": "5 Cápsulas Motivacionales",
+        "content": "Videos de 60 segundos grabados por Michael desde su día a día — para tu intranet o WhatsApp corporativo. El tipo de contenido que tu equipo realmente ve."
+      },
+      {
+        "label": "📧 Newsletter",
+        "title": "6 Ediciones de Newsletter",
+        "content": "Contenido editorial especializado para colaboradores, enfocado en mentalidad de crecimiento, resiliencia y tecnología."
+      },
+      {
+        "label": "📢 Menciones",
+        "title": "3 Menciones Públicas",
+        "content": "Tu marca aparece públicamente ligada a esta historia en Instagram, LinkedIn y la newsletter."
+      },
+      {
+        "label": "🎤 Conferencias",
+        "title": "1 Conferencia Virtual",
+        "content": "Michael comparte cómo un desarrollador ciego dominicano llegó a competir con los mejores del mundo — y qué le enseñó eso sobre ejecución bajo presión, agencia, y desempeño de alto rendimiento y excelencia, convirtiendo sus desventajas en combustibles."
+      },
+      {
+        "label": "📊 RSE",
+        "title": "Reporte RSE",
+        "content": "KPIs clave para tu memoria anual:\n• Cantidad de colaboradores impactados.\n• Número de ediciones entregadas vs. comprometidas.\n• Alcance público generado (impresiones en IG/LI).\n• Menciones en medios o redes externas.\n• Testimonio o cita del equipo sobre las cápsulas.\n• Fecha de inicio/cierre y monto invertido."
+      },
+      {
+        "label": "⚙️ Innovación",
+        "title": "Reporte de Innovación y Automatización",
+        "content": "Tres ideas aplicadas específicamente a tu negocio:\n• Idea + descripción detallada.\n• Pasos claros de ejecución.\n• Métricas de éxito: Tiempo ahorrado, dinero ahorrado y procesos/tareas manuales eliminados."
+      },
+      {
+        "label": "📜 Certificado",
+        "title": "Certificado Enmarcado de Reconocimiento",
+        "content": "Validación oficial física y digital del compromiso de su empresa con el desarrollo del talento tecnológico nacional."
+      }
+    ],
+    "fundador": [
+      {
+        "label": "📱 Cápsulas",
+        "title": "12 Cápsulas Motivacionales",
+        "content": "Videos de 60 segundos grabados por Michael desde su día a día — para tu intranet o WhatsApp corporativo. El tipo de contenido que tu equipo realmente ve."
+      },
+      {
+        "label": "📧 Newsletter",
+        "title": "12 Ediciones de Newsletter",
+        "content": "Contenido editorial especializado para colaboradores, enfocado en mentalidad de crecimiento, resiliencia y tecnología."
+      },
+      {
+        "label": "📢 Menciones",
+        "title": "5 Menciones Públicas",
+        "content": "Tu marca aparece públicamente ligada a esta historia en Instagram, LinkedIn y la newsletter."
+      },
+      {
+        "label": "🎤 Conferencias",
+        "title": "2 Conferencias (1 Presencial / 1 Virtual)",
+        "content": "Michael comparte cómo un desarrollador ciego dominicano llegó a competir con los mejores del mundo — y qué le enseñó eso sobre ejecución bajo presión, agencia, y desempeño de alto rendimiento y excelencia, convirtiendo sus desventajas en combustibles."
+      },
+      {
+        "label": "📊 RSE",
+        "title": "Reportes de RSE (Doble)",
+        "content": "KPIs clave para tu memoria anual:\n• Cantidad de colaboradores impactados.\n• Número de ediciones entregadas vs. comprometidas.\n• Alcance público generado (impresiones en IG/LI).\n• Menciones en medios o redes externas.\n• Testimonio o cita del equipo sobre las cápsulas.\n• Fecha de inicio/cierre y monto invertido."
+      },
+      {
+        "label": "⚙️ Innovación",
+        "title": "Reporte de Innovación y Automatización",
+        "content": "Tres ideas aplicadas específicamente a tu negocio:\n• Idea + descripción detallada.\n• Pasos claros de ejecución.\n• Métricas de éxito: Tiempo ahorrado, dinero ahorrado y procesos/tareas manuales eliminados."
+      },
+      {
+        "label": "🎓 Masterclass",
+        "title": "Masterclass: Cultura Inclusiva",
+        "content": "Sesión estratégica para líderes sobre cómo integrar talento diverso de manera profesional y natural, convirtiendo la inclusión en una ventaja competitiva. Se entrega grabada — queda disponible para cada nuevo colaborador que entre a la empresa."
+      },
+      {
+        "label": "📜 Certificado",
+        "title": "Certificado '1 de 3 Empresas Fundadoras'",
+        "content": "El máximo estatus de la alianza. Solo 3 empresas en la historia tendrán este reconocimiento físico y digital como pilares del inicio de este hito nacional. * Solo existen 3 cupos disponibles para este nivel de impacto."
+      }
+    ]
+  }
+}
