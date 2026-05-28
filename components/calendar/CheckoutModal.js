@@ -248,13 +248,13 @@ const CheckoutModal = ({
                   <div className="relative z-10">
                     <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Total a transferir</p>
                     <p className="text-2xl font-black text-white italic tracking-tighter mt-1">
-                      RD$ {selectedTier?.price.toLocaleString()}
+                      RD$ {(selectedDates.length * 3000).toLocaleString()}
                     </p>
                   </div>
                   <div className="text-right relative z-10">
-                    <p className="text-[8px] font-black text-white/40 uppercase tracking-widest mb-1">Por {selectedDates.length} días</p>
+                    <p className="text-[8px] font-black text-white/40 uppercase tracking-widest mb-1">Por {selectedDates.length} {selectedDates.length === 1 ? 'día' : 'días'}</p>
                     <span className="text-[10px] font-black text-blue-400 bg-blue-500/10 px-2 py-1 rounded-lg uppercase tracking-wider">
-                      {selectedTier?.title}
+                      Selección Libre
                     </span>
                   </div>
                 </div>
