@@ -24,7 +24,6 @@ const ComprameUnDia = () => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasManuallyClosed, setHasManuallyClosed] = useState(false);
-  const [activeSelectorDate, setActiveSelectorDate] = useState(null);
 
   // HU1: load sold days from Firestore
   const [soldDaysData, setSoldDaysData] = useState([]); // [{ dateStr, nombre, foto_url, plan_seleccionado, morning, afternoon }]
@@ -239,8 +238,6 @@ const ComprameUnDia = () => {
     // Apply active selection mode
     if (selectionMode === 'day') {
       setSelectedDates(prev => [...prev, { dateStr, slot: 'full' }]);
-    } else if (selectionMode === 'half') {
-      setActiveSelectorDate(dateStr);
     } else if (selectionMode === 'week') {
       // Select 7 consecutive days
       const start = new Date(dateStr + 'T00:00:00');
@@ -324,32 +321,35 @@ const ComprameUnDia = () => {
     }
   };
 
-  const handleSelectSlot = (dateStr, slot) => {
+  const handleSlotClick = (dateStr, slot) => {
     setSelectedDates(prev => {
-      const filtered = prev.filter(d => d.dateStr !== dateStr);
-      if (slot === null) {
-        return filtered;
-      } else {
-        return [...filtered, { dateStr, slot }];
+      const existing = prev.find(d => d.dateStr === dateStr);
+      
+      if (!existing) {
+        // Nothing selected yet on this day -> select slot
+        return [...prev, { dateStr, slot }];
       }
+      
+      if (existing.slot === 'full') {
+        // Day is fully selected -> deselecting one slot leaves opposite slot selected
+        const oppositeSlot = slot === 'morning' ? 'afternoon' : 'morning';
+        return [...prev.filter(d => d.dateStr !== dateStr), { dateStr, slot: oppositeSlot }];
+      }
+      
+      if (existing.slot === slot) {
+        // Same slot clicked -> deselect day entirely
+        return prev.filter(d => d.dateStr !== dateStr);
+      }
+      
+      // Opposite slot clicked -> merge into full day
+      return [...prev.filter(d => d.dateStr !== dateStr), { dateStr, slot: 'full' }];
     });
-    setActiveSelectorDate(null);
   };
 
   const handleContinue = () => {
     setHasManuallyClosed(false);
     setIsModalOpen(true);
     setStep(1);
-  };
-
-  const formatReadableDate = (dateStr) => {
-    if (!dateStr) return '';
-    const [year, month, day] = dateStr.split('-');
-    const monthNames = [
-      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-    ];
-    return `${parseInt(day)} de ${monthNames[parseInt(month) - 1]}`;
   };
 
   const toolbarOptions = [
@@ -470,6 +470,8 @@ const ComprameUnDia = () => {
                     selectedDates={selectedDates}
                     soldDaysData={soldDaysData}
                     onDateClick={handleDateClick}
+                    onSlotClick={handleSlotClick}
+                    selectionMode={selectionMode}
                     limitReached={false}
                   />
                 ))}
@@ -478,144 +480,6 @@ const ComprameUnDia = () => {
           </div>
         </div>
       </main>
-
-      {/* CONTEXTUAL SLOT SELECTOR MODAL (Used in Half-Day mode) */}
-      <AnimatePresence>
-        {activeSelectorDate && (() => {
-          const dateStr = activeSelectorDate;
-          const readableDate = formatReadableDate(dateStr);
-          
-          const currentSelection = selectedDates.find(d => d.dateStr === dateStr);
-          const currentSlot = currentSelection ? currentSelection.slot : null;
-          
-          const soldInfo = soldMap[dateStr];
-          let morningSponsor = null;
-          let afternoonSponsor = null;
-          if (soldInfo) {
-            if (soldInfo.morning) {
-              morningSponsor = soldInfo.morning;
-            } else if (soldInfo.nombre) {
-              morningSponsor = { nombre: soldInfo.nombre, foto_url: soldInfo.foto_url };
-            }
-            if (soldInfo.afternoon) {
-              afternoonSponsor = soldInfo.afternoon;
-            } else if (soldInfo.nombre) {
-              afternoonSponsor = { nombre: soldInfo.nombre, foto_url: soldInfo.foto_url };
-            }
-          }
-          
-          const isAMOccupied = !!morningSponsor;
-          const isPMOccupied = !!afternoonSponsor;
-          
-          return (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setActiveSelectorDate(null)}
-                className="absolute inset-0 bg-[#020617]/85 backdrop-blur-xs"
-              />
-              
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 15 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 15 }}
-                className="bg-[#0a192f] border border-blue-500/30 rounded-3xl p-6 w-full max-w-xs shadow-[0_10px_50px_rgba(0,0,0,0.8)] relative overflow-hidden text-left z-10 font-sans"
-              >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl -mr-16 -mt-16 pointer-events-none" />
-                
-                <h3 className="text-xl font-black text-white italic uppercase tracking-tight">{readableDate}</h3>
-                <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest mt-1 mb-6">Elige tu modalidad de apoyo</p>
-                
-                <div className="space-y-3">
-                  {!isAMOccupied && !isPMOccupied && (
-                    <button
-                      onClick={() => handleSelectSlot(dateStr, 'full')}
-                      className={`
-                        w-full p-4 rounded-2xl border text-left transition-all flex items-center justify-between group
-                        ${currentSlot === 'full'
-                          ? 'bg-blue-600/20 border-blue-500 text-white'
-                          : 'bg-white/5 border-white/10 hover:border-white/20 text-white/80 hover:text-white'}
-                      `}
-                    >
-                      <div>
-                        <p className="text-xs font-black uppercase tracking-wider">Día completo</p>
-                        <p className="text-[10px] text-white/50 font-medium mt-0.5">Apoya las 24 horas del día</p>
-                      </div>
-                      <span className="text-xs font-black text-blue-400 italic">RD$3,000</span>
-                    </button>
-                  )}
-                  
-                  <button
-                    disabled={isAMOccupied}
-                    onClick={() => handleSelectSlot(dateStr, 'morning')}
-                    className={`
-                      w-full p-4 rounded-2xl border text-left transition-all flex items-center justify-between group
-                      ${isAMOccupied
-                        ? 'bg-amber-500/5 border-amber-500/10 text-amber-500/40 cursor-not-allowed'
-                        : currentSlot === 'morning'
-                          ? 'bg-blue-600/20 border-blue-500 text-white'
-                          : 'bg-white/5 border-white/10 hover:border-white/20 text-white/80 hover:text-white'}
-                    `}
-                  >
-                    <div>
-                      <p className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
-                        Medio día AM
-                        {isAMOccupied && <span className="text-[8px] bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded-md">Ocupado</span>}
-                      </p>
-                      <p className="text-[10px] text-white/50 font-medium mt-0.5 truncate max-w-[150px]">
-                        {isAMOccupied ? `Por ${morningSponsor.nombre}` : 'Horas de la mañana'}
-                      </p>
-                    </div>
-                    {!isAMOccupied && <span className="text-xs font-black text-blue-400 italic">RD$1,500</span>}
-                  </button>
-                  
-                  <button
-                    disabled={isPMOccupied}
-                    onClick={() => handleSelectSlot(dateStr, 'afternoon')}
-                    className={`
-                      w-full p-4 rounded-2xl border text-left transition-all flex items-center justify-between group
-                      ${isPMOccupied
-                        ? 'bg-amber-500/5 border-amber-500/10 text-amber-500/40 cursor-not-allowed'
-                        : currentSlot === 'afternoon'
-                          ? 'bg-blue-600/20 border-blue-500 text-white'
-                          : 'bg-white/5 border-white/10 hover:border-white/20 text-white/80 hover:text-white'}
-                    `}
-                  >
-                    <div>
-                      <p className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
-                        Medio día PM
-                        {isPMOccupied && <span className="text-[8px] bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded-md">Ocupado</span>}
-                      </p>
-                      <p className="text-[10px] text-white/50 font-medium mt-0.5 truncate max-w-[150px]">
-                        {isPMOccupied ? `Por ${afternoonSponsor.nombre}` : 'Horas de la tarde'}
-                      </p>
-                    </div>
-                    {!isPMOccupied && <span className="text-xs font-black text-blue-400 italic">RD$1,500</span>}
-                  </button>
-                </div>
-                
-                {currentSlot && (
-                  <button
-                    onClick={() => handleSelectSlot(dateStr, null)}
-                    className="w-full mt-6 py-3 border border-red-500/30 hover:border-red-500/60 bg-red-500/5 hover:bg-red-500/10 text-red-400 text-xs font-black uppercase tracking-widest rounded-2xl transition-all text-center font-sans"
-                  >
-                    Quitar Selección
-                  </button>
-                )}
-                
-                <button
-                  onClick={() => setActiveSelectorDate(null)}
-                  className="w-full mt-3 py-3 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all text-center font-sans"
-                >
-                  Cancelar
-                </button>
-              </motion.div>
-            </div>
-          );
-        })()}
-      </AnimatePresence>
 
       {/* STICKY FOOTER FOR BATCH SELECTION */}
       <AnimatePresence>

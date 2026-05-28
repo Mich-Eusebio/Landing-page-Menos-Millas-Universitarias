@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const MonthGrid = ({ monthData, selectedDates, soldDaysData = [], onDateClick, limitReached }) => {
+const MonthGrid = ({ monthData, selectedDates, soldDaysData = [], onDateClick, onSlotClick, selectionMode, limitReached }) => {
   const { name, year, month } = monthData;
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -74,8 +74,10 @@ const MonthGrid = ({ monthData, selectedDates, soldDaysData = [], onDateClick, l
           // Consolidated full day if fully sold to the same person
           const isConsolidatedSold = isFullySold && (morningSponsor.nombre === afternoonSponsor.nombre);
 
-          // Render split view if any slot is occupied or selected, but it's not a consolidated full day
-          const isSplit = !isConsolidatedSold && (isAMSold || isPMSold || isAMSelected || isPMSelected);
+          // Render horizontal split view if AM/PM are partially sold/selected, or if we are in "half" selection mode
+          const shouldRenderSplit = !isConsolidatedSold && (
+            isAMSold || isPMSold || isAMSelected || isPMSelected || selectionMode === 'half'
+          );
 
           const isSpecial = specialDates.includes(dateStr);
 
@@ -120,24 +122,9 @@ const MonthGrid = ({ monthData, selectedDates, soldDaysData = [], onDateClick, l
             }
           }
 
-          // Accessibility label
           const monthName = name.split(' ')[0].toLowerCase();
-          let ariaLabel = `${day} de ${monthName}`;
-          if (isConsolidatedSold) {
-            ariaLabel += `, patrocinado por ${morningSponsor.nombre}`;
-          } else if (isFullySold) {
-            ariaLabel += `, mañana patrocinada por ${morningSponsor.nombre}, tarde patrocinada por ${afternoonSponsor.nombre}`;
-          } else {
-            const amText = isAMSold 
-              ? `mañana ocupada por ${morningSponsor.nombre}` 
-              : (isAMSelected ? `mañana seleccionada` : `mañana disponible`);
-            const pmText = isPMSold 
-              ? `tarde ocupada por ${afternoonSponsor.nombre}` 
-              : (isPMSelected ? `tarde seleccionada` : `tarde disponible`);
-            ariaLabel += `, ${amText}, ${pmText}`;
-          }
 
-          // Center badge for split day numbers
+          // Center badge for split/full day numbers
           const dayNumberBadge = (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
               <span className={`
@@ -146,7 +133,7 @@ const MonthGrid = ({ monthData, selectedDates, soldDaysData = [], onDateClick, l
                   ? 'bg-blue-800 text-white border border-blue-400' 
                   : isConsolidatedSold 
                     ? 'bg-amber-950 text-amber-400 border border-amber-500/50'
-                    : isSplit
+                    : shouldRenderSplit
                       ? 'bg-[#050505] text-white border border-white/20'
                       : 'bg-[#161b22] text-white/90 border border-[#30363d]'
                 }
@@ -155,6 +142,111 @@ const MonthGrid = ({ monthData, selectedDates, soldDaysData = [], onDateClick, l
               </span>
             </div>
           );
+
+          if (shouldRenderSplit) {
+            // Horizontal split rendering
+            const amActive = isAMSelected;
+            const amSold = isAMSold;
+            const pmActive = isPMSelected;
+            const pmSold = isPMSold;
+
+            // Accessibility label logic
+            const amLabel = `${day} de ${monthName} mañana ${amSold ? 'ocupada por ' + morningSponsor.nombre : (amActive ? 'seleccionada' : 'disponible')}`;
+            const pmLabel = `${day} de ${monthName} tarde ${pmSold ? 'ocupada por ' + afternoonSponsor.nombre : (pmActive ? 'seleccionada' : 'disponible')}`;
+
+            return (
+              <div
+                key={day}
+                className={`
+                  aspect-square border relative transition-all duration-300 overflow-hidden ${roundingClass}
+                  border-[#30363d] bg-transparent
+                `}
+              >
+                {/* Morning (AM) - Top Half */}
+                <button
+                  role="radio"
+                  aria-checked={amActive}
+                  aria-label={amLabel}
+                  title={amLabel}
+                  disabled={amSold}
+                  onClick={() => onSlotClick(dateStr, 'morning')}
+                  className={`
+                    absolute top-0 left-0 w-full h-1/2 border-b border-[#30363d]/50 flex flex-col items-center justify-center p-0.5 md:p-1 transition-all
+                    ${amSold 
+                      ? 'bg-amber-500/10 cursor-not-allowed text-amber-500/40' 
+                      : amActive 
+                        ? 'bg-blue-600 text-white shadow-[inset_0_0_10px_rgba(255,255,255,0.1)]' 
+                        : 'bg-[#161b22] text-white/50 hover:bg-[#1f2937] hover:text-white'}
+                  `}
+                >
+                  {amSold ? (
+                    <div className="flex flex-col items-center justify-center gap-0.5 w-full text-center">
+                      {morningSponsor.foto_url ? (
+                        <img
+                          src={morningSponsor.foto_url}
+                          alt={morningSponsor.nombre}
+                          className="w-4 h-4 md:w-6 md:h-6 rounded-full object-cover border border-amber-400/50"
+                          onError={e => { e.currentTarget.style.display = 'none'; }}
+                        />
+                      ) : null}
+                      <span className="text-[5px] md:text-[7px] font-bold text-amber-400 truncate w-full block">
+                        {morningSponsor.nombre}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-[5px] md:text-[7px] font-black tracking-widest uppercase opacity-60">AM</span>
+                  )}
+                </button>
+
+                {/* Afternoon (PM) - Bottom Half */}
+                <button
+                  role="radio"
+                  aria-checked={pmActive}
+                  aria-label={pmLabel}
+                  title={pmLabel}
+                  disabled={pmSold}
+                  onClick={() => onSlotClick(dateStr, 'afternoon')}
+                  className={`
+                    absolute bottom-0 left-0 w-full h-1/2 flex flex-col items-center justify-center p-0.5 md:p-1 transition-all
+                    ${pmSold 
+                      ? 'bg-amber-500/10 cursor-not-allowed text-amber-500/40' 
+                      : pmActive 
+                        ? 'bg-blue-600 text-white shadow-[inset_0_0_10px_rgba(255,255,255,0.1)]' 
+                        : 'bg-[#161b22] text-white/50 hover:bg-[#1f2937] hover:text-white'}
+                  `}
+                >
+                  {pmSold ? (
+                    <div className="flex flex-col items-center justify-center gap-0.5 w-full text-center">
+                      {afternoonSponsor.foto_url ? (
+                        <img
+                          src={afternoonSponsor.foto_url}
+                          alt={afternoonSponsor.nombre}
+                          className="w-4 h-4 md:w-6 md:h-6 rounded-full object-cover border border-amber-400/50"
+                          onError={e => { e.currentTarget.style.display = 'none'; }}
+                        />
+                      ) : null}
+                      <span className="text-[5px] md:text-[7px] font-bold text-amber-400 truncate w-full block">
+                        {afternoonSponsor.nombre}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-[5px] md:text-[7px] font-black tracking-widest uppercase opacity-60">PM</span>
+                  )}
+                </button>
+
+                {/* Center Badge for Day number */}
+                {dayNumberBadge}
+              </div>
+            );
+          }
+
+          // Full day accessibility label
+          let ariaLabel = `${day} de ${monthName}`;
+          if (isConsolidatedSold) {
+            ariaLabel += `, patrocinado por ${morningSponsor.nombre}`;
+          } else {
+            ariaLabel += isFullSelected ? ` seleccionada` : ` disponible`;
+          }
 
           return (
             <motion.button
@@ -173,9 +265,7 @@ const MonthGrid = ({ monthData, selectedDates, soldDaysData = [], onDateClick, l
                   ? 'bg-amber-500/20 border-amber-500/50 cursor-not-allowed shadow-[inset_0_0_20px_rgba(245,158,11,0.15)]' 
                   : isFullSelected
                     ? 'bg-blue-600 border-blue-400 shadow-[0_0_30px_rgba(37,99,235,0.4),inset_0_0_20px_rgba(255,255,255,0.2)] z-10'
-                    : isSplit
-                      ? 'border-[#30363d] bg-transparent'
-                      : 'bg-[#161b22] border-[#30363d] hover:bg-[#1f2937] hover:border-[#8b949e]'
+                    : 'bg-[#161b22] border-[#30363d] hover:bg-[#1f2937] hover:border-[#8b949e]'
                 }
               `}
             >
@@ -197,86 +287,8 @@ const MonthGrid = ({ monthData, selectedDates, soldDaysData = [], onDateClick, l
                     {day}
                   </span>
                 </div>
-              ) : isSplit ? (
-                /* --- SPLIT DAY: AM / PM zones --- */
-                <>
-                  {/* Left Half (AM) */}
-                  <div 
-                    title={
-                      isAMSold 
-                        ? `Mañana (AM) - Patrocinado por ${morningSponsor.nombre}` 
-                        : (isAMSelected ? `Mañana (AM) - Seleccionado` : `Mañana (AM) - Disponible`)
-                    }
-                    className={`
-                      absolute inset-y-0 left-0 w-1/2 border-r border-[#30363d]/35 flex flex-col items-center justify-center p-0.5 md:p-1 overflow-hidden transition-colors duration-300
-                      ${isAMSold 
-                        ? 'bg-amber-500/10' 
-                        : isAMSelected 
-                          ? 'bg-blue-600' 
-                          : 'bg-[#161b22]'}
-                    `}
-                  >
-                    {isAMSold && (
-                      <div className="flex flex-col items-center justify-center gap-0.5 w-full text-center">
-                        {morningSponsor.foto_url ? (
-                          <img
-                            src={morningSponsor.foto_url}
-                            alt={morningSponsor.nombre}
-                            className="w-4 h-4 md:w-6 md:h-6 rounded-full object-cover border border-amber-400/50"
-                            onError={e => { e.currentTarget.style.display = 'none'; }}
-                          />
-                        ) : null}
-                        <span className="text-[5px] md:text-[7px] font-bold text-amber-400 truncate w-full block">
-                          {morningSponsor.nombre}
-                        </span>
-                      </div>
-                    )}
-                    {isAMSelected && !isAMSold && (
-                      <span className="text-[5px] md:text-[7px] font-black text-blue-200 uppercase tracking-widest">AM</span>
-                    )}
-                  </div>
-
-                  {/* Right Half (PM) */}
-                  <div 
-                    title={
-                      isPMSold 
-                        ? `Tarde (PM) - Patrocinado por ${afternoonSponsor.nombre}` 
-                        : (isPMSelected ? `Tarde (PM) - Seleccionado` : `Tarde (PM) - Disponible`)
-                    }
-                    className={`
-                      absolute inset-y-0 right-0 w-1/2 flex flex-col items-center justify-center p-0.5 md:p-1 overflow-hidden transition-colors duration-300
-                      ${isPMSold 
-                        ? 'bg-amber-500/10' 
-                        : isPMSelected 
-                          ? 'bg-blue-600' 
-                          : 'bg-[#161b22]'}
-                    `}
-                  >
-                    {isPMSold && (
-                      <div className="flex flex-col items-center justify-center gap-0.5 w-full text-center">
-                        {afternoonSponsor.foto_url ? (
-                          <img
-                            src={afternoonSponsor.foto_url}
-                            alt={afternoonSponsor.nombre}
-                            className="w-4 h-4 md:w-6 md:h-6 rounded-full object-cover border border-amber-400/50"
-                            onError={e => { e.currentTarget.style.display = 'none'; }}
-                          />
-                        ) : null}
-                        <span className="text-[5px] md:text-[7px] font-bold text-amber-400 truncate w-full block">
-                          {afternoonSponsor.nombre}
-                        </span>
-                      </div>
-                    )}
-                    {isPMSelected && !isPMSold && (
-                      <span className="text-[5px] md:text-[7px] font-black text-blue-200 uppercase tracking-widest">PM</span>
-                    )}
-                  </div>
-
-                  {/* Center Badge for Day number */}
-                  {dayNumberBadge}
-                </>
               ) : (
-                /* --- AVAILABLE DAY --- */
+                /* --- AVAILABLE / FULL DAY --- */
                 <>
                   <span className={`
                     text-lg md:text-2xl font-black transition-colors
