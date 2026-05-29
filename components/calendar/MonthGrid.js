@@ -36,7 +36,8 @@ const MonthGrid = ({
 
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
   // Monday-start blanks (Sunday = 0 → 6 blanks, else firstDay - 1)
-  const blanks = Array.from({ length: firstDay === 0 ? 6 : firstDay - 1 }, (_, i) => i);
+  const blanksCount = firstDay === 0 ? 6 : firstDay - 1;
+  const blanks = Array.from({ length: blanksCount }, (_, i) => i);
 
   // Special milestone dates
   const specialDates = [
@@ -50,7 +51,7 @@ const MonthGrid = ({
   // O(1) lookup map: dateStr → soldDay object
   const soldMap = Object.fromEntries(soldDaysData.map((d) => [d.dateStr, d]));
 
-  // Build consecutive sponsor groups for merge-strip rendering
+  // Build consecutive sponsor groups for merge-strip rendering (Split by Row/Week)
   const sponsorGroups = (() => {
     const entries = Object.entries(soldMap)
       .filter(([, d]) => d.nombre)
@@ -61,15 +62,23 @@ const MonthGrid = ({
 
     for (const [dateStr, info] of entries) {
       const sponsor = info.nombre;
+      const dayNum = parseInt(dateStr.split('-')[2], 10);
+      const col = (blanksCount + dayNum - 1) % 7; // 0 = Lunes, 6 = Domingo
+
       if (!current) {
         current = { sponsor, planId: info.plan_seleccionado, dates: [dateStr] };
         continue;
       }
+
       const prevDate = new Date(current.dates[current.dates.length - 1]);
       const curDate  = new Date(dateStr);
       const diff     = (curDate - prevDate) / (1000 * 60 * 60 * 24);
 
-      if (sponsor === current.sponsor && diff === 1) {
+      const prevDayNum = parseInt(current.dates[current.dates.length - 1].split('-')[2], 10);
+      const prevCol = (blanksCount + prevDayNum - 1) % 7;
+
+      // Split if: different sponsor OR not consecutive OR previous was Sunday (end of row)
+      if (sponsor === current.sponsor && diff === 1 && prevCol < 6) {
         current.dates.push(dateStr);
       } else {
         groups.push(current);
@@ -170,13 +179,16 @@ const MonthGrid = ({
             else              roundingClass = 'rounded-none';
 
           } else if (isConsolidatedSold) {
-            const [y, m, d] = dateStr.split('-').map(Number);
-            const prevDate  = new Date(y, m - 1, d - 1);
-            const nextDate  = new Date(y, m - 1, d + 1);
+            const [y, m, d_num] = dateStr.split('-').map(Number);
+            const prevDate  = new Date(y, m - 1, d_num - 1);
+            const nextDate  = new Date(y, m - 1, d_num + 1);
             const prevStr   = `${prevDate.getFullYear()}-${String(prevDate.getMonth() + 1).padStart(2, '0')}-${String(prevDate.getDate()).padStart(2, '0')}`;
             const nextStr   = `${nextDate.getFullYear()}-${String(nextDate.getMonth() + 1).padStart(2, '0')}-${String(nextDate.getDate()).padStart(2, '0')}`;
-            const samePrev  = soldMap[prevStr]?.nombre === morningSponsor.nombre;
-            const sameNext  = soldMap[nextStr]?.nombre === morningSponsor.nombre;
+            
+            const col = (blanksCount + day - 1) % 7;
+            const samePrev  = col > 0 && soldMap[prevStr]?.nombre === morningSponsor.nombre;
+            const sameNext  = col < 6 && soldMap[nextStr]?.nombre === morningSponsor.nombre;
+
             if (samePrev && sameNext) roundingClass = 'rounded-none';
             else if (samePrev)        roundingClass = 'rounded-r-2xl md:rounded-r-[1.5rem] rounded-l-none';
             else if (sameNext)        roundingClass = 'rounded-l-2xl md:rounded-l-[1.5rem] rounded-r-none';
@@ -240,12 +252,15 @@ const MonthGrid = ({
                   }}
                 />
 
-                {/* Day numbers row - Fixed Matrix Style */}
-                <div className="relative flex w-full pt-2 md:pt-3 px-1 z-10 border-b border-white/5">
+                {/* Day numbers row - Fixed Matrix Style (Grid Aligned) */}
+                <div 
+                  className="relative grid w-full pt-2 md:pt-3 px-0 z-10 border-b border-white/5 gap-3 md:gap-6"
+                  style={{ gridTemplateColumns: `repeat(${spanLength}, 1fr)` }}
+                >
                   {groupDayNumbers.map((dn, i) => (
                     <span
                       key={i}
-                      className="flex-1 text-center text-xs md:text-sm font-black"
+                      className="text-center text-xs md:text-sm font-black"
                       style={{ color: `${tier.color}CC` }}
                     >
                       {dn}
@@ -274,13 +289,7 @@ const MonthGrid = ({
                   </div>
                 </div>
 
-                {/* Tier badge */}
-                <div
-                  className="absolute top-1.5 right-2 text-[6px] md:text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-full z-10"
-                  style={{ color: tier.color, background: `${tier.color}22`, border: `1px solid ${tier.color}44` }}
-                >
-                  {tier.label}
-                </div>
+
               </motion.button>
             );
           }
