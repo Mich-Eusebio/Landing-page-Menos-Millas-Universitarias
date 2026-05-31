@@ -1,3 +1,5 @@
+import { ImageResponse } from '@vercel/og'
+
 export const runtime = 'edge'
 
 export async function GET(request) {
@@ -7,8 +9,6 @@ export async function GET(request) {
     const day = searchParams.get('day') || '?'
     const name = searchParams.get('name') || ''
     const photoUrl = searchParams.get('photo') || null
-
-    const { ImageResponse } = await import('@vercel/og')
 
     return new ImageResponse(
       (
@@ -149,7 +149,6 @@ export async function GET(request) {
                 style={{
                   background: 'linear-gradient(90deg, #60a5fa, #a855f7)',
                   backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
                   color: 'transparent',
                 }}
               >
