@@ -28,7 +28,9 @@ const GraciasPage = () => {
   const personalize = shareData?.personalize ?? true
 
   const shareText = `¡Patrociné el día #${dayNumber} del camino de Michael! 🎉\n\nÚnete y apoya este proyecto.`
-  const shareUrl = typeof window !== 'undefined' ? window.location.origin : ''
+  const shareOgUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}/gracias?day=${encodeURIComponent(dayNumber)}&name=${encodeURIComponent(name)}&photo=${encodeURIComponent(photoUrl || '')}`
+    : ''
 
   const generateShareFile = async () => {
     await new Promise(resolve => setTimeout(resolve, 500))
@@ -63,15 +65,15 @@ const GraciasPage = () => {
       if (navigator.share && navigator.canShare?.({ files: [file] })) {
         await navigator.share({ files: [file], title: 'Menos Millas', text: shareText })
       } else {
-        window.open(`https://wa.me/?text=${encodeURIComponent(shareText + '\n' + shareUrl)}`, '_blank')
+        window.open(`https://wa.me/?text=${encodeURIComponent(shareText + '\n' + shareOgUrl)}`, '_blank')
       }
     } catch {
-      window.open(`https://wa.me/?text=${encodeURIComponent(shareText + '\n' + shareUrl)}`, '_blank')
+      window.open(`https://wa.me/?text=${encodeURIComponent(shareText + '\n' + shareOgUrl)}`, '_blank')
     }
   }
 
   const handleShareLinkedIn = () => {
-    window.open(`https://linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`, '_blank')
+    window.open(`https://linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareOgUrl)}`, '_blank')
   }
 
   const handleDownloadImage = async () => {
