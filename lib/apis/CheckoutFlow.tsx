@@ -187,11 +187,18 @@ export default function CheckoutFlow({ selectedDays, isOpen, onClose }) {
         plan: plan_seleccionado,
       })
 
+      localStorage.setItem('mm_share', JSON.stringify({
+        dayNumber: latestSoldDays.length + 1,
+        name: formData.sponsor_name,
+        photoUrl: sponsor_foto_url,
+        personalize: formData.personalize,
+        timestamp: Date.now(),
+      }))
+
       window.location.href = '/gracias'
     } catch (error) {
       console.error("Error submitting:", error)
       alert("Hubo un error al procesar tu solicitud.")
-    } finally {
       setLoading(false)
     }
   }
