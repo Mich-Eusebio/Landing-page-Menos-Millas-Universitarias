@@ -25,7 +25,7 @@ export default function CheckoutFlow({ selectedDays, isOpen, onClose }) {
     terms: false,
   })
   const [loading, setLoading] = useState(false)
-  const [errors, setErrors] = useState({})
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
   const n = selectedDays?.reduce((sum, d) => sum + (d.slot === 'full' ? 1 : 0.5), 0) || 0
   const isHalfDay = n === 0.5
