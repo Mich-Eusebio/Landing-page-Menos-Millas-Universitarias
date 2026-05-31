@@ -19,7 +19,6 @@ export async function GET(request) {
           background: 'linear-gradient(135deg, #0a1628 0%, #1a2a4a 100%)',
         }}
       >
-        {/* Brand bar */}
         <div
           style={{
             display: 'flex',
@@ -59,7 +58,6 @@ export async function GET(request) {
           </span>
         </div>
 
-        {/* Main content */}
         <div
           style={{
             flex: 1,
@@ -147,8 +145,7 @@ export async function GET(request) {
             <span
               style={{
                 background: 'linear-gradient(90deg, #60a5fa, #a855f7)',
-                backgroundClip: 'text',
-                color: 'transparent',
+                color: '#fff',
               }}
             >
               #{day}
