@@ -1,5 +1,7 @@
 import { ImageResponse } from '@vercel/og'
 
+export const runtime = 'edge'
+
 export async function GET(request) {
   const { searchParams } = new URL(request.url)
   const day = searchParams.get('day') || '?'
@@ -15,7 +17,6 @@ export async function GET(request) {
           display: 'flex',
           flexDirection: 'column',
           background: 'linear-gradient(135deg, #0a1628 0%, #1a2a4a 100%)',
-          fontFamily: '"Inter", sans-serif',
         }}
       >
         {/* Brand bar */}
@@ -118,7 +119,6 @@ export async function GET(request) {
             </div>
           )}
 
-          {/* Label */}
           <div
             style={{
               fontSize: 16,
@@ -132,7 +132,6 @@ export async function GET(request) {
             Patrociné el
           </div>
 
-          {/* Day number */}
           <div
             style={{
               fontSize: 80,
@@ -168,7 +167,6 @@ export async function GET(request) {
             Del Camino de Michael
           </div>
 
-          {/* Name */}
           {name && (
             <div
               style={{
@@ -201,7 +199,6 @@ export async function GET(request) {
           )}
         </div>
 
-        {/* Footer */}
         <div
           style={{
             display: 'flex',

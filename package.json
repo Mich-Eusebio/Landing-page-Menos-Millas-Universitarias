@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@emailjs/nodejs": "^5.0.2",
-    "@vercel/og": "^0.11.1",
+    "@vercel/og": "^0.6.8",
     "dotenv": "^17.4.2",
     "firebase": "^12.12.1",
     "framer-motion": "^12.30.0",
