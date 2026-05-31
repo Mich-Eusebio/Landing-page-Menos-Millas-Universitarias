@@ -27,8 +27,9 @@ export default function CheckoutFlow({ selectedDays, isOpen, onClose }) {
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({})
 
-  const TOTAL_STEPS = 6
   const n = selectedDays?.reduce((sum, d) => sum + (d.slot === 'full' ? 1 : 0.5), 0) || 0
+  const isHalfDay = n === 0.5
+  const TOTAL_STEPS = isHalfDay ? 4 : 6
   const showMessageField = n >= 5
   const charLimit = n === 5 ? 30 : (n <= 10 ? 60 : 120)
 
@@ -80,7 +81,7 @@ export default function CheckoutFlow({ selectedDays, isOpen, onClose }) {
         phoneRef.current?.focus()
         return
       }
-      setStep(3)
+      setStep(isHalfDay ? 5 : 3)
     } else {
       setStep(prev => prev + 1)
     }
@@ -91,6 +92,8 @@ export default function CheckoutFlow({ selectedDays, isOpen, onClose }) {
       setStep(1)
     } else if (step === 5 && !formData.personalize) {
       setStep(1)
+    } else if (step === 5 && isHalfDay) {
+      setStep(2)
     } else {
       setStep(prev => prev - 1)
     }
@@ -375,7 +378,7 @@ export default function CheckoutFlow({ selectedDays, isOpen, onClose }) {
           )}
 
           {/* ── STEP 3: Personalización ── */}
-          {step === 3 && (
+          {!isHalfDay && step === 3 && (
             <motion.div
               key="step3"
               initial={{ opacity: 0, x: 20 }}
@@ -461,7 +464,7 @@ export default function CheckoutFlow({ selectedDays, isOpen, onClose }) {
           )}
 
           {/* ── STEP 4: Foto ── */}
-          {step === 4 && (
+          {!isHalfDay && step === 4 && (
             <motion.div
               key="step4"
               initial={{ opacity: 0, x: 20 }}
