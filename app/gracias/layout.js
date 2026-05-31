@@ -33,6 +33,8 @@ export async function generateMetadata({ searchParams }) {
   }
 }
 
+export const dynamic = 'force-dynamic'
+
 export default function GraciasLayout({ children }) {
   return children
 }
