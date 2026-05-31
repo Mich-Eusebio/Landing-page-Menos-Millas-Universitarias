@@ -18,6 +18,7 @@ const presets = [
 
 export default function CheckoutFlowPreview() {
   const [count, setCount] = useState(3)
+  const [open, setOpen] = useState(true)
   const selectedDays = mockDays(count)
 
   return (
@@ -51,9 +52,15 @@ export default function CheckoutFlowPreview() {
           />
           <span className="text-sm font-mono text-white/40">{count}</span>
         </div>
+        <button
+          onClick={() => setOpen(!open)}
+          className="px-4 py-2 rounded-xl text-sm font-bold bg-blue-600 text-white"
+        >
+          {open ? 'Cerrar' : 'Abrir'} CheckoutFlow
+        </button>
       </div>
 
-      <CheckoutFlow selectedDays={selectedDays} />
+      <CheckoutFlow selectedDays={selectedDays} isOpen={open} onClose={() => setOpen(false)} />
     </div>
   )
 }

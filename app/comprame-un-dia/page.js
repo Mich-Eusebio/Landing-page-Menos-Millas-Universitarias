@@ -5,8 +5,8 @@ import { ArrowRight, Calendar, CalendarDays, CalendarRange } from 'lucide-react'
 import CalendarHeader from '@/components/calendar/CalendarHeader';
 import CalendarLegend from '@/components/calendar/CalendarLegend';
 import MonthGrid from '@/components/calendar/MonthGrid';
-import CheckoutModal from '@/components/calendar/CheckoutModal';
-import { saveComprameUnDia, uploadFile, getSoldDays, saveSoldDays } from '@/lib/apis/SorteoActions';
+import CheckoutFlow from '@/lib/apis/CheckoutFlow';
+import { getSoldDays } from '@/lib/apis/SorteoActions';
 
 // Inline Half Circle SVG for ◐ icon
 const HalfCircleIcon = ({ className }) => (
@@ -21,8 +21,6 @@ const ComprameUnDia = () => {
   const [selectedDates, setSelectedDates] = useState([]); // [{ dateStr, slot: 'full' | 'morning' | 'afternoon', selectionGroupId }]
   const [selectionMode, setSelectionMode] = useState('day'); // 'day' | 'half' | 'week' | 'month'
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [step, setStep] = useState(1);
-  const [loading, setLoading] = useState(false);
   const [hasManuallyClosed, setHasManuallyClosed] = useState(false);
 
   // HU1: load sold days from Firestore
@@ -39,166 +37,113 @@ const ComprameUnDia = () => {
   const totalDaysCount = selectedDates.reduce((acc, curr) => acc + (curr.slot === 'full' ? 1 : 0.5), 0);
   const totalPrice = selectedDates.reduce((acc, curr) => acc + (curr.slot === 'full' ? 3000 : 1500), 0);
 
-  const [formData, setFormData] = useState({
-    fullName: '',
-    phone: '',
-    email: '',
-    instagram: '',
-    paymentMethod: 'transfer', // only transfer available
-    bankSelection: 'popular',
-    proof: null,
-    sponsorPhoto: null,  // HU2: optional sponsor photo
-    terms: false
-  });
-
-  const [errors, setErrors] = useState({});
-
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
-    }
+  const handleContinue = () => {
+    setHasManuallyClosed(false);
+    setIsModalOpen(true);
   };
 
-  const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setFormData(prev => ({ ...prev, proof: e.target.files[0] }));
-    }
-  };
+  const handleDateClick = (dateStr, isFullySold) => {
+    if (isFullySold) return;
+    setHasManuallyClosed(false);
 
-  // HU2: handler for optional sponsor photo
-  const handleSponsorPhotoChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setFormData(prev => ({ ...prev, sponsorPhoto: e.target.files[0] }));
-    }
-  };
+    const currentSel = selectedDates.find(d => d.dateStr === dateStr);
 
-  const validateStep1 = () => {
-    const newErrors = {};
-    if (!formData.fullName.trim() || formData.fullName.split(' ').length < 2) {
-      newErrors.fullName = 'Por favor, ingresa nombre y apellido completo.';
+    if (currentSel) {
+      if (currentSel.selectionGroupId) {
+        setSelectedDates(prev => prev.filter(d => d.selectionGroupId !== currentSel.selectionGroupId));
+      } else {
+        setSelectedDates(prev => prev.filter(d => d.dateStr !== dateStr));
+      }
+      return;
     }
-    if (!formData.instagram.trim()) {
-      newErrors.instagram = 'El usuario de Instagram es obligatorio.';
-    }
-    if (!formData.email.trim() || !formData.email.includes('@')) {
-      newErrors.email = 'Por favor, ingresa un correo electrónico válido.';
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
-  const nextStep = () => {
-    if (step === 1 && !validateStep1()) return;
-    setStep(prev => prev + 1);
-  };
+    if (selectionMode === 'day') {
+      setSelectedDates(prev => [...prev, { dateStr, slot: 'full' }]);
+    } else if (selectionMode === 'week') {
+      const start = new Date(dateStr + 'T00:00:00');
+      const weekDates = [];
+      for (let i = 0; i < 7; i++) {
+        const next = new Date(start);
+        next.setDate(start.getDate() + i);
+        const ystr = next.getFullYear();
+        const mstr = String(next.getMonth() + 1).padStart(2, '0');
+        const dstr = String(next.getDate()).padStart(2, '0');
+        weekDates.push(`${ystr}-${mstr}-${dstr}`);
+      }
 
-  const prevStep = () => setStep(prev => prev - 1);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.terms) return;
-    
-    setLoading(true);
-    try {
-      // Concurrency validation
-      const latestSoldDays = await getSoldDays();
-      const latestSoldMap = Object.fromEntries(latestSoldDays.map(d => [d.dateStr, d]));
-      
-      const conflictedSelections = selectedDates.filter(sel => {
-        const sold = latestSoldMap[sel.dateStr];
+      const conflicted = weekDates.some(d => {
+        const sold = soldMap[d];
         if (!sold) return false;
-        
         const morningSponsor = sold.morning || (sold.nombre ? { nombre: sold.nombre, foto_url: sold.foto_url } : null);
         const afternoonSponsor = sold.afternoon || (sold.nombre ? { nombre: sold.nombre, foto_url: sold.foto_url } : null);
-        
-        if (sel.slot === 'full' && (morningSponsor || afternoonSponsor)) {
-          return true;
-        }
-        if (sel.slot === 'morning' && morningSponsor) {
-          return true;
-        }
-        if (sel.slot === 'afternoon' && afternoonSponsor) {
-          return true;
-        }
-        return false;
+        return morningSponsor || afternoonSponsor;
       });
 
-      if (conflictedSelections.length > 0) {
-        setSoldDaysData(latestSoldDays);
-        const conflictedDatesList = conflictedSelections.map(s => s.dateStr);
-        setSelectedDates(prev => prev.filter(d => !conflictedDatesList.includes(d.dateStr)));
-        setIsModalOpen(false);
-        setLoading(false);
-        alert(`⚠️ ¡Lo sentimos! Algunos de los días o turnos seleccionados acaban de ser adquiridos por otra persona. Por favor revisa el calendario con los datos actualizados.`);
+      if (conflicted) {
+        alert("⚠️ Esta semana tiene días ya patrocinados. Selecciona otra fecha.");
         return;
       }
 
-      // Upload proof of payment
-      let comprobante_url = null;
-      if (formData.proof) {
-        const timestamp = Date.now();
-        const safeName = formData.proof.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-        const path = `comprame-un-dia-comprobantes/proofs/${timestamp}_${safeName}`;
-        
-        const uploadData = new FormData();
-        uploadData.append('file', formData.proof);
-        uploadData.append('path', path);
-        
-        comprobante_url = await uploadFile(uploadData);
+      const groupId = `week-${dateStr}`;
+      const newSelections = weekDates.map(d => ({ dateStr: d, slot: 'full', selectionGroupId: groupId }));
+
+      setSelectedDates(prev => {
+        const filtered = prev.filter(d => !weekDates.includes(d.dateStr));
+        return [...filtered, ...newSelections];
+      });
+    } else if (selectionMode === 'month') {
+      const [year, monthStr] = dateStr.split('-');
+      const y = parseInt(year);
+      const m = parseInt(monthStr) - 1;
+      const numDays = new Date(y, m + 1, 0).getDate();
+      const monthDates = [];
+      for (let d = 1; d <= numDays; d++) {
+        const dateString = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        monthDates.push(dateString);
       }
 
-      // Upload optional sponsor photo
-      let sponsor_foto_url = null;
-      if (formData.sponsorPhoto) {
-        const timestamp = Date.now();
-        const safeName = formData.sponsorPhoto.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-        const path = `comprame-un-dia-sponsors/${timestamp}_${safeName}`;
-        
-        const uploadData = new FormData();
-        uploadData.append('file', formData.sponsorPhoto);
-        uploadData.append('path', path);
-        
-        sponsor_foto_url = await uploadFile(uploadData);
-      }
-
-      const payload = {
-        fullName: formData.fullName,
-        phone: formData.phone,
-        email: formData.email,
-        instagram: formData.instagram,
-        paymentMethod: 'transfer',
-        bankSelection: formData.bankSelection,
-        hasProof: !!formData.proof,
-        proofName: formData.proof ? formData.proof.name : null,
-        comprobante_url: comprobante_url,
-        sponsor_foto_url: sponsor_foto_url,
-        selectedDates: selectedDates,
-        tier: 'libre',
-        totalPrice: totalPrice,
-        termsAccepted: formData.terms
-      };
-      
-      await saveComprameUnDia(payload);
-
-      // Save sold days to DB
-      await saveSoldDays({
-        selections: selectedDates,
-        nombre: formData.fullName,
-        foto_url: sponsor_foto_url,
-        plan: `${totalDaysCount} ${totalDaysCount === 1 ? 'día' : 'días'} (Selección Libre)`
+      const conflicted = monthDates.some(d => {
+        const sold = soldMap[d];
+        if (!sold) return false;
+        const morningSponsor = sold.morning || (sold.nombre ? { nombre: sold.nombre, foto_url: sold.foto_url } : null);
+        const afternoonSponsor = sold.afternoon || (sold.nombre ? { nombre: sold.nombre, foto_url: sold.foto_url } : null);
+        return morningSponsor || afternoonSponsor;
       });
 
-      window.location.href = '/gracias';
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      alert("Hubo un error al procesar tu solicitud. Por favor intenta de nuevo.");
-      setLoading(false);
+      if (conflicted) {
+        alert("⚠️ Este mes tiene días ya patrocinados. Selecciona otra fecha.");
+        return;
+      }
+
+      const groupId = `month-${year}-${monthStr}`;
+      const newSelections = monthDates.map(d => ({ dateStr: d, slot: 'full', selectionGroupId: groupId }));
+
+      setSelectedDates(prev => {
+        const filtered = prev.filter(d => !monthDates.includes(d.dateStr));
+        return [...filtered, ...newSelections];
+      });
     }
+  };
+
+  const handleSlotClick = (dateStr, slot) => {
+    setSelectedDates(prev => {
+      const existing = prev.find(d => d.dateStr === dateStr);
+
+      if (!existing) {
+        return [...prev, { dateStr, slot }];
+      }
+
+      if (existing.slot === 'full') {
+        const oppositeSlot = slot === 'morning' ? 'afternoon' : 'morning';
+        return [...prev.filter(d => d.dateStr !== dateStr), { dateStr, slot: oppositeSlot }];
+      }
+
+      if (existing.slot === slot) {
+        return prev.filter(d => d.dateStr !== dateStr);
+      }
+
+      return [...prev.filter(d => d.dateStr !== dateStr), { dateStr, slot: 'full' }];
+    });
   };
 
   const months = [
@@ -215,142 +160,6 @@ const ComprameUnDia = () => {
     { name: 'Noviembre 2027', year: 2027, month: 10 },
     { name: 'Diciembre 2027', year: 2027, month: 11 },
   ];
-
-  const handleDateClick = (dateStr, isFullySold) => {
-    if (isFullySold) return;
-    setHasManuallyClosed(false);
-    
-    // Check if day has an active user selection
-    const currentSel = selectedDates.find(d => d.dateStr === dateStr);
-    
-    if (currentSel) {
-      // If already selected, remove it
-      if (currentSel.selectionGroupId) {
-        // Deselect the entire group (e.g. week/month)
-        setSelectedDates(prev => prev.filter(d => d.selectionGroupId !== currentSel.selectionGroupId));
-      } else {
-        // Deselect single selection
-        setSelectedDates(prev => prev.filter(d => d.dateStr !== dateStr));
-      }
-      return;
-    }
-
-    // Apply active selection mode
-    if (selectionMode === 'day') {
-      setSelectedDates(prev => [...prev, { dateStr, slot: 'full' }]);
-    } else if (selectionMode === 'week') {
-      // Select 7 consecutive days
-      const start = new Date(dateStr + 'T00:00:00');
-      const weekDates = [];
-      for (let i = 0; i < 7; i++) {
-        const next = new Date(start);
-        next.setDate(start.getDate() + i);
-        const ystr = next.getFullYear();
-        const mstr = String(next.getMonth() + 1).padStart(2, '0');
-        const dstr = String(next.getDate()).padStart(2, '0');
-        weekDates.push(`${ystr}-${mstr}-${dstr}`);
-      }
-
-      // Check if all 7 days are fully available
-      const conflicted = weekDates.some(d => {
-        const sold = soldMap[d];
-        if (!sold) return false;
-        
-        const morningSponsor = sold.morning || (sold.nombre ? { nombre: sold.nombre, foto_url: sold.foto_url } : null);
-        const afternoonSponsor = sold.afternoon || (sold.nombre ? { nombre: sold.nombre, foto_url: sold.foto_url } : null);
-        return morningSponsor || afternoonSponsor;
-      });
-
-      if (conflicted) {
-        alert("⚠️ Esta semana tiene días ya patrocinados. Selecciona otra fecha.");
-        return;
-      }
-
-      const groupId = `week-${dateStr}`;
-      const newSelections = weekDates.map(d => ({
-        dateStr: d,
-        slot: 'full',
-        selectionGroupId: groupId
-      }));
-
-      // Filter out any prior selections for these 7 days
-      setSelectedDates(prev => {
-        const filtered = prev.filter(d => !weekDates.includes(d.dateStr));
-        return [...filtered, ...newSelections];
-      });
-    } else if (selectionMode === 'month') {
-      // Select entire calendar month boundary of the clicked day
-      const [year, monthStr] = dateStr.split('-');
-      const y = parseInt(year);
-      const m = parseInt(monthStr) - 1; // 0-indexed month
-      
-      const numDays = new Date(y, m + 1, 0).getDate();
-      const monthDates = [];
-      for (let d = 1; d <= numDays; d++) {
-        const dateString = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-        monthDates.push(dateString);
-      }
-
-      // Check if all days in that calendar month are fully available
-      const conflicted = monthDates.some(d => {
-        const sold = soldMap[d];
-        if (!sold) return false;
-        
-        const morningSponsor = sold.morning || (sold.nombre ? { nombre: sold.nombre, foto_url: sold.foto_url } : null);
-        const afternoonSponsor = sold.afternoon || (sold.nombre ? { nombre: sold.nombre, foto_url: sold.foto_url } : null);
-        return morningSponsor || afternoonSponsor;
-      });
-
-      if (conflicted) {
-        alert("⚠️ Este mes tiene días ya patrocinados. Selecciona otra fecha.");
-        return;
-      }
-
-      const groupId = `month-${year}-${monthStr}`;
-      const newSelections = monthDates.map(d => ({
-        dateStr: d,
-        slot: 'full',
-        selectionGroupId: groupId
-      }));
-
-      // Filter out any prior selections for these days of the month
-      setSelectedDates(prev => {
-        const filtered = prev.filter(d => !monthDates.includes(d.dateStr));
-        return [...filtered, ...newSelections];
-      });
-    }
-  };
-
-  const handleSlotClick = (dateStr, slot) => {
-    setSelectedDates(prev => {
-      const existing = prev.find(d => d.dateStr === dateStr);
-      
-      if (!existing) {
-        // Nothing selected yet on this day -> select slot
-        return [...prev, { dateStr, slot }];
-      }
-      
-      if (existing.slot === 'full') {
-        // Day is fully selected -> deselecting one slot leaves opposite slot selected
-        const oppositeSlot = slot === 'morning' ? 'afternoon' : 'morning';
-        return [...prev.filter(d => d.dateStr !== dateStr), { dateStr, slot: oppositeSlot }];
-      }
-      
-      if (existing.slot === slot) {
-        // Same slot clicked -> deselect day entirely
-        return prev.filter(d => d.dateStr !== dateStr);
-      }
-      
-      // Opposite slot clicked -> merge into full day
-      return [...prev.filter(d => d.dateStr !== dateStr), { dateStr, slot: 'full' }];
-    });
-  };
-
-  const handleContinue = () => {
-    setHasManuallyClosed(false);
-    setIsModalOpen(true);
-    setStep(1);
-  };
 
   const toolbarOptions = [
     { id: 'half', label: 'medio día', displayLabel: '1/2 día', icon: <HalfCircleIcon className="w-5 h-5" />, desc: 'Medio Día (RD$1,500)' },
@@ -525,24 +334,13 @@ const ComprameUnDia = () => {
         )}
       </AnimatePresence>
 
-      <CheckoutModal
+      <CheckoutFlow
+        selectedDays={selectedDates}
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
           setHasManuallyClosed(true);
         }}
-        step={step}
-        setStep={setStep}
-        formData={formData}
-        handleInputChange={handleInputChange}
-        handleFileChange={handleFileChange}
-        handleSponsorPhotoChange={handleSponsorPhotoChange}
-        errors={errors}
-        loading={loading}
-        onSubmit={handleSubmit}
-        nextStep={nextStep}
-        prevStep={prevStep}
-        selectedDates={selectedDates}
       />
 
       <style jsx global>{`

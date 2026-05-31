@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X, Check, Landmark, Upload, Loader2, Copy, Image as ImageIcon, ChevronRight } from 'lucide-react'
 import { saveSoldDays, saveComprameUnDia, uploadFile, getSoldDays } from '@/lib/apis/SorteoActions'
 
-export default function CheckoutFlow({ selectedDays }) {
+export default function CheckoutFlow({ selectedDays, isOpen, onClose }) {
+  if (!isOpen) return null
   const [step, setStep] = useState(1)
   const sponsorInputRef = useRef(null)
   const nameRef = useRef(null)
@@ -32,12 +33,13 @@ export default function CheckoutFlow({ selectedDays }) {
   const charLimit = n === 5 ? 30 : (n <= 10 ? 60 : 120)
 
   const getTierId = (count) => {
-    const slot = count % 1 !== 0 ? 'half' : null
-    if (slot === 'half') return 'HalfDay'
-    if (count === 1) return 'DreamDay'
-    if (count >= 2 && count <= 6) return 'CareerSprint'
-    if (count === 7) return 'PushWeek'
-    if (count <= 30) return 'SupportJourney'
+    const whole = Math.floor(count)
+    const hasHalf = count % 1 !== 0
+    if (whole === 0 && hasHalf) return 'HalfDay'
+    if (whole === 1) return 'DreamDay'
+    if (whole >= 2 && whole <= 6) return 'CareerSprint'
+    if (whole === 7) return 'PushWeek'
+    if (whole <= 30) return 'SupportJourney'
     return 'LegacyMonth'
   }
 
@@ -111,7 +113,12 @@ export default function CheckoutFlow({ selectedDays }) {
 
       const conflicted = selectedDays.filter(d => {
         const sold = latestSoldMap[d.dateStr]
-        return sold && (sold.nombre || sold.foto_url)
+        if (!sold) return false
+        if (sold.nombre || sold.foto_url) return true
+        if (d.slot === 'full' && (sold.morning || sold.afternoon)) return true
+        if (d.slot === 'morning' && sold.morning) return true
+        if (d.slot === 'afternoon' && sold.afternoon) return true
+        return false
       })
 
       if (conflicted.length > 0) {
@@ -122,17 +129,19 @@ export default function CheckoutFlow({ selectedDays }) {
 
       let sponsor_foto_url = null
       if (formData.photoFile) {
+        const safeName = formData.photoFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')
         const data = new FormData()
         data.append('file', formData.photoFile)
-        data.append('path', `sponsors/${Date.now()}_${formData.photoFile.name}`)
+        data.append('path', `comprame-un-dia-sponsors/${Date.now()}_${safeName}`)
         sponsor_foto_url = await uploadFile(data)
       }
 
       let comprobante_url = null
       if (formData.proof) {
+        const safeName = formData.proof.name.replace(/[^a-zA-Z0-9.-]/g, '_')
         const data = new FormData()
         data.append('file', formData.proof)
-        data.append('path', `comprobantes/${Date.now()}_${formData.proof.name}`)
+        data.append('path', `comprame-un-dia-comprobantes/proofs/${Date.now()}_${safeName}`)
         comprobante_url = await uploadFile(data)
       }
 
@@ -185,16 +194,36 @@ export default function CheckoutFlow({ selectedDays }) {
   }
 
   return (
-    <div className="bg-[#0a192f] border border-white/10 w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl">
-      {/* Header */}
-      <div className="p-6 border-b border-white/5 flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-black text-white italic tracking-tighter uppercase">Confirmar Patrocinio</h2>
-          <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1">
-            Paso {step} de {TOTAL_STEPS} • {n} días seleccionados
-          </p>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="absolute inset-0 bg-[#020617]/90 backdrop-blur-sm"
+      />
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0, y: 20 }}
+        className="bg-[#0a192f] border border-white/10 w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl relative"
+      >
+        {/* Header */}
+        <div className="p-6 border-b border-white/5 flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-black text-white italic tracking-tighter uppercase">Confirmar Patrocinio</h2>
+            <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1">
+              Paso {step} de {TOTAL_STEPS} • {n} días seleccionados
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-white/5 rounded-full transition-colors text-white/50 hover:text-white"
+            aria-label="Cerrar modal"
+          >
+            <X className="w-6 h-6" />
+          </button>
         </div>
-      </div>
 
       {/* Progress bar */}
       <div className="h-0.5 bg-white/5">
@@ -251,6 +280,7 @@ export default function CheckoutFlow({ selectedDays }) {
                   <input
                     type="checkbox"
                     name="personalize"
+                    autoFocus
                     checked={!formData.personalize}
                     onChange={() => setFormData(prev => ({ ...prev, personalize: !prev.personalize }))}
                     className="peer sr-only"
@@ -686,6 +716,7 @@ export default function CheckoutFlow({ selectedDays }) {
 
         </AnimatePresence>
       </form>
+    </motion.div>
     </div>
   )
 }
