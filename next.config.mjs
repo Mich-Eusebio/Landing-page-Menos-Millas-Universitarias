@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  serverExternalPackages: ['@resvg/resvg-js'],
   async redirects() {
     return [
       {
