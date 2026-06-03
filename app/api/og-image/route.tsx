@@ -12,7 +12,7 @@ export async function GET(request) {
 
     let buffer
     if (layout === 'social') {
-      buffer = await generateSocialPost({ day, name, sponsorPhotoUrl: photo, baseUrl })
+      buffer = await generateSocialPost({ day, sponsorPhotoUrl: photo, baseUrl })
     } else {
       buffer = await generateOgImage({ day, sponsorPhotoUrl: photo, baseUrl })
     }
