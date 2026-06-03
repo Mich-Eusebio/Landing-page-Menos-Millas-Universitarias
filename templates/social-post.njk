@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 1080px;
+      height: 1920px;
+      font-family: 'Inter', sans-serif;
+      background: #000;
+      overflow: hidden;
+    }
+    .container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      background-image: url('{{ campusBg }}');
+      background-size: cover;
+      background-position: center;
+    }
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.18) 40%, rgba(0,0,0,0.65) 100%);
+    }
+    .content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 60px;
+      text-align: center;
+    }
+    .title {
+      font-size: 52px;
+      font-weight: 900;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.4);
+    }
+    .subtitle {
+      font-size: 26px;
+      font-weight: 400;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.5;
+      max-width: 800px;
+      text-shadow: 0 1px 12px rgba(0,0,0,0.3);
+    }
+    .photos {
+      display: flex;
+      align-items: center;
+      gap: 48px;
+      margin-top: 64px;
+      margin-bottom: 32px;
+    }
+    .photo-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .photo-frame {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 4px solid rgba(255,255,255,0.6);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+    }
+    .photo-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .photo-label {
+      font-size: 18px;
+      font-weight: 900;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      text-shadow: 0 1px 8px rgba(0,0,0,0.3);
+    }
+    .cta {
+      font-size: 22px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.9);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-shadow: 0 1px 12px rgba(0,0,0,0.3);
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="overlay"></div>
+    <div class="content">
+      <div class="title">¿y tu, <br/>compraste un día?</div>
+      <div class="subtitle">
+        yo tengo el {{ day }}<br/>
+        del camino del primer ciego,<br/>
+        dominicano, programador,<br/>
+        rumbo a estudiar en EU
+      </div>
+      <div class="photos">
+        <div class="photo-wrapper">
+          <div class="photo-frame">
+            <img src="{{ sponsorPhotoUrl }}" alt=""/>
+          </div>
+          <div class="photo-label">Y tu</div>
+        </div>
+        <div class="photo-wrapper">
+          <div class="photo-frame">
+            <img src="{{ michaelPhotoUrl }}" alt=""/>
+          </div>
+          <div class="photo-label">Michael</div>
+        </div>
+      </div>
+      <div class="cta">ya yo soy parte de esto</div>
+    </div>
+  </div>
+</body>
+</html>

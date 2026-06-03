@@ -1,13 +1,12 @@
 "use client";
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Heart, Sparkles, Instagram, MessageCircle, Download, Linkedin, Share2 } from 'lucide-react'
-import { toPng } from 'html-to-image';
+import { Heart, Sparkles, Instagram, MessageCircle, Download, Linkedin, Share2, Loader2 } from 'lucide-react'
 
 const GraciasPage = () => {
   const [shareData, setShareData] = useState(null)
-  const cardRef = useRef(null)
+  const [generating, setGenerating] = useState(false)
 
   useEffect(() => {
     try {
@@ -32,36 +31,19 @@ const GraciasPage = () => {
     ? `${window.location.origin}/gracias?day=${encodeURIComponent(dayNumber)}&name=${encodeURIComponent(name)}&photo=${encodeURIComponent(photoUrl || '')}`
     : ''
 
-  const generateShareFile = async () => {
-    await new Promise(resolve => setTimeout(resolve, 500))
-    const dataUrl = await toPng(cardRef.current, {
-      cacheBust: true,
-      backgroundColor: '#0a1628',
-    })
-    const res = await fetch(dataUrl)
-    const blobData = await res.blob()
-    return new File([blobData], `patrocinio-dia-${dayNumber}.png`, { type: 'image/png' })
-  }
-
-  const handleShareImage = async () => {
-    try {
-      const file = await generateShareFile()
-      if (navigator.share && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], title: 'Menos Millas', text: shareText })
-      } else {
-        const url = URL.createObjectURL(file)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = file.name
-        a.click()
-        URL.revokeObjectURL(url)
-      }
-    } catch {}
+  const fetchAsset = async (layout = 'social') => {
+    const base = window.location.origin
+    const url = `${base}/api/og-image?day=${encodeURIComponent(dayNumber)}&name=${encodeURIComponent(name)}&photo=${encodeURIComponent(photoUrl || '')}&layout=${layout}`
+    const res = await fetch(url)
+    const blob = await res.blob()
+    return new File([blob], `patrocinio-dia-${dayNumber}.png`, { type: 'image/png' })
   }
 
   const handleShareWhatsApp = async () => {
+    if (generating) return
+    setGenerating(true)
     try {
-      const file = await generateShareFile()
+      const file = await fetchAsset('social')
       if (navigator.share && navigator.canShare?.({ files: [file] })) {
         await navigator.share({ files: [file], title: 'Menos Millas', text: shareText })
       } else {
@@ -69,6 +51,8 @@ const GraciasPage = () => {
       }
     } catch {
       window.open(`https://wa.me/?text=${encodeURIComponent(shareText + '\n' + shareOgUrl)}`, '_blank')
+    } finally {
+      setGenerating(false)
     }
   }
 
@@ -77,15 +61,19 @@ const GraciasPage = () => {
   }
 
   const handleDownloadImage = async () => {
+    if (generating) return
+    setGenerating(true)
     try {
-      const file = await generateShareFile()
+      const file = await fetchAsset('social')
       const url = URL.createObjectURL(file)
       const a = document.createElement('a')
       a.href = url
       a.download = file.name
       a.click()
       URL.revokeObjectURL(url)
-    } catch {}
+    } catch {} finally {
+      setGenerating(false)
+    }
   }
 
   return (
@@ -136,7 +124,6 @@ const GraciasPage = () => {
             className="space-y-6"
           >
             <div
-              ref={cardRef}
               className="w-full bg-gradient-to-br from-[#0a1628] to-[#1a2a4a] rounded-3xl overflow-hidden border border-blue-500/20 shadow-2xl mx-auto"
               style={{ maxWidth: 480 }}
             >
@@ -197,17 +184,17 @@ const GraciasPage = () => {
                 Comparte tu patrocinio
               </p>
               <div className="flex gap-2">
-                <button onClick={handleShareWhatsApp} className="flex-1 bg-green-600 hover:bg-green-500 text-white font-black text-[10px] uppercase tracking-widest py-3 rounded-xl transition-all flex items-center justify-center gap-2">
-                  <MessageCircle className="w-4 h-4" />
-                  WhatsApp
+                <button onClick={handleShareWhatsApp} disabled={generating} className="flex-1 bg-green-600 hover:bg-green-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-black text-[10px] uppercase tracking-widest py-3 rounded-xl transition-all flex items-center justify-center gap-2">
+                  {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <MessageCircle className="w-4 h-4" />}
+                  {generating ? 'Generando...' : 'WhatsApp'}
                 </button>
                 <button onClick={handleShareLinkedIn} className="flex-1 bg-blue-700 hover:bg-blue-600 text-white font-black text-[10px] uppercase tracking-widest py-3 rounded-xl transition-all flex items-center justify-center gap-2">
                   <Linkedin className="w-4 h-4" />
                   LinkedIn
                 </button>
-                <button onClick={handleDownloadImage} className="flex-1 bg-white/10 hover:bg-white/20 text-white font-black text-[10px] uppercase tracking-widest py-3 rounded-xl transition-all flex items-center justify-center gap-2">
-                  <Download className="w-4 h-4" />
-                  Guardar
+                <button onClick={handleDownloadImage} disabled={generating} className="flex-1 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white font-black text-[10px] uppercase tracking-widest py-3 rounded-xl transition-all flex items-center justify-center gap-2">
+                  {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                  {generating ? 'Generando...' : 'Guardar'}
                 </button>
               </div>
               <p className="text-[9px] text-white/30 text-center font-medium">
