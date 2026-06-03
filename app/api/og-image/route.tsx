@@ -8,13 +8,11 @@ export async function GET(request) {
     const photo = searchParams.get('photo') || ''
     const layout = searchParams.get('layout') || 'og'
 
-    const baseUrl = `${request.headers.get('x-forwarded-proto') || 'https'}://${request.headers.get('host') || 'www.millasmichael.do'}`
-
     let buffer
     if (layout === 'social') {
-      buffer = await generateSocialPost({ day, sponsorPhotoUrl: photo, baseUrl })
+      buffer = await generateSocialPost({ day, sponsorPhotoUrl: photo })
     } else {
-      buffer = await generateOgImage({ day, sponsorPhotoUrl: photo, baseUrl })
+      buffer = await generateOgImage({ day, sponsorPhotoUrl: photo })
     }
 
     return new Response(buffer, {
