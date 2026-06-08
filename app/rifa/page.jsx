@@ -28,7 +28,9 @@ import {
   ArrowRight,
   Info,
   MapPin,
-  X
+  X,
+  Copy,
+  Landmark
 } from 'lucide-react';
 
 
@@ -40,8 +42,6 @@ const PLANS = [
   { id: 'impulso', name: 'Milla de Impulso', price: 'RD$1,500', amount: 1500, premium: 0, general: 3 },
   { id: 'inicial', name: 'Milla Inicial', price: 'RD$1,000', amount: 1000, premium: 0, general: 1 },
 ];
-
-const SOURCES = ['en persona', 'redes sociales', 'referidor del sorteo', 'colegio', 'trabajo', 'iglesia', 'vecino', 'conocido', 'otro'];
 
 // --- Components ---
 
@@ -96,18 +96,15 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [ticketsDB, setTicketsDB] = useState({});
   const [modalData, setModalData] = useState({ open: false, title: '', message: '' });
+  const [submissionId, setSubmissionId] = useState(null);
 
   const [formData, setFormData] = useState({
     nombre: '',
     cedula: '',
     telefono: '',
-    telefonoSecundario: '',
     email: '',
-    ubicacion: '',
     plan: '',
-    referidor: 'No',
-    nombreReferidor: '',
-    fuente: '',
+    bankSelection: 'popular',
     comprobante: null,
     terms_accepted: false,
     selectedPremium: [],
@@ -162,8 +159,8 @@ const selectedPlan = PLANS.find(p => p.id === formData.plan);
 
 //Auto-posicionar en la primera página con tickets disponibles al entrar al tablero
   useEffect(() => {
-    if (step === 4 || step === 5) {
-      const isPremium = step === 4;
+    if (step === 3 || step === 4) {
+      const isPremium = step === 3;
       // Estos totales vienen de cómo llamas a renderTicketGrid en tu JSX
       const totalTickets = isPremium ? 240 : 2500; 
       const pageSize = 120;
@@ -220,7 +217,7 @@ const toggleTicket = (id, type) => {
 
 const handleNext = () => {
   // Validación de tablero Premium
-  if (step === 4 && selectedPlan?.premium > 0) {
+  if (step === 3 && selectedPlan?.premium > 0) {
     const needed = selectedPlan.premium;
     const current = formData.selectedPremium.length;
     if (current < needed) {
@@ -234,7 +231,7 @@ const handleNext = () => {
   }
 
   // Validación de tablero General
-  if (step === 5) {
+  if (step === 4) {
     const needed = selectedPlan.general;
     const current = formData.selectedGeneral.length;
     if (current < needed) {
@@ -247,12 +244,12 @@ const handleNext = () => {
     }
   }
 
-  // Lógica de salto de paso (Bug fix)
+  // Lógica de salto de paso
   let nextStep = step + 1;
 
-  // Si estamos en Referencia (3) y el plan NO tiene premium, saltar directo al General (5)
-  if (step === 3 && selectedPlan?.premium === 0) {
-    nextStep = 5;
+  // Si estamos en Plan (2) y el plan NO tiene premium, saltar directo al General (4)
+  if (step === 2 && selectedPlan?.premium === 0) {
+    nextStep = 4;
   }
 
   setStep(nextStep);
@@ -261,9 +258,9 @@ const handleNext = () => {
 const handleBack = () => {
   let prevStep = step - 1;
 
-  // Si estamos en General (5) y el plan NO tiene premium, volver directo a Referencia (3)
-  if (step === 5 && selectedPlan?.premium === 0) {
-    prevStep = 3;
+  // Si estamos en General (4) y el plan NO tiene premium, volver directo a Plan (2)
+  if (step === 4 && selectedPlan?.premium === 0) {
+    prevStep = 2;
   }
 
   setStep(prevStep);
@@ -329,9 +326,9 @@ const handleSubmit = async (e) => {
         owner_name: formData.nombre,
         "4_personal_id_last_digits": formData.cedula,
         phone1: formData.telefono,
-        phone2: formData.telefonoSecundario || "None",
         email: formData.email,
-        owner_address: formData.ubicacion || "None",
+        bankSelection: formData.bankSelection,
+        plan_name: selectedPlan?.name || 'Plan',
         comprobanteUrl: comprobanteUrl,
         terms_accepted: formData.terms_accepted,
         created_at: new Date(),
@@ -361,7 +358,8 @@ const handleSubmit = async (e) => {
         transaction.set(regPremRef, premiumPayload);
       }
     });
-    setStep(8); // ¡Éxito!
+    setSubmissionId(submissionId);
+    setStep(7); // ¡Éxito!
   } catch (err) { 
     console.error(" Error al procesar:", err);
     alert(err.message || "Error al procesar la solicitud.");
@@ -520,21 +518,20 @@ if (step === 0) return (
 
 const isStepValid = () => {
   switch (step) {
-    case 1: return formData.nombre && formData.cedula && formData.telefono;
+    case 1: return formData.nombre && formData.cedula && formData.telefono && formData.email;
     case 2: return formData.plan;
-    case 3: return formData.fuente && (formData.referidor === 'No' || formData.nombreReferidor);
-    case 4: return selectedPlan?.premium > 0;
+    case 3: return selectedPlan?.premium > 0;
+    case 4: return true;
     case 5: return true;
-    case 6: return true;
-    case 7: return formData.comprobante && formData.terms_accepted;
+    case 6: return formData.comprobante && formData.terms_accepted;
     default: return true;
   }
 };
 
 const getStepTitle = () => {
   const titles = [
-    '', 'Información Personal', 'Plan de Apoyo', 'Referencia',
-    'Números Premium', 'Números Generales', 'Confirmación de Selección', 'Finalizar Pago'
+    '', 'Información Personal', 'Plan de Apoyo',
+    'Números Premium', 'Números Generales', 'Método de Pago', 'Comprobante'
   ];
   return titles[step];
 };
@@ -554,12 +551,12 @@ return (
         <div className="flex justify-between items-center mb-4">
           <button onClick={() => setStep(0)} className="text-blue-200 hover:text-white text-sm font-bold">← Inicio</button>
           <span className="bg-white/10 px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase">
-            Paso {step} de 7
+            Paso {step} de 6
           </span>
         </div>
         <h2 className="text-2xl font-black">{getStepTitle()}</h2>
         <div className="mt-6 flex gap-1.5">
-          {[1, 2, 3, 4, 5, 6, 7].map(i => (
+          {[1, 2, 3, 4, 5, 6].map(i => (
             <div key={i} className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${i <= step ? 'bg-yellow-400' : 'bg-blue-800'}`} />
           ))}
         </div>
@@ -573,31 +570,20 @@ return (
               <p className="text-xs text-blue-800">Usa números sin guiones, puntos ni paréntesis.</p>
             </div>
             <div>
-              <label className="block text-sm font-black text-gray-700 mb-2">Nombre y Apellido *</label>
+              <label className="block text-sm font-black text-gray-700 mb-2">Nombre completo *</label>
               <input required type="text" className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none text-gray-900" placeholder="Ej: Michael Eusebio" value={formData.nombre} onChange={e => setFormData({ ...formData, nombre: e.target.value })} />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-black text-gray-700 mb-2">Últimos 4 dígitos de la cédula *</label>
-                <input required type="text" maxLength="4" className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none text-gray-900" placeholder="1234" value={formData.cedula} onChange={e => setFormData({ ...formData, cedula: e.target.value.replace(/\D/g, '') })} />
-              </div>
-              <div>
-                <label className="block text-sm font-black text-gray-700 mb-2">WhatsApp Principal *</label>
-                <input required type="tel" className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none text-gray-900" placeholder="Ej: 18295551234" value={formData.telefono} onChange={e => setFormData({ ...formData, telefono: e.target.value.replace(/[^0-9]/g, '') })} />
-              </div>
+            <div>
+              <label className="block text-sm font-black text-gray-700 mb-2">Últimos 4 dígitos de la cédula *</label>
+              <input required type="text" maxLength="4" className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none text-gray-900" placeholder="1234" value={formData.cedula} onChange={e => setFormData({ ...formData, cedula: e.target.value.replace(/\D/g, '') })} />
             </div>
             <div>
-              <label className="block text-sm font-black text-gray-700 mb-2">Teléfono Secundario (Opcional)</label>
-              <input type="tel" className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none text-gray-900" placeholder="Ej: 18092224444" value={formData.telefonoSecundario} onChange={e => setFormData({ ...formData, telefonoSecundario: e.target.value.replace(/[^0-9]/g, '') })} />
-            </div>
-            {/* Campo de Email - Paso 1 */}
-            <div className="md:col-span-2">
-              <label className="block text-sm font-black text-gray-700 mb-2">Correo Electrónico *</label>
-              <input type="email" className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none" placeholder="tu@email.com" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
+              <label className="block text-sm font-black text-gray-700 mb-2">WhatsApp o Teléfono *</label>
+              <input required type="tel" className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none text-gray-900" placeholder="Ej: 18295551234" value={formData.telefono} onChange={e => setFormData({ ...formData, telefono: e.target.value.replace(/[^0-9]/g, '') })} />
             </div>
             <div>
-              <label className="block text-sm font-black text-gray-700 mb-2">Ubicación Completa (Opcional)</label>
-              <textarea rows="3" className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none text-gray-900" placeholder="País, Estado/Provincia, Sector, Calle..." value={formData.ubicacion} onChange={e => setFormData({ ...formData, ubicacion: e.target.value })} />
+              <label className="block text-sm font-black text-gray-700 mb-2">Correo electrónico *</label>
+              <input required type="email" className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none text-gray-900" placeholder="tu@email.com" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
             </div>
           </div>
         )}
@@ -622,31 +608,6 @@ return (
         )}
 
         {step === 3 && (
-          <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="bg-gray-50 p-6 rounded-[2rem] space-y-4">
-              <p className="font-black text-gray-700 text-center">¿Te enteraste por un referidor?</p>
-              <div className="flex gap-4">
-                {['Sí', 'No'].map(opt => (
-                  <button key={opt} type="button" onClick={() => setFormData({ ...formData, referidor: opt })} className={`flex-1 py-4 rounded-2xl border-2 font-black transition-all ${formData.referidor === opt ? 'border-blue-600 bg-blue-600 text-white' : 'border-gray-200 text-gray-400 bg-white'}`}>
-                    {opt}
-                  </button>
-                ))}
-              </div>
-              {formData.referidor === 'Sí' && (
-                <input required type="text" className="w-full p-4 bg-white rounded-2xl border-2 border-blue-100 outline-none animate-in zoom-in" placeholder="Nombre de quien te refirió" value={formData.nombreReferidor} onChange={e => setFormData({ ...formData, nombreReferidor: e.target.value })} />
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-black text-gray-700 mb-2 text-center">Fuente de conexión</label>
-              <select className="w-full p-5 bg-gray-50 rounded-2xl border-none outline-none font-bold text-gray-700 appearance-none text-center" value={formData.fuente} onChange={e => setFormData({ ...formData, fuente: e.target.value })}>
-                <option value="">Selecciona una opción</option>
-                {SOURCES.map(s => <option key={s} value={s}>{s}</option>)}
-              </select>
-            </div>
-          </div>
-        )}
-
-        {step === 4 && (
           <div className="animate-in slide-in-from-right-8 duration-500">
             <div className="bg-blue-50 p-4 rounded-2xl flex items-start gap-3 mb-8">
               <AlertCircle size={20} className="text-blue-600 shrink-0 mt-0.5" />
@@ -658,7 +619,7 @@ return (
           </div>
         )}
 
-        {step === 5 && (
+        {step === 4 && (
           <div className="animate-in slide-in-from-right-8 duration-500">
             <div className="bg-yellow-50 p-4 rounded-2xl flex items-start gap-3 mb-8 border border-yellow-100">
               <Info size={20} className="text-yellow-600 shrink-0 mt-0.5" />
@@ -670,73 +631,106 @@ return (
           </div>
         )}
 
-        {step === 6 && (
+        {step === 5 && (
           <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="bg-gray-900 text-white p-8 rounded-[2.5rem] shadow-xl">
-              <h4 className="text-center font-black text-xl mb-6">Resumen de Selección</h4>
+            <div className="bg-blue-50 border border-blue-100 rounded-2xl p-5 flex items-center justify-between relative overflow-hidden">
+              <div>
+                <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Total a transferir</p>
+                <p className="text-2xl font-black text-gray-900 tracking-tighter mt-1">
+                  {selectedPlan?.price || 'RD$0'}
+                </p>
+              </div>
+              <div className="text-right">
+                <span className="text-[10px] font-black text-blue-600 bg-blue-100 px-2 py-1 rounded-lg uppercase tracking-wider">
+                  {selectedPlan?.name || 'Plan'}
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-3">Selecciona tu banco</p>
+              <div className="flex bg-gray-100 p-1 rounded-xl border border-gray-200">
+                {['popular', 'banreservas'].map((bank) => (
+                  <button
+                    key={bank}
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, bankSelection: bank }))}
+                    className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${formData.bankSelection === bank ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-500 hover:text-gray-700'}`}
+                  >
+                    {bank}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200 space-y-4 relative overflow-hidden">
+              <div className="flex items-center gap-3 mb-2">
+                <Landmark className="w-5 h-5 text-blue-600" />
+                <p className="text-xs font-black text-blue-600 uppercase tracking-widest">Datos de transferencia</p>
+              </div>
+
               <div className="space-y-4">
-                <div className="flex justify-between border-b border-white/10 pb-2">
-                  <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Plan Seleccionado</span>
-                  <span className="font-black text-yellow-400">{selectedPlan.name}</span>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-[0.2em]">Número de Cuenta</p>
+                    <p className="text-base font-black text-gray-900 tracking-wider mt-0.5">
+                      {formData.bankSelection === 'popular' ? '0854243391' : '9607058204'}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => navigator.clipboard.writeText(formData.bankSelection === 'popular' ? '0854243391' : '9607058204')}
+                    className="p-2 bg-white hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-lg text-gray-400 hover:text-blue-600 transition-all active:scale-90"
+                    title="Copiar número"
+                  >
+                    <Copy className="w-4 h-4" />
+                  </button>
                 </div>
-                <div className="flex justify-between border-b border-white/10 pb-2">
-                  <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Costo del Plan</span>
-                  <span className="font-black text-blue-400">{selectedPlan.price}</span>
+
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200">
+                  <div>
+                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-[0.2em]">Tipo</p>
+                    <p className="text-[10px] font-black text-gray-900 uppercase tracking-widest mt-1">Ahorro</p>
+                  </div>
+                  <div>
+                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-[0.2em]">Titular</p>
+                    <p className="text-[10px] font-black text-gray-900 uppercase tracking-widest mt-1">Michael Eusebio</p>
+                  </div>
                 </div>
-                {selectedPlan.premium > 0 && (
-                  <div className="space-y-2">
-                    <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Tickets Premium (Sorteo Sorpresa)</span>
-                    <div className="flex flex-wrap gap-2">
-                      {formData.selectedPremium.map(id => (
-                        <span key={id} className="bg-blue-600 px-3 py-1 rounded-full text-xs font-bold">{id.split('-')[1]}</span>
-                      ))}
-                    </div>
+
+                <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+                  <div>
+                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-[0.2em]">Cédula</p>
+                    <p className="text-[10px] font-black text-gray-900 uppercase tracking-widest mt-1">402-3402480-6</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => navigator.clipboard.writeText('40234024806')}
+                    className="p-2 bg-white hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-lg text-gray-400 hover:text-blue-600 transition-all active:scale-90"
+                    title="Copiar cédula"
+                  >
+                    <Copy className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {formData.bankSelection === 'popular' && (
+                  <div className="pt-4 border-t border-gray-200">
+                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-[0.2em]">SWIFT</p>
+                    <p className="text-[10px] font-black text-gray-900 uppercase tracking-widest mt-1">BPDODOSX</p>
                   </div>
                 )}
-                <div className="space-y-2">
-                  <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Tickets Generales</span>
-                  <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
-                    {formData.selectedGeneral.map(id => (
-                      <span key={id} className="bg-yellow-400 text-gray-900 px-3 py-1 rounded-full text-xs font-bold">{id.split('-')[1]}</span>
-                    ))}
-                  </div>
-                </div>
               </div>
             </div>
           </div>
         )}
 
-        {step === 7 && (
+        {step === 6 && (
           <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="bg-blue-600 p-8 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden">
-              <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
-              <p className="text-blue-100 text-xs font-black uppercase tracking-widest mb-2">Cuenta de Ahorros</p>
-              <p className="text-2xl font-black mb-1">Banco Popular</p>
-              <p className="text-2xl font-mono tracking-wider font-bold">0854243391</p>
-              <div className="mt-6 pt-6 border-t border-blue-500/30 grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-[10px] uppercase font-bold opacity-70">Titular</p>
-                <p className="text-sm font-bold">Michael A. Eusebio</p>
-              </div>
-              <div>
-                <p className="text-[10px] uppercase font-bold opacity-70">Cédula</p>
-                <p className="text-sm font-bold">402-3402480-6</p>
-              </div>
-              <div>
-                <p className="text-[10px] uppercase font-bold opacity-70">SWIFT</p>
-                <p className="text-sm font-bold">BPDODOSX</p>
-              </div>
-              <div>
-                <p className="text-[10px] uppercase font-bold opacity-70">País</p>
-                <p className="text-sm font-bold">Rep. Dom.</p>
-              </div>
-            </div>
-          </div>
-            <div className="relative border-4 border-dashed border-gray-100 rounded-[2.5rem] p-12 text-center hover:bg-gray-50 transition-all group">
+            <div className="relative border-4 border-dashed border-gray-200 rounded-[2.5rem] p-12 text-center hover:bg-gray-50 transition-all group">
               <input
                 required
                 type="file"
-                accept="image/png, image/jpeg, image/jpg, image/webp" // <--- ESTO RESTRINGE A IMÁGENES
+                accept="image/png, image/jpeg, image/jpg, image/webp"
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 onChange={e => setFormData({ ...formData, comprobante: e.target.files[0] })}
               />
@@ -757,8 +751,8 @@ return (
                 </div>
               )}
             </div>
-            {/* Campo de Comentario - Paso 7 */}
-            <div className="mt-4">
+
+            <div>
               <label className="block text-sm font-black text-gray-700 mb-2">¿Por qué apoyas esta causa? (Opcional)</label>
               <textarea 
               rows="2" 
@@ -769,8 +763,7 @@ return (
             />
           </div>
 
-            {/* Checkbox de Términos */}
-            <div className="mt-8 p-6 bg-gray-50 rounded-3xl border border-gray-100">
+            <div className="p-6 bg-gray-50 rounded-3xl border border-gray-100">
               <label className="flex items-start gap-4 cursor-pointer group">
                 <div className="relative flex items-center mt-1">
                   <input
@@ -790,31 +783,44 @@ return (
           </div>
         )}
 
-        {/* PASO 8: ÉXITO */}
-        {step === 8 && (
+        {/* PASO 7: ÉXITO */}
+        {step === 7 && (
           <div className="text-center py-16 animate-in zoom-in duration-700">
             <div className="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
               <CheckCircle size={56} />
             </div>
             <h2 className="text-3xl font-black mb-4 text-gray-900 leading-tight">Tu participación quedó registrada 🎉</h2>
-            <p className="text-gray-600 mb-10 leading-relaxed max-w-sm mx-auto font-medium">
-              Gracias por apostar por el talento dominicano con discapacidad. En breve recibirás tu boleta por WhatsApp o correo.
+            <p className="text-gray-600 mb-8 leading-relaxed max-w-sm mx-auto font-medium">
+              Gracias por apostar por el talento dominicano con discapacidad.
             </p>
+
+            <div className="max-w-sm mx-auto space-y-4 mb-8">
+              <a
+                href={`https://wa.me/18295705985?text=${encodeURIComponent('Recuérdame mis tickets por favor')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full bg-green-500 text-white px-6 py-4 rounded-2xl font-black hover:bg-green-600 shadow-xl shadow-green-200 transition-all flex items-center justify-center gap-3"
+              >
+                <Phone size={20} />
+                Recuérdame mis tickets
+              </a>
+            </div>
+
             <button
               onClick={() => window.location.reload()}
-              className="bg-blue-600 text-white px-10 py-5 rounded-3xl font-black hover:bg-blue-700 shadow-2xl shadow-blue-200 transition-all hover:-translate-y-1"
+              className="text-gray-400 hover:text-gray-600 text-sm font-bold transition-colors"
             >
               Cerrar esta ventana
             </button>
           </div>
         )}
 
-        {step > 0 && step < 8 && (
+        {step > 0 && step < 7 && (
           <div className="mt-12 flex gap-4">
             <button type="button" onClick={handleBack} className="flex-1 py-5 px-6 rounded-3xl font-black text-gray-400 bg-gray-50 hover:bg-gray-100 transition-all">
               Anterior
             </button>
-            {step === 7 ? (
+            {step === 6 ? (
               <button type="submit" disabled={!isStepValid() || loading} className={`flex-[2] py-5 px-6 rounded-3xl font-black text-white transition-all flex items-center justify-center gap-2 ${isStepValid() ? 'bg-blue-600 hover:bg-blue-700 shadow-xl shadow-blue-200' : 'bg-gray-200 cursor-not-allowed text-gray-400'}`}>
                 {loading ? 'Procesando...' : 'Finalizar Registro'}
               </button>
