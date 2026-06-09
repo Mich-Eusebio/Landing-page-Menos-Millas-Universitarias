@@ -1,32 +1,82 @@
 rules_version = '2';
 
+// REGLAS DE STORAGE (Para la foto del comprobante)
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      // Permite leer y subir si el usuario está autenticado (incluye anónimos)
+      allow read, write: if request.auth != null;
+    }
+  }
+}
+
 // REGLAS DE FIRESTORE (Para los datos de los tickets)
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Ruta para los tickets de rifa
-    match /Millas-michael-rifa-tickets/{ticketId} {
-      allow read: if true; // Cualquiera debe poder ver qué tickets están libres
-      allow update: if request.auth != null; // Para marcar como "reservado"
-      allow create, delete: if false; // Solo tú creas los tickets manualmente
+    // Regla para el documento padre de rifas
+    match /rifas/{version} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+    
+    // Regla para los tickets (GENERAL y PREMIUM)
+    // Ahora permitimos escribir para que la transacción pueda marcarlos como vendidos
+    match /rifas/v2/tickets_sold_general/{ticketId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null; 
     }
 
-    // Ruta para que los usuarios guarden sus datos de compra (rifa)
+    match /rifas/v2/tickets_sold_premium/{ticketId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // Regla para los registros de las ventas
+    match /rifas/v2/general_registrations/{registrationId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+    
+    match /rifas/v2/premium_registrations/{registrationId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // Regla para la colección de ganadores (ruta anidada)
+    match /artifacts/{appId}/public/data/winners/{winnerId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // Ruta para que los usuarios guarden sus datos de compra
     match /registrations/{regId} {
       allow create: if request.auth != null;
       allow read: if request.auth != null; 
     }
 
-    // Cómprame un día: registros de compra
     match /comprame-un-dia/{docId} {
-      allow create: if request.auth != null;
-      allow read: if request.auth != null;
+      allow create, read: if request.auth != null;
     }
-
-    // HU1: Días vendidos — lectura pública para el calendario, escritura solo autenticados
-    match /comprame-un-dia/sold-days/days/{dateId} {
-      allow read: if true;            // El calendario lo lee sin login
-      allow write: if request.auth != null;  // Solo admins / backend autenticado
+    
+    match /sold-days/{date} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+    
+    match /en-primera-fila/{email} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+    
+    match /frenaki-app/user-type/person/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+    
+    match /frenaki-app/user-type/businesses/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
     }
   }
 }
