@@ -130,8 +130,8 @@ export default function App() {
 useEffect(() => {
   if (!user) return;
   // escuchar la colección de premiun tickets y general tickets
-  const genRef = collection(db, 'rifa2/tickets_sold_general');
-  const premRef = collection(db, 'rifa2/tickets_sold_premium');
+  const genRef = collection(db, 'rifas/v2/tickets_sold_general');
+  const premRef = collection(db, 'rifas/v2/tickets_sold_premium');
 
   const unsubscribeGen = onSnapshot(genRef, (snapshot) => {
     setTicketsDB(prev => {
@@ -287,12 +287,12 @@ const handleSubmit = async (e) => {
       
       // Validar y reservar tickets General
       if (formData.selectedGeneral.length > 0) {
-        await validateAndReserveTickets(transaction, formData.selectedGeneral, 'rifa2/tickets_sold_general', formData.nombre, submissionId);
+        await validateAndReserveTickets(transaction, formData.selectedGeneral, 'rifas/v2/tickets_sold_general', formData.nombre, submissionId);
       }
 
       // Validar y reservar tickets Premium
       if (formData.selectedPremium.length > 0) {
-        await validateAndReserveTickets(transaction, formData.selectedPremium, 'rifa2/tickets_sold_premium', formData.nombre, submissionId);
+        await validateAndReserveTickets(transaction, formData.selectedPremium, 'rifas/v2/tickets_sold_premium', formData.nombre, submissionId);
       }
 
       // Preparar payload común
@@ -320,7 +320,7 @@ const handleSubmit = async (e) => {
           ticket_tipe: "General",
           general_raffle_tickets: formData.selectedGeneral.map(id => parseInt(id.replace('general-', ''))),
         };
-        await saveParticipant(transaction, 'rifa2/general_registrations', generalPayload);
+        await saveParticipant(transaction, 'rifas/v2/general_registrations', generalPayload);
       }
 
       // Guardar registro Premium
@@ -331,7 +331,7 @@ const handleSubmit = async (e) => {
           ticket_tipe: "Premium",
           premium_raffle_tickets: formData.selectedPremium.map(id => parseInt(id.replace('premium-', ''))),
         };
-        await saveParticipant(transaction, 'rifa2/premium_registrations', premiumPayload);
+        await saveParticipant(transaction, 'rifas/v2/premium_registrations', premiumPayload);
       }
     });
     setSubmissionId(submissionId);

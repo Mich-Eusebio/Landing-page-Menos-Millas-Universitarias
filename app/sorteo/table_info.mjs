@@ -27,7 +27,7 @@ async function exportData() {
     try {
         await signInAnonymously(auth);
         console.log("Conectando a Firestore...");
-        const querySnapshot = await getDocs(collection(db, 'rifa2/general_registrations'));
+        const querySnapshot = await getDocs(collection(db, 'rifas/v2/general_registrations'));
 
         // Aquí pones toda tu lógica de agrupación (owner_name.toLowerCase(), etc.)
         const aggregation = {};
