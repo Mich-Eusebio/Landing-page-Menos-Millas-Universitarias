@@ -81,8 +81,8 @@ async function sendTicketsReminder(phoneNumber, uid) {
     let nombre = '';
 
     if (uid) {
-      const generalDocRef = doc(db, 'general_registrations', `${uid}_general`);
-      const premiumDocRef = doc(db, 'premium_registrations', `${uid}_premium`);
+      const generalDocRef = doc(db, 'rifa2/general_registrations', `${uid}_general`);
+      const premiumDocRef = doc(db, 'rifa2/premium_registrations', `${uid}_premium`);
 
       const [generalSnap, premiumSnap] = await Promise.all([
         getDoc(generalDocRef),

@@ -163,8 +163,8 @@ export default function App() {
 
         try {
             // 1. Determinar qué colección usar según el premio
-            const coleccionTickets = premioObj.highTicket ? 'tickets_sold_premium' : 'tickets_sold_general';
-            const coleccionRegistros = premioObj.highTicket ? 'premium_registrations' : 'general_registrations';
+            const coleccionTickets = premioObj.highTicket ? 'rifa2/tickets_sold_premium' : 'rifa2/tickets_sold_general';
+            const coleccionRegistros = premioObj.highTicket ? 'rifa2/premium_registrations' : 'rifa2/general_registrations';
 
             // 2. Traer tickets reales desde el backend
             const tickets = await actions.getTicketsFrom(coleccionTickets);
