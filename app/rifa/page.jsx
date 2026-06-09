@@ -81,6 +81,7 @@ const Modal = ({ isOpen, onClose, title, message }) => {
         <p className="text-gray-600 mb-6 leading-relaxed">{message}</p>
         <button
           onClick={onClose}
+          autoFocus
           className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 transition-all"
         >
           Continuar selección
@@ -712,21 +713,24 @@ return (
                     <Copy className="w-4 h-4" />
                   </button>
                 </div>
-
-                {formData.bankSelection === 'popular' && (
-                  <div className="pt-4 border-t border-gray-200">
-                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-[0.2em]">SWIFT</p>
-                    <p className="text-[10px] font-black text-gray-900 uppercase tracking-widest mt-1">BPDODOSX</p>
-                  </div>
-                )}
               </div>
+            </div>
+
+            <div className="bg-blue-600 text-white p-5 rounded-2xl text-center">
+              <p className="font-black text-lg mb-1">📸 Sube el screenshot de tu transferencia</p>
+              <p className="text-blue-100 text-sm">Toma una foto o sube una captura de pantalla del comprobante</p>
             </div>
           </div>
         )}
 
         {step === 6 && (
           <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="relative border-4 border-dashed border-gray-200 rounded-[2.5rem] p-12 text-center hover:bg-gray-50 transition-all group">
+            <div className="bg-blue-600 text-white p-5 rounded-2xl text-center">
+              <p className="font-black text-lg mb-1">📸 Sube el screenshot de tu transferencia</p>
+              <p className="text-blue-100 text-sm">Toma una foto o sube una captura de pantalla del comprobante</p>
+            </div>
+
+            <div className="relative border-4 border-dashed border-blue-300 bg-blue-50 rounded-[2.5rem] p-12 text-center hover:bg-blue-100 hover:border-blue-400 transition-all group">
               <input
                 required
                 type="file"
@@ -737,16 +741,17 @@ return (
               {formData.comprobante ? (
                 <div className="text-blue-600 font-black flex flex-col items-center gap-2">
                   <CheckCircle size={40} className="animate-bounce" />
-                  <p className="text-sm">Archivo seleccionado: {formData.comprobante.name.substring(0, 20)}...</p>
+                  <p className="text-sm">¡Comprobante cargado!</p>
+                  <p className="text-xs text-gray-500">{formData.comprobante.name.substring(0, 25)}...</p>
                 </div>
               ) : (
-                <div className="text-gray-400 flex flex-col items-center gap-4">
-                  <div className="bg-gray-100 p-4 rounded-full group-hover:scale-110 transition-transform">
-                    <CreditCard size={32} />
+                <div className="text-gray-600 flex flex-col items-center gap-4">
+                  <div className="bg-blue-100 p-4 rounded-full group-hover:scale-110 transition-transform">
+                    <CreditCard size={32} className="text-blue-600" />
                   </div>
                   <div>
-                    <p className="font-black text-gray-600">Click para seleccionar archivo</p>
-                    <p className="text-xs">JPG, PNG o PDF aceptados</p>
+                    <p className="font-black text-blue-700 text-base">Click para subir comprobante</p>
+                    <p className="text-xs text-gray-500 mt-1">JPG, PNG o PDF</p>
                   </div>
                 </div>
               )}
@@ -796,7 +801,7 @@ return (
 
             <div className="max-w-sm mx-auto space-y-4 mb-8">
               <a
-                href={`https://wa.me/18295705985?text=${encodeURIComponent('Recuérdame mis tickets por favor')}`}
+                href={`https://wa.me/${(process.env.NEXT_PUBLIC_KAPSO_PHONE_NUMBER || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Recuérdame mis tickets por favor')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full bg-green-500 text-white px-6 py-4 rounded-2xl font-black hover:bg-green-600 shadow-xl shadow-green-200 transition-all flex items-center justify-center gap-3"
@@ -808,7 +813,7 @@ return (
 
             <button
               onClick={() => window.location.reload()}
-              className="text-gray-400 hover:text-gray-600 text-sm font-bold transition-colors"
+              className="w-full bg-blue-600 text-white px-6 py-4 rounded-2xl font-black hover:bg-blue-700 shadow-xl shadow-blue-200 transition-all"
             >
               Cerrar esta ventana
             </button>
