@@ -32,6 +32,7 @@ import {
   Copy,
   Landmark
 } from 'lucide-react';
+import { validateAndReserveTickets, saveParticipant } from '@/lib/apis/rifaTransactions';
 
 
 
@@ -275,54 +276,26 @@ const handleSubmit = async (e) => {
   try {
     const submissionId = crypto.randomUUID();
     let comprobanteUrl = "";
-    let generalPayload = null;
-    let premiumPayload = null
 
-    // : Subir archivo ---
+    // Subir comprobante
     const storageRef = ref(storage, `comprobantes/comprobante de pago [${formData.nombre}] [${new Date().toLocaleDateString('es-DO')}]`);
     const uploadResult = await uploadBytes(storageRef, formData.comprobante);
     comprobanteUrl = await getDownloadURL(uploadResult.ref);
 
-    // --- PASO 2: La Transacción (Todo o nada) ---
+    // Transacción atómica (Todo o nada)
     await runTransaction(db, async (transaction) => {
       
-      // A. VALIDACIÓN DE DISPONIBILIDAD
-      for (const tid of formData.selectedGeneral) {
-        const tDocRef = doc(db, 'tickets_sold_general', tid);
-        const tSnap = await transaction.get(tDocRef);
-        if (tSnap.exists() && (tSnap.data().status === 'sold' || tSnap.data().status === 'reserved')) {
-          throw new Error(`El ticket General ${tid} ya no está disponible.`);
-        }
+      // Validar y reservar tickets General
+      if (formData.selectedGeneral.length > 0) {
+        await validateAndReserveTickets(transaction, formData.selectedGeneral, 'tickets_sold_general', formData.nombre);
       }
 
-      for (const tid of formData.selectedPremium) {
-        const tDocRef = doc(db, 'tickets_sold_premium', tid);
-        const tSnap = await transaction.get(tDocRef);
-        if (tSnap.exists() && (tSnap.data().status === 'sold' || tSnap.data().status === 'reserved')) {
-          throw new Error(`El ticket Premium ${tid} ya no está disponible.`);
-        }
+      // Validar y reservar tickets Premium
+      if (formData.selectedPremium.length > 0) {
+        await validateAndReserveTickets(transaction, formData.selectedPremium, 'tickets_sold_premium', formData.nombre);
       }
 
-      //MARCAR COMO RESERVADOS (Update de estados)
-      formData.selectedGeneral.forEach((tid) => {
-        const tDocRef = doc(db, 'tickets_sold_general', tid);
-        transaction.set(tDocRef, { 
-          status: 'reserved', 
-          reservedBy: formData.nombre, 
-          timestamp: Date.now() 
-        });
-      });
-
-      formData.selectedPremium.forEach((tid) => {
-        const tDocRef = doc(db, 'tickets_sold_premium', tid);
-        transaction.set(tDocRef, { 
-          status: 'reserved', 
-          reservedBy: formData.nombre, 
-          timestamp: Date.now() 
-        });
-      });
-
-      // PREPARAR PAYLOADS
+      // Preparar payload común
       const commonData = {
         owner_name: formData.nombre,
         "4_personal_id_last_digits": formData.cedula,
@@ -330,6 +303,7 @@ const handleSubmit = async (e) => {
         email: formData.email,
         bankSelection: formData.bankSelection,
         plan_name: selectedPlan?.name || 'Plan',
+        plan_amount: selectedPlan?.amount || 0,
         comprobanteUrl: comprobanteUrl,
         terms_accepted: formData.terms_accepted,
         created_at: new Date(),
@@ -338,25 +312,26 @@ const handleSubmit = async (e) => {
         support_reason: formData.support_reason
       };
 
-      // D. GUARDAR REGISTROS DE VENTA
+      // Guardar registro General
       if (formData.selectedGeneral.length > 0) {
         const generalPayload = {
           ...commonData,
+          submission_id: `${submissionId}_general`,
           ticket_tipe: "General",
           general_raffle_tickets: formData.selectedGeneral.map(id => parseInt(id.replace('general-', ''))),
         };
-        const regGenRef = doc(db, 'general_registrations', `${submissionId}_general`);
-        transaction.set(regGenRef, generalPayload);
+        await saveParticipant(transaction, 'general_registrations', generalPayload);
       }
 
+      // Guardar registro Premium
       if (formData.selectedPremium.length > 0) {
         const premiumPayload = {
           ...commonData,
+          submission_id: `${submissionId}_premium`,
           ticket_tipe: "Premium",
           premium_raffle_tickets: formData.selectedPremium.map(id => parseInt(id.replace('premium-', ''))),
         };
-        const regPremRef = doc(db, 'premium_registrations', `${submissionId}_premium`);
-        transaction.set(regPremRef, premiumPayload);
+        await saveParticipant(transaction, 'premium_registrations', premiumPayload);
       }
     });
     setSubmissionId(submissionId);
