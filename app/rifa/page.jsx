@@ -801,7 +801,7 @@ return (
 
             <div className="max-w-sm mx-auto space-y-4 mb-8">
               <a
-                href={`https://wa.me/${(process.env.NEXT_PUBLIC_KAPSO_PHONE_NUMBER || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Recuérdame mis tickets por favor')}`}
+                href={`https://wa.me/${(process.env.NEXT_PUBLIC_KAPSO_PHONE_NUMBER || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Recuérdame mis tickets [${submissionId}]`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full bg-green-500 text-white px-6 py-4 rounded-2xl font-black hover:bg-green-600 shadow-xl shadow-green-200 transition-all flex items-center justify-center gap-3"

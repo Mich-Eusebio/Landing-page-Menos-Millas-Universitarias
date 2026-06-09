@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { db } from '@/lib/FirebaseConfig';
-import { collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
+import { collection, query, where, getDocs, orderBy, limit, doc, getDoc } from 'firebase/firestore';
 import { sendRifaConfirmation } from '@/lib/apis/WhatsAppService';
 
 export async function POST(request) {
@@ -45,77 +45,71 @@ async function handleIncomingMessage(payload) {
     }
 
     const from = message.from;
-    const text = message.text?.body?.toLowerCase() || '';
+    const text = message.text?.body || '';
+    const textLower = text.toLowerCase();
     
     console.log(`📱 Mensaje de ${from}: ${text}`);
 
-    if (text.includes('recuérdame') || text.includes('recuerdame') || text.includes('tickets')) {
-      await sendTicketsReminder(from);
+    if (textLower.includes('recuérdame') || textLower.includes('recuerdame') || textLower.includes('tickets')) {
+      const uidMatch = text.match(/\[([a-f0-9-]+)\]/i);
+      const uid = uidMatch ? uidMatch[1] : null;
+      
+      console.log(`🔍 UID extraído: ${uid || 'ninguno'}`);
+      
+      await sendTicketsReminder(from, uid);
     }
   } catch (error) {
     console.error('❌ Error procesando mensaje:', error);
   }
 }
 
-async function sendTicketsReminder(phoneNumber) {
+async function sendTicketsReminder(phoneNumber, uid) {
   try {
-    console.log(`🔍 Buscando datos para ${phoneNumber}...`);
-
-    const phoneFormatted = phoneNumber.replace(/\D/g, '');
-    
-    const generalQuery = query(
-      collection(db, 'general_registrations'),
-      where('phone1', '==', phoneFormatted),
-      orderBy('created_at', 'desc'),
-      limit(1)
-    );
-    
-    const premiumQuery = query(
-      collection(db, 'premium_registrations'),
-      where('phone1', '==', phoneFormatted),
-      orderBy('created_at', 'desc'),
-      limit(1)
-    );
-
-    const [generalSnap, premiumSnap] = await Promise.all([
-      getDocs(generalQuery),
-      getDocs(premiumQuery)
-    ]);
-
-    if (generalSnap.empty && premiumSnap.empty) {
-      console.log('⚠️ No se encontraron registros para', phoneNumber);
-      return;
-    }
+    console.log(`🔍 Buscando datos para ${phoneNumber}${uid ? ` con UID: ${uid}` : ''}...`);
 
     const allTickets = [];
     let planName = '';
-    let submissionId = '';
+    let submissionId = uid || '';
     let nombre = '';
 
-    if (!generalSnap.empty) {
-      const doc = generalSnap.docs[0];
-      const data = doc.data();
-      submissionId = doc.id.split('_')[0];
-      nombre = data.owner_name;
-      planName = data.plan_name || 'Plan General';
-      
-      if (data.general_raffle_tickets) {
-        allTickets.push(...data.general_raffle_tickets.map(t => `general-${t.toString().padStart(4, '0')}`));
-      }
-    }
+    if (uid) {
+      const generalDocRef = doc(db, 'general_registrations', `${uid}_general`);
+      const premiumDocRef = doc(db, 'premium_registrations', `${uid}_premium`);
 
-    if (!premiumSnap.empty) {
-      const doc = premiumSnap.docs[0];
-      const data = doc.data();
-      if (!submissionId) {
-        submissionId = doc.id.split('_')[0];
+      const [generalSnap, premiumSnap] = await Promise.all([
+        getDoc(generalDocRef),
+        getDoc(premiumDocRef)
+      ]);
+
+      if (!generalSnap.exists() && !premiumSnap.exists()) {
+        console.log('⚠️ No se encontraron registros para UID:', uid);
+        return;
+      }
+
+      if (generalSnap.exists()) {
+        const data = generalSnap.data();
         nombre = data.owner_name;
+        planName = data.plan_name || 'Plan General';
+        
+        if (data.general_raffle_tickets) {
+          allTickets.push(...data.general_raffle_tickets.map(t => `general-${t.toString().padStart(4, '0')}`));
+        }
       }
-      planName = data.plan_name || planName;
-      
-      if (data.premium_raffle_tickets) {
-        allTickets.push(...data.premium_raffle_tickets.map(t => `premium-${t.toString().padStart(4, '0')}`));
+
+      if (premiumSnap.exists()) {
+        const data = premiumSnap.data();
+        if (!nombre) {
+          nombre = data.owner_name;
+        }
+        planName = data.plan_name || planName;
+        
+        if (data.premium_raffle_tickets) {
+          allTickets.push(...data.premium_raffle_tickets.map(t => `premium-${t.toString().padStart(4, '0')}`));
+        }
       }
+    } else {
+      console.log('⚠️ No se proporcionó UID, búsqueda por teléfono no implementada');
+      return;
     }
 
     console.log(`✅ Datos encontrados: ${nombre}, ${allTickets.length} tickets`);
