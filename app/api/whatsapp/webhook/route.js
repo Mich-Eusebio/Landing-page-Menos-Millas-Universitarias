@@ -6,24 +6,32 @@ import { sendRifaConfirmation } from '@/lib/apis/WhatsAppService';
 
 export async function POST(request) {
   try {
-    const payload = await request.json();
+    const rawBody = await request.text();
     const signature = request.headers.get('x-webhook-signature');
     const event = request.headers.get('x-webhook-event');
     
     console.log('📨 Webhook recibido:', event);
-    console.log('📦 Payload:', JSON.stringify(payload, null, 2));
+    console.log('📦 Payload:', rawBody);
     
-    if (process.env.WHATSAPP_WEBHOOK_SECRET && signature) {
+    if (!signature) {
+      console.error('❌ Firma faltante');
+      return NextResponse.json({ error: 'Missing signature' }, { status: 401 });
+    }
+    
+    if (process.env.WHATSAPP_WEBHOOK_SECRET) {
       const expectedSignature = crypto
         .createHmac('sha256', process.env.WHATSAPP_WEBHOOK_SECRET)
-        .update(JSON.stringify(payload))
+        .update(rawBody)
         .digest('hex');
       
-      if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
+      if (signature.length !== expectedSignature.length || 
+          !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
         console.error('❌ Firma inválida');
         return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
       }
     }
+
+    const payload = JSON.parse(rawBody);
 
     if (event === 'whatsapp.message.received') {
       await handleIncomingMessage(payload);
