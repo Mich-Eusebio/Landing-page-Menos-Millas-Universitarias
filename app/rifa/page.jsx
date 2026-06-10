@@ -99,6 +99,9 @@ export default function App() {
   const [ticketsDB, setTicketsDB] = useState({});
   const [modalData, setModalData] = useState({ open: false, title: '', message: '' });
   const [submissionId, setSubmissionId] = useState(null);
+  const [showCountdown, setShowCountdown] = useState(false);
+  const [isBlurred, setIsBlurred] = useState(false);
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   const [formData, setFormData] = useState({
     nombre: '',
@@ -113,6 +116,44 @@ export default function App() {
     selectedGeneral: [],
     support_reason: ""
   });
+
+  useEffect(() => {
+    const hasShown = sessionStorage.getItem('countdown_shown');
+    if (hasShown) return;
+
+    const targetDate = new Date('2026-07-11T00:00:00');
+
+    const updateCountdown = () => {
+      const now = new Date();
+      const diff = targetDate - now;
+      if (diff <= 0) return;
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      setTimeLeft({ days, hours, minutes, seconds });
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+
+    const timer1 = setTimeout(() => {
+      setIsBlurred(true);
+      setShowCountdown(true);
+    }, 3000);
+
+    const timer2 = setTimeout(() => {
+      setShowCountdown(false);
+      setIsBlurred(false);
+      sessionStorage.setItem('countdown_shown', 'true');
+    }, 4000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    };
+  }, []);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -443,7 +484,8 @@ const renderTicketGrid = (totalTickets, cols, type) => {
 };
 
 if (step === 0) return (
-  <div className="min-h-screen bg-[#0a192f] font-sans text-slate-100">
+  <div className="min-h-screen bg-[#0a192f] font-sans text-slate-100 relative">
+    <div className={isBlurred ? 'blur-md transition-all duration-500' : 'transition-all duration-500'}>
     <nav className="fixed top-0 w-full bg-[#0a192f]/80 backdrop-blur-md z-50 border-b border-blue-900/30">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         <span className="font-black text-xl tracking-tighter text-white">MENOS MILLAS</span>
@@ -517,6 +559,36 @@ if (step === 0) return (
       </div>
       <p className="text-white/20 text-xs">© 2025 Menos Millas Universitarias. Apoyo estudiantil Michael Eusebio.</p>
     </footer>
+    </div>
+
+    {showCountdown && (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0a192f]/90 backdrop-blur-sm">
+        <div className="text-center">
+          <p className="text-green-400 text-lg md:text-xl font-bold uppercase tracking-widest mb-6">La rifa cierra en</p>
+          <div className="flex items-center justify-center gap-4 md:gap-8">
+            <div className="text-center">
+              <div className="text-green-400 text-6xl md:text-8xl font-black leading-none">{String(timeLeft.days).padStart(2, '0')}</div>
+              <p className="text-white/60 text-xs md:text-sm font-bold uppercase tracking-widest mt-2">Días</p>
+            </div>
+            <div className="text-green-400 text-4xl md:text-6xl font-black">:</div>
+            <div className="text-center">
+              <div className="text-green-400 text-6xl md:text-8xl font-black leading-none">{String(timeLeft.hours).padStart(2, '0')}</div>
+              <p className="text-white/60 text-xs md:text-sm font-bold uppercase tracking-widest mt-2">Horas</p>
+            </div>
+            <div className="text-green-400 text-4xl md:text-6xl font-black">:</div>
+            <div className="text-center">
+              <div className="text-green-400 text-6xl md:text-8xl font-black leading-none">{String(timeLeft.minutes).padStart(2, '0')}</div>
+              <p className="text-white/60 text-xs md:text-sm font-bold uppercase tracking-widest mt-2">Min</p>
+            </div>
+            <div className="text-green-400 text-4xl md:text-6xl font-black">:</div>
+            <div className="text-center">
+              <div className="text-green-400 text-6xl md:text-8xl font-black leading-none">{String(timeLeft.seconds).padStart(2, '0')}</div>
+              <p className="text-white/60 text-xs md:text-sm font-bold uppercase tracking-widest mt-2">Seg</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
   </div>
 );
 
