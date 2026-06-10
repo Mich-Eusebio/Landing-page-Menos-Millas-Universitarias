@@ -47,22 +47,22 @@ const PLANS = [
 // --- Components ---
 
 const PrizeCard = ({ number, name, eligibility, image, isSpecial }) => (
-  <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 transition-transform hover:scale-105">
-    <div className="h-48 bg-gray-200 relative">
+  <div className="bg-white/5 rounded-2xl shadow-xl overflow-hidden border border-white/10 transition-transform hover:scale-105">
+    <div className="h-48 bg-white/5 relative">
       {isSpecial ? (
-        <div className="flex items-center justify-center h-full bg-blue-50">
+        <div className="flex items-center justify-center h-full bg-blue-600/10">
           <HelpCircle size={64} className="text-blue-400" />
         </div>
       ) : (
         <img src={image} alt={name} className="w-full h-full object-contain p-4" onError={(e) => e.target.src = 'https://via.placeholder.com/400x300?text=Premio'} />
       )}
-      <div className="absolute top-4 left-4 bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">
+      <div className="absolute top-4 left-4 bg-amber-400 text-slate-900 w-8 h-8 rounded-full flex items-center justify-center font-bold">
         {number}
       </div>
     </div>
     <div className="p-5">
-      <h3 className="text-xl font-bold text-gray-800 mb-1">{name}</h3>
-      <p className="text-sm text-gray-500 mb-3">Elegibilidad: {eligibility}</p>
+      <h3 className="text-xl font-bold text-white mb-1">{name}</h3>
+      <p className="text-sm text-blue-100/60 mb-3">Elegibilidad: {eligibility}</p>
     </div>
   </div>
 );
@@ -70,16 +70,16 @@ const PrizeCard = ({ number, name, eligibility, image, isSpecial }) => (
 const Modal = ({ isOpen, onClose, title, message }) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl transform animate-in zoom-in duration-300">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-[#0a192f] rounded-3xl p-8 max-w-sm w-full shadow-2xl transform animate-in zoom-in duration-300 border border-white/10">
         <div className="flex justify-between items-start mb-4">
-          <div className="bg-red-100 p-2 rounded-full text-red-600">
+          <div className="bg-red-500/20 p-2 rounded-full text-red-400">
             <AlertCircle size={24} />
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
+          <button onClick={onClose} className="text-white/40 hover:text-white"><X size={20} /></button>
         </div>
-        <h3 className="text-xl font-black text-gray-900 mb-2">{title}</h3>
-        <p className="text-gray-600 mb-6 leading-relaxed">{message}</p>
+        <h3 className="text-xl font-black text-white mb-2">{title}</h3>
+        <p className="text-blue-100/70 mb-6 leading-relaxed">{message}</p>
         <button
           onClick={onClose}
           autoFocus
@@ -360,7 +360,7 @@ const renderTicketGrid = (totalTickets, cols, type) => {
     <div className="w-full space-y-4 py-2">
       {/* Encabezado */}
       <div className="flex justify-between items-center px-2">
-        <h4 className="font-black text-gray-800">
+        <h4 className="font-black text-white">
           Tablero {isPremium ? 'Premium' : 'General'}
         </h4>
         <div role="status" className="bg-blue-600 text-white px-3 py-1 rounded-full text-[10px] font-black shadow-lg">
@@ -369,23 +369,23 @@ const renderTicketGrid = (totalTickets, cols, type) => {
       </div>
 
       {/* CONTENEDOR DE LA TABLA (Con soporte para scroll táctil) */}
-      <div className="bg-gray-50 p-4 rounded-[2.5rem] border-2 border-gray-100 shadow-inner overflow-hidden">
-        <p className="text-[9px] text-center font-black text-gray-400 mb-3 uppercase tracking-[0.2em]">
+      <div className="bg-white/5 p-4 rounded-[2.5rem] border-2 border-white/10 shadow-inner overflow-hidden">
+        <p className="text-[9px] text-center font-black text-white/40 mb-3 uppercase tracking-[0.2em]">
           Tickets del {startTicket} al {endTicket}
         </p>
         
         <div 
           className="grid grid-cols-10 gap-2 overflow-x-auto snap-x snap-mandatory"
-          style={{ WebkitOverflowScrolling: 'touch' }} // Suavidad en iPhone
+          style={{ WebkitOverflowScrolling: 'touch' }}
         >
           {currentTickets.map((num) => {
             const rawId = num.toString().padStart(4, '0');
-            const fullId = isPremium ? `premium-${rawId}` : `general-${rawId}`; // ID con prefijo
+            const fullId = isPremium ? `premium-${rawId}` : `general-${rawId}`;
             const status = ticketsDB[fullId]?.status || 'available';
             const isSelected = formData[field].includes(fullId); 
 
-            let colorClasses = "bg-yellow-400 text-white hover:bg-yellow-500 shadow-sm";
-            if (isSelected) colorClasses = "bg-blue-600 text-white ring-4 ring-blue-100 scale-105 z-10 shadow-lg";
+            let colorClasses = "bg-[#E6B63A] text-white hover:bg-[#d4a52e] shadow-sm";
+            if (isSelected) colorClasses = "bg-blue-600 text-white ring-4 ring-blue-400/30 scale-105 z-10 shadow-lg";
             if (status === 'reserved' || status === 'sold') colorClasses = "bg-red-600 text-white font-black shadow-inner cursor-not-allowed";
 
             return (
@@ -412,13 +412,13 @@ const renderTicketGrid = (totalTickets, cols, type) => {
           aria-label="Página anterior"
           onClick={() => setCurrentGridPage(prev => Math.max(0, prev - 1))}
           disabled={currentGridPage === 0}
-          className="p-3 rounded-full bg-white border-2 border-gray-100 shadow-sm text-blue-600 disabled:opacity-20 hover:bg-blue-50 active:scale-90 transition-all"
+          className="p-3 rounded-full bg-white/5 border-2 border-white/10 shadow-sm text-blue-400 disabled:opacity-20 hover:bg-blue-600/20 active:scale-90 transition-all"
         >
           <ArrowRight className="rotate-180" size={20} />
         </button>
 
         <div className="text-center min-w-[100px]">
-          <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
+          <span className="text-[10px] font-black text-white/50 uppercase tracking-widest">
             Pág. {currentGridPage + 1} de {totalPages}
           </span>
         </div>
@@ -428,14 +428,14 @@ const renderTicketGrid = (totalTickets, cols, type) => {
           aria-label="Siguiente página"
           onClick={() => setCurrentGridPage(prev => Math.min(totalPages - 1, prev + 1))}
           disabled={currentGridPage === totalPages - 1}
-          className="p-3 rounded-full bg-white border-2 border-gray-100 shadow-sm text-blue-600 disabled:opacity-20 hover:bg-blue-50 active:scale-90 transition-all"
+          className="p-3 rounded-full bg-white/5 border-2 border-white/10 shadow-sm text-blue-400 disabled:opacity-20 hover:bg-blue-600/20 active:scale-90 transition-all"
         >
           <ArrowRight size={20} />
         </button>
       </div>
 
       {/* Guía visual para móviles */}
-      <p className="text-center text-[9px] text-gray-300 font-bold italic">
+      <p className="text-center text-[9px] text-white/30 font-bold italic">
         Tip: También puedes deslizar los números hacia los lados
       </p>
     </div>
@@ -443,34 +443,31 @@ const renderTicketGrid = (totalTickets, cols, type) => {
 };
 
 if (step === 0) return (
-  <div className="min-h-screen bg-white font-sans text-gray-900">
-    <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b border-gray-100">
+  <div className="min-h-screen bg-[#0a192f] font-sans text-slate-100">
+    <nav className="fixed top-0 w-full bg-[#0a192f]/80 backdrop-blur-md z-50 border-b border-blue-900/30">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-        <span className="font-black text-xl tracking-tighter text-blue-600">MENOS MILLAS</span>
-        <button onClick={() => setStep(1)} className="bg-blue-600 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-blue-700 transition">
-          ACORTEMOS LA META!
+        <span className="font-black text-xl tracking-tighter text-white">MENOS MILLAS</span>
+        <button onClick={() => setStep(1)} className="bg-amber-400 text-slate-900 px-5 py-2 rounded-full text-sm font-bold hover:bg-amber-300 transition">
+          Participar ahora
         </button>
       </div>
     </nav>
 
-    <section className="pt-32 pb-20 px-4 bg-gradient-to-b from-blue-50 to-white">
+    <section className="pt-32 pb-20 px-4">
       <div className="max-w-4xl mx-auto text-center">
-        <h1 className="text-4xl md:text-6xl font-black mb-6 leading-tight">
-          Mi llegada a la universidad este año se decide <span className="text-blue-600">aquí y ahora.</span>
+        <h1 className="text-4xl md:text-6xl font-black mb-6 leading-tight text-white">
+          Impulsa mi camino a <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-amber-500">una de las mejores universidades del mundo.</span>
         </h1>
-        <p className="text-lg md:text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-          Gana premios premium mientras apoyas el paso que define si el primer desarrollador de software dominicano con discapacidad visual puede llegar a una de las mejores universidades del mundo.
+        <p className="text-lg md:text-xl text-blue-100/70 mb-10 max-w-2xl mx-auto leading-relaxed">
+          Participa y gana premios premium mientras acortas la meta.
         </p>
-        <button onClick={() => setStep(1)} className="bg-blue-600 text-white px-8 py-4 rounded-2xl text-lg font-black hover:bg-blue-700 shadow-xl shadow-blue-200 flex items-center justify-center gap-2 mx-auto">
-          ACORTEMOS LA META! <ArrowRight size={20} />
+        <button onClick={() => setStep(1)} className="bg-amber-400 text-slate-900 px-8 py-4 rounded-2xl text-lg font-black hover:bg-amber-300 shadow-xl shadow-amber-400/20 flex items-center justify-center gap-2 mx-auto">
+          Participar ahora <ArrowRight size={20} />
         </button>
-        <div className="mt-12 p-4 bg-red-50 border border-red-100 rounded-2xl inline-flex items-center gap-3 text-red-700 text-sm font-medium">
-          <AlertCircle size={18} /> Prueba de fondos requerida antes del 1 de mayo.
-        </div>
       </div>
     </section>
 
-    <section className="py-20 px-4 bg-gray-50">
+    <section className="py-20 px-4 bg-[#050b16]">
       <div className="max-w-7xl mx-auto">
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <PrizeCard number="1" name="IPhone 16 Pro" eligibility="Todos los planes" image="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcREAF22_unWfzVdKNGzFH9o-ZLnPGPckweP5ZWUH-ZHqg&s" />
@@ -481,13 +478,13 @@ if (step === 0) return (
       </div>
     </section>
 
-    <footer className="bg-gray-900 text-white py-12 px-4 text-center">
+    <footer className="bg-[#071120] text-white py-12 px-4 text-center">
       <div className="flex justify-center gap-6 mb-6">
         <a href="https://instagram.com/mich_eusebio" target="_blank" className="hover:text-blue-400 transition"><Instagram /></a>
         <a href="https://www.linkedin.com/in/mich-eusebio/" target="_blank" className="hover:text-blue-400 transition"><Linkedin /></a>
         <a href="https://wa.me/18295705985" target="_blank" className="hover:text-blue-400 transition"><Phone /></a>
       </div>
-      <p className="text-gray-500 text-xs">© 2025 Menos Millas Universitarias. Apoyo estudiantil Michael Eusebio.</p>
+      <p className="text-white/20 text-xs">© 2025 Menos Millas Universitarias. Apoyo estudiantil Michael Eusebio.</p>
     </footer>
   </div>
 );
@@ -513,7 +510,7 @@ const getStepTitle = () => {
 };
 
 return (
-  <div className="min-h-screen bg-gray-50 flex flex-col items-center p-4">
+  <div className="min-h-screen bg-[#0a192f] flex flex-col items-center p-4">
     <Modal
       isOpen={modalData.open}
       onClose={() => setModalData({ ...modalData, open: false })}
@@ -521,7 +518,7 @@ return (
       message={modalData.message}
     />
 
-    <div className="w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden my-4">
+    <div className="w-full max-w-2xl bg-[#0d1f3c] rounded-[2.5rem] shadow-2xl overflow-hidden my-4 border border-white/10">
       {/* Progress Bar */}
       <div className="bg-blue-600 p-8 text-white">
         <div className="flex justify-between items-center mb-4">
@@ -533,7 +530,7 @@ return (
         <h2 className="text-2xl font-black">{getStepTitle()}</h2>
         <div className="mt-6 flex gap-1.5">
           {[1, 2, 3, 4, 5, 6].map(i => (
-            <div key={i} className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${i <= step ? 'bg-yellow-400' : 'bg-blue-800'}`} />
+            <div key={i} className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${i <= step ? 'bg-amber-400' : 'bg-blue-800'}`} />
           ))}
         </div>
       </div>
@@ -541,25 +538,25 @@ return (
       <form onSubmit={handleSubmit} className="p-8">
         {step === 1 && (
           <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="bg-blue-50 p-4 rounded-2xl border border-blue-100 mb-4 flex gap-3 items-center">
-              <Info size={20} className="text-blue-600" />
-              <p className="text-xs text-blue-800">Usa números sin guiones, puntos ni paréntesis.</p>
+            <div className="bg-blue-600/10 p-4 rounded-2xl border border-blue-500/20 mb-4 flex gap-3 items-center">
+              <Info size={20} className="text-blue-400" />
+              <p className="text-xs text-blue-200">Usa números sin guiones, puntos ni paréntesis.</p>
             </div>
             <div>
-              <label className="block text-sm font-black text-gray-700 mb-2">Nombre completo *</label>
-              <input required type="text" className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none text-gray-900" placeholder="Ej: Michael Eusebio" value={formData.nombre} onChange={e => setFormData({ ...formData, nombre: e.target.value })} />
+              <label className="block text-sm font-black text-white mb-2">Nombre completo *</label>
+              <input required type="text" className="w-full p-4 bg-white/5 rounded-2xl border-2 border-white/10 focus:border-blue-500 focus:bg-white/10 transition-all outline-none text-white" placeholder="Ej: Michael Eusebio" value={formData.nombre} onChange={e => setFormData({ ...formData, nombre: e.target.value })} />
             </div>
             <div>
-              <label className="block text-sm font-black text-gray-700 mb-2">Últimos 4 dígitos de la cédula *</label>
-              <input required type="text" maxLength="4" className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none text-gray-900" placeholder="1234" value={formData.cedula} onChange={e => setFormData({ ...formData, cedula: e.target.value.replace(/\D/g, '') })} />
+              <label className="block text-sm font-black text-white mb-2">Últimos 4 dígitos de la cédula *</label>
+              <input required type="text" maxLength="4" className="w-full p-4 bg-white/5 rounded-2xl border-2 border-white/10 focus:border-blue-500 focus:bg-white/10 transition-all outline-none text-white" placeholder="1234" value={formData.cedula} onChange={e => setFormData({ ...formData, cedula: e.target.value.replace(/\D/g, '') })} />
             </div>
             <div>
-              <label className="block text-sm font-black text-gray-700 mb-2">WhatsApp o Teléfono *</label>
-              <input required type="tel" className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none text-gray-900" placeholder="Ej: 18295551234" value={formData.telefono} onChange={e => setFormData({ ...formData, telefono: e.target.value.replace(/[^0-9]/g, '') })} />
+              <label className="block text-sm font-black text-white mb-2">WhatsApp o Teléfono *</label>
+              <input required type="tel" className="w-full p-4 bg-white/5 rounded-2xl border-2 border-white/10 focus:border-blue-500 focus:bg-white/10 transition-all outline-none text-white" placeholder="Ej: 18295551234" value={formData.telefono} onChange={e => setFormData({ ...formData, telefono: e.target.value.replace(/[^0-9]/g, '') })} />
             </div>
             <div>
-              <label className="block text-sm font-black text-gray-700 mb-2">Correo electrónico *</label>
-              <input required type="email" className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none text-gray-900" placeholder="tu@email.com" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
+              <label className="block text-sm font-black text-white mb-2">Correo electrónico *</label>
+              <input required type="email" className="w-full p-4 bg-white/5 rounded-2xl border-2 border-white/10 focus:border-blue-500 focus:bg-white/10 transition-all outline-none text-white" placeholder="tu@email.com" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
             </div>
           </div>
         )}
@@ -567,17 +564,17 @@ return (
         {step === 2 && (
           <div className="space-y-4 animate-in fade-in duration-500">
             {PLANS.map(plan => (
-              <label key={plan.id} className={`flex items-center justify-between p-6 rounded-[2rem] border-2 transition-all cursor-pointer ${formData.plan === plan.id ? 'border-blue-600 bg-blue-50 ring-4 ring-blue-50' : 'border-gray-100 hover:border-blue-200'}`}>
+              <label key={plan.id} className={`flex items-center justify-between p-6 rounded-[2rem] border-2 transition-all cursor-pointer ${formData.plan === plan.id ? 'border-blue-500 bg-blue-600/10 ring-4 ring-blue-500/20' : 'border-white/10 hover:border-blue-400/50'}`}>
                 <div className="flex items-center gap-4">
-                  <input type="radio" name="plan" className="w-6 h-6 text-blue-600" checked={formData.plan === plan.id} onChange={() => setFormData({ ...formData, plan: plan.id })} />
+                  <input type="radio" name="plan" className="w-6 h-6 text-blue-500" checked={formData.plan === plan.id} onChange={() => setFormData({ ...formData, plan: plan.id })} />
                   <div>
-                    <p className="font-black text-gray-900 text-lg">{plan.name}</p>
-                    <p className="text-xs text-blue-600 font-bold uppercase tracking-wider">
+                    <p className="font-black text-white text-lg">{plan.name}</p>
+                    <p className="text-xs text-blue-300 font-bold uppercase tracking-wider">
                       {plan.premium > 0 ? `${plan.premium} ticket${plan.premium > 1 ? 's' : ''} sorteo premium + ` : ''}{plan.general} ticket{plan.general > 1 ? 's' : ''} sorteo general
                     </p>
                   </div>
                 </div>
-                <span className="font-black text-gray-900">{plan.price}</span>
+                <span className="font-black text-white">{plan.price}</span>
               </label>
             ))}
           </div>
@@ -585,9 +582,9 @@ return (
 
         {step === 3 && (
           <div className="animate-in slide-in-from-right-8 duration-500">
-            <div className="bg-blue-50 p-4 rounded-2xl flex items-start gap-3 mb-8">
-              <AlertCircle size={20} className="text-blue-600 shrink-0 mt-0.5" />
-              <p className="text-sm text-blue-800 leading-relaxed font-medium">
+            <div className="bg-blue-600/10 p-4 rounded-2xl flex items-start gap-3 mb-8 border border-blue-500/20">
+              <AlertCircle size={20} className="text-blue-400 shrink-0 mt-0.5" />
+              <p className="text-sm text-blue-200 leading-relaxed font-medium">
                 Este <strong>tablero de tickets</strong> es para el sorteo del <strong>Premio Sorpresa</strong>, solo disponible para planes de apoyo Milla Extra y Milla de Impacto. Elige tus {selectedPlan.premium} números.
               </p>
             </div>
@@ -597,10 +594,10 @@ return (
 
         {step === 4 && (
           <div className="animate-in slide-in-from-right-8 duration-500">
-            <div className="bg-yellow-50 p-4 rounded-2xl flex items-start gap-3 mb-8 border border-yellow-100">
-              <Info size={20} className="text-yellow-600 shrink-0 mt-0.5" />
-              <p className="text-sm text-yellow-800 leading-relaxed font-medium">
-                Este es el tablero de tickets general. Tienes {selectedPlan.general} números disponibles para los premios principales.
+            <div className="bg-amber-400/10 p-4 rounded-2xl flex items-start gap-3 mb-8 border border-amber-400/20">
+              <Info size={20} className="text-amber-400 shrink-0 mt-0.5" />
+              <p className="text-sm text-amber-200 leading-relaxed font-medium">
+                Tienes {selectedPlan.general} {selectedPlan.general === 1 ? 'número disponible' : 'números disponibles'} para participar.
               </p>
             </div>
             {renderTicketGrid(2500, 10, 'general')}
@@ -609,29 +606,29 @@ return (
 
         {step === 5 && (
           <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="bg-blue-50 border border-blue-100 rounded-2xl p-5 flex items-center justify-between relative overflow-hidden">
+            <div className="bg-blue-600/10 border border-blue-500/20 rounded-2xl p-5 flex items-center justify-between relative overflow-hidden">
               <div>
-                <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Total a transferir</p>
-                <p className="text-2xl font-black text-gray-900 tracking-tighter mt-1">
+                <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Total a transferir</p>
+                <p className="text-2xl font-black text-white tracking-tighter mt-1">
                   {selectedPlan?.price || 'RD$0'}
                 </p>
               </div>
               <div className="text-right">
-                <span className="text-[10px] font-black text-blue-600 bg-blue-100 px-2 py-1 rounded-lg uppercase tracking-wider">
+                <span className="text-[10px] font-black text-blue-400 bg-blue-600/20 px-2 py-1 rounded-lg uppercase tracking-wider">
                   {selectedPlan?.name || 'Plan'}
                 </span>
               </div>
             </div>
 
             <div>
-              <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-3">Selecciona tu banco</p>
-              <div className="flex bg-gray-100 p-1 rounded-xl border border-gray-200">
+              <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-3">Selecciona tu banco</p>
+              <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
                 {['popular', 'banreservas'].map((bank) => (
                   <button
                     key={bank}
                     type="button"
                     onClick={() => setFormData(prev => ({ ...prev, bankSelection: bank }))}
-                    className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${formData.bankSelection === bank ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-500 hover:text-gray-700'}`}
+                    className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${formData.bankSelection === bank ? 'bg-blue-600 text-white shadow-lg' : 'text-white/50 hover:text-white'}`}
                   >
                     {bank}
                   </button>
@@ -639,50 +636,50 @@ return (
               </div>
             </div>
 
-            <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200 space-y-4 relative overflow-hidden">
+            <div className="bg-white/5 rounded-2xl p-6 border border-white/10 space-y-4 relative overflow-hidden">
               <div className="flex items-center gap-3 mb-2">
-                <Landmark className="w-5 h-5 text-blue-600" />
-                <p className="text-xs font-black text-blue-600 uppercase tracking-widest">Datos de transferencia</p>
+                <Landmark className="w-5 h-5 text-blue-400" />
+                <p className="text-xs font-black text-blue-400 uppercase tracking-widest">Datos de transferencia</p>
               </div>
 
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-[0.2em]">Número de Cuenta</p>
-                    <p className="text-base font-black text-gray-900 tracking-wider mt-0.5">
+                    <p className="text-[8px] font-black text-white/40 uppercase tracking-[0.2em]">Número de Cuenta</p>
+                    <p className="text-base font-black text-white tracking-wider mt-0.5">
                       {formData.bankSelection === 'popular' ? '0854243391' : '9607058204'}
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={() => navigator.clipboard.writeText(formData.bankSelection === 'popular' ? '0854243391' : '9607058204')}
-                    className="p-2 bg-white hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-lg text-gray-400 hover:text-blue-600 transition-all active:scale-90"
+                    className="p-2 bg-white/5 hover:bg-blue-600/20 border border-white/10 hover:border-blue-400 rounded-lg text-white/40 hover:text-blue-400 transition-all active:scale-90"
                     title="Copiar número"
                   >
                     <Copy className="w-4 h-4" />
                   </button>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200">
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
                   <div>
-                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-[0.2em]">Tipo</p>
-                    <p className="text-[10px] font-black text-gray-900 uppercase tracking-widest mt-1">Ahorro</p>
+                    <p className="text-[8px] font-black text-white/40 uppercase tracking-[0.2em]">Tipo</p>
+                    <p className="text-[10px] font-black text-white uppercase tracking-widest mt-1">Ahorro</p>
                   </div>
                   <div>
-                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-[0.2em]">Titular</p>
-                    <p className="text-[10px] font-black text-gray-900 uppercase tracking-widest mt-1">Michael Eusebio</p>
+                    <p className="text-[8px] font-black text-white/40 uppercase tracking-[0.2em]">Titular</p>
+                    <p className="text-[10px] font-black text-white uppercase tracking-widest mt-1">Michael Eusebio</p>
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+                <div className="flex justify-between items-center pt-4 border-t border-white/10">
                   <div>
-                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-[0.2em]">Cédula</p>
-                    <p className="text-[10px] font-black text-gray-900 uppercase tracking-widest mt-1">402-3402480-6</p>
+                    <p className="text-[8px] font-black text-white/40 uppercase tracking-[0.2em]">Cédula</p>
+                    <p className="text-[10px] font-black text-white uppercase tracking-widest mt-1">402-3402480-6</p>
                   </div>
                   <button
                     type="button"
                     onClick={() => navigator.clipboard.writeText('40234024806')}
-                    className="p-2 bg-white hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-lg text-gray-400 hover:text-blue-600 transition-all active:scale-90"
+                    className="p-2 bg-white/5 hover:bg-blue-600/20 border border-white/10 hover:border-blue-400 rounded-lg text-white/40 hover:text-blue-400 transition-all active:scale-90"
                     title="Copiar cédula"
                   >
                     <Copy className="w-4 h-4" />
@@ -705,7 +702,7 @@ return (
               <p className="text-blue-100 text-sm">Toma una foto o sube una captura de pantalla del comprobante</p>
             </div>
 
-            <div className="relative border-4 border-dashed border-blue-300 bg-blue-50 rounded-[2.5rem] p-12 text-center hover:bg-blue-100 hover:border-blue-400 transition-all group">
+            <div className="relative border-4 border-dashed border-blue-400/30 bg-blue-600/5 rounded-[2.5rem] p-12 text-center hover:bg-blue-600/10 hover:border-blue-400/50 transition-all group">
               <input
                 required
                 type="file"
@@ -714,48 +711,48 @@ return (
                 onChange={e => setFormData({ ...formData, comprobante: e.target.files[0] })}
               />
               {formData.comprobante ? (
-                <div className="text-blue-600 font-black flex flex-col items-center gap-2">
+                <div className="text-green-400 font-black flex flex-col items-center gap-2">
                   <CheckCircle size={40} className="animate-bounce" />
                   <p className="text-sm">¡Comprobante cargado!</p>
-                  <p className="text-xs text-gray-500">{formData.comprobante.name.substring(0, 25)}...</p>
+                  <p className="text-xs text-white/50">{formData.comprobante.name.substring(0, 25)}...</p>
                 </div>
               ) : (
-                <div className="text-gray-600 flex flex-col items-center gap-4">
-                  <div className="bg-blue-100 p-4 rounded-full group-hover:scale-110 transition-transform">
-                    <CreditCard size={32} className="text-blue-600" />
+                <div className="text-white/70 flex flex-col items-center gap-4">
+                  <div className="bg-blue-600/20 p-4 rounded-full group-hover:scale-110 transition-transform">
+                    <CreditCard size={32} className="text-blue-400" />
                   </div>
                   <div>
-                    <p className="font-black text-blue-700 text-base">Click para subir comprobante</p>
-                    <p className="text-xs text-gray-500 mt-1">JPG, PNG o PDF</p>
+                    <p className="font-black text-blue-300 text-base">Click para subir comprobante</p>
+                    <p className="text-xs text-white/50 mt-1">JPG, PNG o PDF</p>
                   </div>
                 </div>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-black text-gray-700 mb-2">¿Por qué apoyas esta causa? (Opcional)</label>
+              <label className="block text-sm font-black text-white mb-2">¿Por qué apoyas esta causa? (Opcional)</label>
               <textarea 
               rows="2" 
-              className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all outline-none resize-none text-gray-900" 
+              className="w-full p-4 bg-white/5 rounded-2xl border-2 border-white/10 focus:border-blue-500 focus:bg-white/10 transition-all outline-none resize-none text-white" 
               placeholder="Escribe un mensaje breve..." 
               value={formData.support_reason} 
               onChange={e => setFormData({ ...formData, support_reason: e.target.value })} 
             />
           </div>
 
-            <div className="p-6 bg-gray-50 rounded-3xl border border-gray-100">
+            <div className="p-6 bg-white/5 rounded-3xl border border-white/10">
               <label className="flex items-start gap-4 cursor-pointer group">
                 <div className="relative flex items-center mt-1">
                   <input
                     required
                     type="checkbox"
-                    className="peer h-6 w-6 cursor-pointer appearance-none rounded-md border-2 border-blue-200 checked:bg-blue-600 checked:border-blue-600 transition-all shadow-sm"
+                    className="peer h-6 w-6 cursor-pointer appearance-none rounded-md border-2 border-blue-400/50 checked:bg-blue-600 checked:border-blue-600 transition-all shadow-sm"
                     checked={formData.terms_accepted || false}
                     onChange={e => setFormData({ ...formData, terms_accepted: e.target.checked })}
                   />
                   <CheckCircle size={16} className="absolute left-1 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" />
                 </div>
-                <span className="text-xs text-gray-600 leading-relaxed font-medium">
+                <span className="text-xs text-white/70 leading-relaxed font-medium">
                   Acepto que mi contribución es una donación para apoyar la meta universitaria de Michael. Entiendo que los fondos no son reembolsables y que si no reclamo el premio en 48h se elegirá un nuevo ganador.
                 </span>
               </label>
@@ -766,11 +763,11 @@ return (
         {/* PASO 7: ÉXITO */}
         {step === 7 && (
           <div className="text-center py-16 animate-in zoom-in duration-700">
-            <div className="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
+            <div className="w-24 h-24 bg-green-500/20 text-green-400 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
               <CheckCircle size={56} />
             </div>
-            <h2 className="text-3xl font-black mb-4 text-gray-900 leading-tight">Tu participación quedó registrada 🎉</h2>
-            <p className="text-gray-600 mb-8 leading-relaxed max-w-sm mx-auto font-medium">
+            <h2 className="text-3xl font-black mb-4 text-white leading-tight">Tu participación quedó registrada 🎉</h2>
+            <p className="text-white/70 mb-8 leading-relaxed max-w-sm mx-auto font-medium">
               Gracias por apostar por el talento dominicano con discapacidad.
             </p>
 
@@ -779,7 +776,7 @@ return (
                 href={`https://wa.me/${(process.env.NEXT_PUBLIC_KAPSO_PHONE_NUMBER || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Recuérdame mis tickets [${submissionId}]`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full bg-green-500 text-white px-6 py-4 rounded-2xl font-black hover:bg-green-600 shadow-xl shadow-green-200 transition-all flex items-center justify-center gap-3"
+                className="w-full bg-green-600 text-white px-6 py-4 rounded-2xl font-black hover:bg-green-500 shadow-xl shadow-green-600/20 transition-all flex items-center justify-center gap-3"
               >
                 <Phone size={20} />
                 Recuérdame mis tickets
@@ -788,7 +785,7 @@ return (
 
             <button
               onClick={() => window.location.reload()}
-              className="w-full bg-blue-600 text-white px-6 py-4 rounded-2xl font-black hover:bg-blue-700 shadow-xl shadow-blue-200 transition-all"
+              className="w-full bg-blue-600 text-white px-6 py-4 rounded-2xl font-black hover:bg-blue-700 shadow-xl shadow-blue-600/20 transition-all"
             >
               Cerrar esta ventana
             </button>
@@ -797,15 +794,15 @@ return (
 
         {step > 0 && step < 7 && (
           <div className="mt-12 flex gap-4">
-            <button type="button" onClick={handleBack} className="flex-1 py-5 px-6 rounded-3xl font-black text-gray-400 bg-gray-50 hover:bg-gray-100 transition-all">
+            <button type="button" onClick={handleBack} className="flex-1 py-5 px-6 rounded-3xl font-black text-white/50 bg-white/5 hover:bg-white/10 transition-all">
               Anterior
             </button>
             {step === 6 ? (
-              <button type="submit" disabled={!isStepValid() || loading} className={`flex-[2] py-5 px-6 rounded-3xl font-black text-white transition-all flex items-center justify-center gap-2 ${isStepValid() ? 'bg-blue-600 hover:bg-blue-700 shadow-xl shadow-blue-200' : 'bg-gray-200 cursor-not-allowed text-gray-400'}`}>
+              <button type="submit" disabled={!isStepValid() || loading} className={`flex-[2] py-5 px-6 rounded-3xl font-black text-white transition-all flex items-center justify-center gap-2 ${isStepValid() ? 'bg-blue-600 hover:bg-blue-700 shadow-xl shadow-blue-600/20' : 'bg-white/10 cursor-not-allowed text-white/30'}`}>
                 {loading ? 'Procesando...' : 'Finalizar Registro'}
               </button>
             ) : (
-              <button type="button" onClick={handleNext} className="flex-[2] py-5 px-6 rounded-3xl font-black text-white bg-blue-600 hover:bg-blue-700 shadow-xl shadow-blue-200 flex items-center justify-center gap-2">
+              <button type="button" onClick={handleNext} className="flex-[2] py-5 px-6 rounded-3xl font-black text-white bg-blue-600 hover:bg-blue-700 shadow-xl shadow-blue-600/20 flex items-center justify-center gap-2">
                 Continuar <ArrowRight size={20} />
               </button>
             )}
@@ -814,7 +811,7 @@ return (
       </form>
     </div>
 
-    <div className="mt-8 text-gray-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+    <div className="mt-8 text-white/30 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
       <MapPin size={12} /> Michael Eusebio | Santo Domingo, RD
     </div>
   </div>
