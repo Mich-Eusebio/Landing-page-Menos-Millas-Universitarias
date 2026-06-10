@@ -119,6 +119,7 @@ export default function App() {
 
   useEffect(() => {
     const hasShown = sessionStorage.getItem('countdown_shown');
+    console.log('Countdown check - hasShown:', hasShown);
     if (hasShown) return;
 
     const targetDate = new Date('2026-07-11T00:00:00');
@@ -137,12 +138,15 @@ export default function App() {
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
 
+    console.log('Setting countdown timers...');
     const timer1 = setTimeout(() => {
+      console.log('Timer 1 fired - showing countdown');
       setIsBlurred(true);
       setShowCountdown(true);
     }, 3000);
 
     const timer2 = setTimeout(() => {
+      console.log('Timer 2 fired - hiding countdown');
       setShowCountdown(false);
       setIsBlurred(false);
       sessionStorage.setItem('countdown_shown', 'true');
@@ -486,16 +490,8 @@ const renderTicketGrid = (totalTickets, cols, type) => {
 if (step === 0) return (
   <div className="min-h-screen bg-[#0a192f] font-sans text-slate-100 relative">
     <div className={isBlurred ? 'blur-md transition-all duration-500' : 'transition-all duration-500'}>
-    <nav className="fixed top-0 w-full bg-[#0a192f]/80 backdrop-blur-md z-50 border-b border-blue-900/30">
-      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-        <span className="font-black text-xl tracking-tighter text-white">MENOS MILLAS</span>
-        <button onClick={() => setStep(1)} className="bg-amber-400 text-slate-900 px-5 py-2 rounded-full text-sm font-bold hover:bg-amber-300 transition">
-          Participar ahora
-        </button>
-      </div>
-    </nav>
 
-    <section className="pt-32 pb-20 px-4">
+    <section className="pt-20 md:pt-32 pb-20 px-4">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-8 md:gap-16">
         <div className="flex-shrink-0">
           <div className="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-amber-400/30 shadow-2xl">
