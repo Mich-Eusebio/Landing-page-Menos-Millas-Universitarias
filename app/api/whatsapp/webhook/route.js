@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { db } from '@/lib/FirebaseConfig';
 import { collection, query, where, getDocs, orderBy, limit, doc, getDoc } from 'firebase/firestore';
-import { sendRifaConfirmation } from '@/lib/apis/WhatsAppService';
+import { sendRifaConfirmation, sendGenericText } from '@/lib/apis/WhatsAppService';
 
 export async function POST(request) {
   try {
@@ -46,7 +46,7 @@ export async function POST(request) {
 
 async function handleIncomingMessage(payload) {
   try {
-    const message = payload.messages?.[0];
+    const message = payload.message || payload.messages?.[0];
     if (!message) {
       console.log('⚠️ No hay mensaje en el payload');
       return;
@@ -91,6 +91,10 @@ async function sendTicketsReminder(phoneNumber, uid) {
 
       if (!generalSnap.exists() && !premiumSnap.exists()) {
         console.log('⚠️ No se encontraron registros para UID:', uid);
+        await sendGenericText({
+          telefono: phoneNumber,
+          texto: 'Parece que tu ticket no apareció en la base de datos automáticamente.\nTranquilo/a, esto pasa a veces.\nYa pasamos tu caso a validación manual y recibirás la confirmación tan pronto la revisemos.\nGracias por tu apoyo y por confiar en el proyecto.'
+        });
         return;
       }
 
@@ -116,7 +120,11 @@ async function sendTicketsReminder(phoneNumber, uid) {
         }
       }
     } else {
-      console.log('⚠️ No se proporcionó UID, búsqueda por teléfono no implementada');
+      console.log('⚠️ No se proporcionó UID, enviando mensaje de validación manual');
+      await sendGenericText({
+        telefono: phoneNumber,
+        texto: 'Parece que tu ticket no apareció en la base de datos automáticamente.\nTranquilo/a, esto pasa a veces.\nYa pasamos tu caso a validación manual y recibirás la confirmación tan pronto la revisemos.\nGracias por tu apoyo y por confiar en el proyecto.'
+      });
       return;
     }
 
