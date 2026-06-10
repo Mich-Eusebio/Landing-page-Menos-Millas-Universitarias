@@ -454,26 +454,57 @@ if (step === 0) return (
     </nav>
 
     <section className="pt-32 pb-20 px-4">
-      <div className="max-w-4xl mx-auto text-center">
-        <h1 className="text-4xl md:text-6xl font-black mb-6 leading-tight text-white">
-          Impulsa mi camino a <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-amber-500">una de las mejores universidades del mundo.</span>
-        </h1>
-        <p className="text-lg md:text-xl text-blue-100/70 mb-10 max-w-2xl mx-auto leading-relaxed">
-          Participa y gana premios premium mientras acortas la meta.
-        </p>
-        <button onClick={() => setStep(1)} className="bg-amber-400 text-slate-900 px-8 py-4 rounded-2xl text-lg font-black hover:bg-amber-300 shadow-xl shadow-amber-400/20 flex items-center justify-center gap-2 mx-auto">
-          Participar ahora <ArrowRight size={20} />
-        </button>
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-8 md:gap-16">
+        <div className="flex-shrink-0">
+          <div className="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-amber-400/30 shadow-2xl">
+            <img src="/EXCELENTE FOTO MÍA.png" alt="Michael Eusebio" className="w-full h-full object-cover" />
+          </div>
+        </div>
+        <div className="text-center md:text-left">
+          <h1 className="text-4xl md:text-6xl font-black mb-6 leading-tight text-white">
+            Impulsa mi camino a <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-amber-500">una de las mejores universidades del mundo.</span>
+          </h1>
+          <p className="text-lg md:text-xl text-blue-100/70 mb-10 max-w-2xl mx-auto md:mx-0 leading-relaxed">
+            Participa y gana premios premium mientras acortas la meta.
+          </p>
+          <button onClick={() => setStep(1)} className="bg-amber-400 text-slate-900 px-8 py-4 rounded-2xl text-lg font-black hover:bg-amber-300 shadow-xl shadow-amber-400/20 flex items-center justify-center gap-2 mx-auto md:mx-0">
+            Participar ahora <ArrowRight size={20} />
+          </button>
+        </div>
       </div>
     </section>
 
     <section className="py-20 px-4 bg-[#050b16]">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <PrizeCard number="1" name="IPhone 16 Pro" eligibility="Todos los planes" image="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcREAF22_unWfzVdKNGzFH9o-ZLnPGPckweP5ZWUH-ZHqg&s" />
-          <PrizeCard number="2" name="iPad 10th Gen" eligibility="Todos los planes" image="https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/ipad-10th-gen-storage-select-202212-blue" />
-          <PrizeCard number="3" name="AirPods 4" eligibility="Todos los planes" image="https://portatilshoprd.com/wp-content/uploads/2024/12/2e373d_fceb919ac4404e6f8e4f9cffc8fa78dcmv2.png" />
-          <PrizeCard number="🎁" name="Premio Sorpresa" eligibility="Solo Milla Extra & Impacto" isSpecial={true} />
+      <div className="max-w-5xl mx-auto">
+        <h2 className="text-3xl md:text-4xl font-black mb-12 text-center text-white">
+          Premio Principal
+        </h2>
+        <div className="bg-white/5 border border-white/10 rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center gap-8 md:gap-16">
+          <div className="flex-1 text-center md:text-left">
+            <h3 className="text-3xl md:text-4xl font-black text-white mb-4">
+              iPhone 17 256GB
+            </h3>
+            <p className="text-xl text-amber-400 font-bold mb-8">
+              o el equivalente en efectivo
+            </p>
+            <a 
+              href="https://www.apple.com/shop/buy-iphone/iphone-17" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-green-400 hover:bg-green-300 text-slate-900 px-6 py-3 rounded-full font-bold transition-all shadow-lg shadow-green-400/20"
+            >
+              Ver valoración
+              <ArrowRight size={16} />
+            </a>
+          </div>
+          <div className="flex-shrink-0">
+            <img 
+              src="https://files.tecnoblog.net/wp-content/uploads/2025/09/iphone-17-azul-nevoa-700x700.png" 
+              alt="iPhone 17" 
+              className="w-64 h-64 md:w-80 md:h-80 object-contain"
+              onError={(e) => { e.target.src = 'https://via.placeholder.com/400x400?text=iPhone+17'; }}
+            />
+          </div>
         </div>
       </div>
     </section>
