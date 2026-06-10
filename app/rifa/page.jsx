@@ -102,6 +102,7 @@ export default function App() {
   const [showCountdown, setShowCountdown] = useState(false);
   const [isBlurred, setIsBlurred] = useState(false);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [focusField, setFocusField] = useState('nombre');
 
   const [formData, setFormData] = useState({
     nombre: '',
@@ -116,6 +117,12 @@ export default function App() {
     selectedGeneral: [],
     support_reason: ""
   });
+
+  useEffect(() => {
+    if (step === 1) {
+      setFocusField('nombre');
+    }
+  }, [step]);
 
   useEffect(() => {
     const hasShown = sessionStorage.getItem('countdown_shown');
@@ -263,52 +270,62 @@ const toggleTicket = (id, type) => {
 };
 
 const handleNext = () => {
-  // Validación de tablero Premium
-  if (step === 3 && selectedPlan?.premium > 0) {
-    const needed = selectedPlan.premium;
-    const current = formData.selectedPremium.length;
-    if (current < needed) {
-      setModalData({
-        open: true,
-        title: 'Selección incompleta',
-        message: `Te faltan ${needed - current} boletas por seleccionar en el tablero Premium.`
-      });
+  // Validación de step 1: información personal
+  if (step === 1) {
+    if (!formData.nombre) {
+      setFocusField('nombre');
+      return;
+    }
+    if (!formData.cedula) {
+      setFocusField('cedula');
+      return;
+    }
+    if (!formData.telefono) {
+      setFocusField('telefono');
       return;
     }
   }
 
-  // Validación de tablero General
-  if (step === 4) {
+  // Validación de step 2: plan
+  if (step === 2) {
+    if (!formData.plan) {
+      return;
+    }
+  }
+
+  // Validación de step 3: tablero general
+  if (step === 3) {
     const needed = selectedPlan.general;
     const current = formData.selectedGeneral.length;
     if (current < needed) {
       setModalData({
         open: true,
         title: 'Selección incompleta',
-        message: `Te faltan ${needed - current} boletas por seleccionar en el tablero General.`
+        message: `Te faltan ${needed - current} boletas por seleccionar en el tablero.`
       });
+      return;
+    }
+  }
+
+  // Validación de step 4: comprobante
+  if (step === 4) {
+    if (!formData.comprobante) {
+      setFocusField('comprobante');
+      return;
+    }
+    if (!formData.terms_accepted) {
       return;
     }
   }
 
   // Lógica de salto de paso
   let nextStep = step + 1;
-
-  // Si estamos en Plan (2) y el plan NO tiene premium, saltar directo al General (4)
-  if (step === 2 && selectedPlan?.premium === 0) {
-    nextStep = 4;
-  }
-
+  setFocusField(nextStep === 1 ? 'nombre' : '');
   setStep(nextStep);
 };
 
 const handleBack = () => {
   let prevStep = step - 1;
-
-  // Si estamos en General (4) y el plan NO tiene premium, volver directo a Plan (2)
-  if (step === 4 && selectedPlan?.premium === 0) {
-    prevStep = 2;
-  }
 
   setStep(prevStep);
 };
@@ -590,12 +607,10 @@ if (step === 0) return (
 
 const isStepValid = () => {
   switch (step) {
-    case 1: return formData.nombre && formData.cedula && formData.telefono && formData.email;
+    case 1: return formData.nombre && formData.cedula && formData.telefono;
     case 2: return formData.plan;
-    case 3: return selectedPlan?.premium > 0;
-    case 4: return true;
-    case 5: return true;
-    case 6: return formData.comprobante && formData.terms_accepted;
+    case 3: return formData.selectedGeneral.length >= (selectedPlan?.general || 0);
+    case 4: return formData.comprobante && formData.terms_accepted;
     default: return true;
   }
 };
@@ -603,7 +618,7 @@ const isStepValid = () => {
 const getStepTitle = () => {
   const titles = [
     '', 'Información Personal', 'Plan de Apoyo',
-    'Números Premium', 'Números Generales', 'Método de Pago', 'Comprobante'
+    'Números', 'Método de Pago', 'Comprobante'
   ];
   return titles[step];
 };
@@ -643,15 +658,15 @@ return (
             </div>
             <div>
               <label className="block text-sm font-black text-white mb-2">Nombre completo *</label>
-              <input required type="text" className="w-full p-4 bg-white/5 rounded-2xl border-2 border-white/10 focus:border-blue-500 focus:bg-white/10 transition-all outline-none text-white" placeholder="Ej: Michael Eusebio" value={formData.nombre} onChange={e => setFormData({ ...formData, nombre: e.target.value })} />
+              <input required autoFocus={focusField === 'nombre'} type="text" className="w-full p-4 bg-white/5 rounded-2xl border-2 border-white/10 focus:border-blue-500 focus:bg-white/10 transition-all outline-none text-white" placeholder="Ej: Michael Eusebio" value={formData.nombre} onChange={e => setFormData({ ...formData, nombre: e.target.value })} />
             </div>
             <div>
               <label className="block text-sm font-black text-white mb-2">Últimos 4 dígitos de la cédula *</label>
-              <input required type="text" maxLength="4" className="w-full p-4 bg-white/5 rounded-2xl border-2 border-white/10 focus:border-blue-500 focus:bg-white/10 transition-all outline-none text-white" placeholder="1234" value={formData.cedula} onChange={e => setFormData({ ...formData, cedula: e.target.value.replace(/\D/g, '') })} />
+              <input required autoFocus={focusField === 'cedula'} type="text" maxLength="4" className="w-full p-4 bg-white/5 rounded-2xl border-2 border-white/10 focus:border-blue-500 focus:bg-white/10 transition-all outline-none text-white" placeholder="1234" value={formData.cedula} onChange={e => setFormData({ ...formData, cedula: e.target.value.replace(/\D/g, '') })} />
             </div>
             <div>
               <label className="block text-sm font-black text-white mb-2">WhatsApp o Teléfono *</label>
-              <input required type="tel" className="w-full p-4 bg-white/5 rounded-2xl border-2 border-white/10 focus:border-blue-500 focus:bg-white/10 transition-all outline-none text-white" placeholder="Ej: 18295551234" value={formData.telefono} onChange={e => setFormData({ ...formData, telefono: e.target.value.replace(/[^0-9]/g, '') })} />
+              <input required autoFocus={focusField === 'telefono'} type="tel" className="w-full p-4 bg-white/5 rounded-2xl border-2 border-white/10 focus:border-blue-500 focus:bg-white/10 transition-all outline-none text-white" placeholder="Ej: 18295551234" value={formData.telefono} onChange={e => setFormData({ ...formData, telefono: e.target.value.replace(/[^0-9]/g, '') })} />
             </div>
             <div>
               <label className="block text-sm font-black text-white mb-2">Correo electrónico *</label>
@@ -669,7 +684,7 @@ return (
                   <div>
                     <p className="font-black text-white text-lg">{plan.name}</p>
                     <p className="text-xs text-blue-300 font-bold uppercase tracking-wider">
-                      {plan.premium > 0 ? `${plan.premium} ticket${plan.premium > 1 ? 's' : ''} sorteo premium + ` : ''}{plan.general} ticket{plan.general > 1 ? 's' : ''} sorteo general
+                      {plan.general} ticket{plan.general > 1 ? 's' : ''} sorteo general
                     </p>
                   </div>
                 </div>
@@ -680,18 +695,6 @@ return (
         )}
 
         {step === 3 && (
-          <div className="animate-in slide-in-from-right-8 duration-500">
-            <div className="bg-blue-600/10 p-4 rounded-2xl flex items-start gap-3 mb-8 border border-blue-500/20">
-              <AlertCircle size={20} className="text-blue-400 shrink-0 mt-0.5" />
-              <p className="text-sm text-blue-200 leading-relaxed font-medium">
-                Este <strong>tablero de tickets</strong> es para el sorteo del <strong>Premio Sorpresa</strong>, solo disponible para planes de apoyo Milla Extra y Milla de Impacto. Elige tus {selectedPlan.premium} números.
-              </p>
-            </div>
-            {renderTicketGrid(240, 12, 'premium')}
-          </div>
-        )}
-
-        {step === 4 && (
           <div className="animate-in slide-in-from-right-8 duration-500">
             <div className="bg-amber-400/10 p-4 rounded-2xl flex items-start gap-3 mb-8 border border-amber-400/20">
               <Info size={20} className="text-amber-400 shrink-0 mt-0.5" />
@@ -794,7 +797,7 @@ return (
           </div>
         )}
 
-        {step === 6 && (
+        {step === 4 && (
           <div className="space-y-6 animate-in fade-in duration-500">
             <div className="bg-blue-600 text-white p-5 rounded-2xl text-center">
               <p className="font-black text-lg mb-1">📸 Sube el screenshot de tu transferencia</p>
@@ -804,6 +807,7 @@ return (
             <div className="relative border-4 border-dashed border-blue-400/30 bg-blue-600/5 rounded-[2.5rem] p-12 text-center hover:bg-blue-600/10 hover:border-blue-400/50 transition-all group">
               <input
                 required
+                autoFocus={focusField === 'comprobante'}
                 type="file"
                 accept="image/png, image/jpeg, image/jpg, image/webp"
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
@@ -891,17 +895,17 @@ return (
           </div>
         )}
 
-        {step > 0 && step < 7 && (
+        {step > 0 && step < 5 && (
           <div className="mt-12 flex gap-4">
             <button type="button" onClick={handleBack} className="flex-1 py-5 px-6 rounded-3xl font-black text-white/50 bg-white/5 hover:bg-white/10 transition-all">
               Anterior
             </button>
-            {step === 6 ? (
+            {step === 4 ? (
               <button type="submit" disabled={!isStepValid() || loading} className={`flex-[2] py-5 px-6 rounded-3xl font-black text-white transition-all flex items-center justify-center gap-2 ${isStepValid() ? 'bg-blue-600 hover:bg-blue-700 shadow-xl shadow-blue-600/20' : 'bg-white/10 cursor-not-allowed text-white/30'}`}>
                 {loading ? 'Procesando...' : 'Finalizar Registro'}
               </button>
             ) : (
-              <button type="button" onClick={handleNext} className="flex-[2] py-5 px-6 rounded-3xl font-black text-white bg-blue-600 hover:bg-blue-700 shadow-xl shadow-blue-600/20 flex items-center justify-center gap-2">
+              <button type="button" onClick={handleNext} disabled={!isStepValid()} className={`flex-[2] py-5 px-6 rounded-3xl font-black text-white transition-all flex items-center justify-center gap-2 ${isStepValid() ? 'bg-blue-600 hover:bg-blue-700 shadow-xl shadow-blue-600/20' : 'bg-white/10 cursor-not-allowed text-white/30'}`}>
                 Continuar <ArrowRight size={20} />
               </button>
             )}
