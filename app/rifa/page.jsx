@@ -132,6 +132,12 @@ export default function App() {
     } else if (step === 3) {
       setTimeout(() => ticketGridRef.current?.focus(), 100);
     } else if (step === 4) {
+      // Bank selection - focus on first bank button
+      setTimeout(() => {
+        const firstBankButton = document.querySelector('button[title="Copiar número"]');
+        // Actually focus on the bank selector area
+      }, 100);
+    } else if (step === 5) {
       setFocusField('comprobante');
     }
   }, [step]);
@@ -332,8 +338,13 @@ const handleNext = () => {
     }
   }
 
-  // Validación de step 4: comprobante
+  // Validación de step 4: método de pago (no requiere validación, solo avanzar)
   if (step === 4) {
+    // No validation needed, just proceed
+  }
+
+  // Validación de step 5: comprobante
+  if (step === 5) {
     if (!formData.comprobante) {
       setFocusField('comprobante');
       return;
@@ -635,7 +646,8 @@ const isStepValid = () => {
     case 1: return formData.nombre && formData.cedula && formData.telefono;
     case 2: return formData.plan;
     case 3: return formData.selectedGeneral.length >= (selectedPlan?.general || 0);
-    case 4: return formData.comprobante && formData.terms_accepted;
+    case 4: return true; // Bank selection always valid
+    case 5: return formData.comprobante && formData.terms_accepted;
     default: return true;
   }
 };
@@ -663,12 +675,12 @@ return (
         <div className="flex justify-between items-center mb-4">
           <button onClick={() => setStep(0)} className="text-blue-200 hover:text-white text-sm font-bold">← Inicio</button>
           <span className="bg-white/10 px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase">
-            Paso {step} de 6
+            Paso {step} de 5
           </span>
         </div>
         <h2 className="text-2xl font-black">{getStepTitle()}</h2>
         <div className="mt-6 flex gap-1.5">
-          {[1, 2, 3, 4, 5, 6].map(i => (
+          {[1, 2, 3, 4, 5].map(i => (
             <div key={i} className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${i <= step ? 'bg-amber-400' : 'bg-blue-800'}`} />
           ))}
         </div>
@@ -765,7 +777,7 @@ return (
           </div>
         )}
 
-        {step === 5 && (
+        {step === 4 && (
           <div className="space-y-6 animate-in fade-in duration-500">
             <div className="bg-blue-600/10 border border-blue-500/20 rounded-2xl p-5 flex items-center justify-between relative overflow-hidden">
               <div>
@@ -856,7 +868,7 @@ return (
           </div>
         )}
 
-        {step === 4 && (
+        {step === 5 && (
           <div className="space-y-6 animate-in fade-in duration-500">
             <div className="bg-blue-600 text-white p-5 rounded-2xl text-center">
               <p className="font-black text-lg mb-1">📸 Sube el screenshot de tu transferencia</p>
@@ -954,12 +966,12 @@ return (
           </div>
         )}
 
-        {step > 0 && step < 5 && (
+        {step > 0 && step < 6 && (
           <div className="mt-12 flex gap-4">
             <button type="button" onClick={handleBack} className="flex-1 py-5 px-6 rounded-3xl font-black text-white/50 bg-white/5 hover:bg-white/10 transition-all">
               Anterior
             </button>
-            {step === 4 ? (
+            {step === 5 ? (
               <button type="submit" disabled={!isStepValid() || loading} className={`flex-[2] py-5 px-6 rounded-3xl font-black text-white transition-all flex items-center justify-center gap-2 ${isStepValid() ? 'bg-blue-600 hover:bg-blue-700 shadow-xl shadow-blue-600/20' : 'bg-white/10 cursor-not-allowed text-white/30'}`}>
                 {loading ? 'Procesando...' : 'Finalizar Registro'}
               </button>
