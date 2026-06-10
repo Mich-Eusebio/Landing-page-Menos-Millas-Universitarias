@@ -29,7 +29,11 @@ const App = () => {
     if (activeTab === 'supporters' && supporters.length === 0) {
       setLoadingSupporters(true);
       getSupporters().then(data => {
+        console.log('Supporters data:', data);
         setSupporters(data);
+        setLoadingSupporters(false);
+      }).catch(err => {
+        console.error('Error loading supporters:', err);
         setLoadingSupporters(false);
       });
     }

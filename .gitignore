@@ -44,3 +44,10 @@ next-env.d.ts
 
 # old raffle data
 old_raffle_data/
+
+# firebase service account
+serviceAccountKey.json
+millas-michael-rafle-webapp-firebase-adminsdk-fbsvc-*.json
+
+# migration scripts
+scripts/
