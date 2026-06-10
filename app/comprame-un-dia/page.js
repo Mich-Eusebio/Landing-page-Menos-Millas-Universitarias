@@ -8,34 +8,22 @@ import MonthGrid from '@/components/calendar/MonthGrid';
 import CheckoutFlow from '@/lib/apis/CheckoutFlow';
 import { getSoldDays } from '@/lib/apis/SorteoActions';
 
-// Inline Half Circle SVG for ◐ icon
-const HalfCircleIcon = ({ className }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <circle cx="12" cy="12" r="10" />
-    <path d="M12 2v20" />
-    <path d="M12 2a10 10 0 0 1 0 20z" fill="currentColor" />
-  </svg>
-);
-
 const ComprameUnDia = () => {
-  const [selectedDates, setSelectedDates] = useState([]); // [{ dateStr, slot: 'full' | 'morning' | 'afternoon', selectionGroupId }]
-  const [selectionMode, setSelectionMode] = useState('day'); // 'day' | 'half' | 'week' | 'month'
+  const [selectedDates, setSelectedDates] = useState([]);
+  const [selectionMode, setSelectionMode] = useState('day');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [hasManuallyClosed, setHasManuallyClosed] = useState(false);
 
-  // HU1: load sold days from Firestore
-  const [soldDaysData, setSoldDaysData] = useState([]); // [{ dateStr, nombre, foto_url, plan_seleccionado, morning, afternoon }]
+  const [soldDaysData, setSoldDaysData] = useState([]);
 
   useEffect(() => {
     getSoldDays().then(data => setSoldDaysData(data));
   }, []);
 
-  // Build sold map for quick lookup
   const soldMap = Object.fromEntries(soldDaysData.map(d => [d.dateStr, d]));
 
-  // Compute stats
-  const totalDaysCount = selectedDates.reduce((acc, curr) => acc + (curr.slot === 'full' ? 1 : 0.5), 0);
-  const totalPrice = selectedDates.reduce((acc, curr) => acc + (curr.slot === 'full' ? 3000 : 1500), 0);
+  const totalDaysCount = selectedDates.length;
+  const totalPrice = totalDaysCount * 3000;
 
   const handleContinue = () => {
     setHasManuallyClosed(false);
@@ -125,27 +113,6 @@ const ComprameUnDia = () => {
     }
   };
 
-  const handleSlotClick = (dateStr, slot) => {
-    setSelectedDates(prev => {
-      const existing = prev.find(d => d.dateStr === dateStr);
-
-      if (!existing) {
-        return [...prev, { dateStr, slot }];
-      }
-
-      if (existing.slot === 'full') {
-        const oppositeSlot = slot === 'morning' ? 'afternoon' : 'morning';
-        return [...prev.filter(d => d.dateStr !== dateStr), { dateStr, slot: oppositeSlot }];
-      }
-
-      if (existing.slot === slot) {
-        return prev.filter(d => d.dateStr !== dateStr);
-      }
-
-      return [...prev.filter(d => d.dateStr !== dateStr), { dateStr, slot: 'full' }];
-    });
-  };
-
   const months = [
     { name: 'Enero 2027', year: 2027, month: 0 },
     { name: 'Febrero 2027', year: 2027, month: 1 },
@@ -162,7 +129,6 @@ const ComprameUnDia = () => {
   ];
 
   const toolbarOptions = [
-    { id: 'half', label: 'medio día', displayLabel: '1/2 día', icon: <HalfCircleIcon className="w-5 h-5" />, desc: 'Medio Día (RD$1,500)' },
     { id: 'day', label: 'un día', displayLabel: 'Un día', icon: <Calendar className="w-5 h-5" />, desc: 'Día Completo (RD$3,000)' },
     { id: 'week', label: 'semana', displayLabel: 'Semana', icon: <CalendarDays className="w-5 h-5" />, desc: 'Semana Completa (7 Días - RD$21,000)' },
     { id: 'month', label: 'un mes', displayLabel: 'Un mes', icon: <CalendarRange className="w-5 h-5" />, desc: 'Mes Completo (Precios variables)' }
@@ -279,7 +245,6 @@ const ComprameUnDia = () => {
                     selectedDates={selectedDates}
                     soldDaysData={soldDaysData}
                     onDateClick={handleDateClick}
-                    onSlotClick={handleSlotClick}
                     selectionMode={selectionMode}
                     limitReached={false}
                   />

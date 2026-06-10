@@ -153,13 +153,26 @@ const MonthGrid = ({
 
           const isAMSold          = !!morningSponsor;
           const isPMSold          = !!afternoonSponsor;
+          
+          // PATCH: Si viene medio día vendido, tratar como día completo en UI
+          const isHalfDaySold     = (isAMSold || isPMSold) && !(isAMSold && isPMSold);
           const isFullySold       = isAMSold && isPMSold;
-          const isConsolidatedSold = isFullySold && morningSponsor.nombre === afternoonSponsor.nombre;
+          const isConsolidatedSold = (isFullySold || isHalfDaySold) && 
+            ((morningSponsor?.nombre || afternoonSponsor?.nombre) && 
+             (!morningSponsor || !afternoonSponsor || morningSponsor.nombre === afternoonSponsor.nombre));
+
+          // Si es medio día vendido, unificar sponsors para mostrar como día completo
+          if (isHalfDaySold) {
+            const singleSponsor = morningSponsor || afternoonSponsor;
+            morningSponsor = singleSponsor;
+            afternoonSponsor = singleSponsor;
+          }
 
           const shouldRenderSplit =
             !isConsolidatedSold &&
             !isGroupSelection &&
-            (isAMSold || isPMSold || isAMSelected || isPMSelected || selectionMode === 'half');
+            !isHalfDaySold &&
+            (isAMSelected || isPMSelected || selectionMode === 'half');
 
           const isSpecial = specialDates.includes(dateStr);
           const monthName = name.split(' ')[0].toLowerCase();
@@ -404,14 +417,17 @@ const MonthGrid = ({
             ? getTier(morningSponsor?.plan_seleccionado ?? soldInfo?.plan_seleccionado)
             : null;
 
+          // PATCH: Medio día vendido = día completo no disponible
+          const isDayUnavailable = isFullySold || isHalfDaySold;
+
           return (
             <motion.button
               key={dateStr}
-              whileHover={!isFullySold ? { scale: 1.08, y: -4 } : {}}
-              whileTap={!isFullySold ? { scale: 0.95 } : {}}
-              onClick={() => !isFullySold && onDateClick(dateStr, isFullySold)}
-              disabled={isFullySold}
-              aria-disabled={isFullySold}
+              whileHover={!isDayUnavailable ? { scale: 1.08, y: -4 } : {}}
+              whileTap={!isDayUnavailable ? { scale: 0.95 } : {}}
+              onClick={() => !isDayUnavailable && onDateClick(dateStr, isDayUnavailable)}
+              disabled={isDayUnavailable}
+              aria-disabled={isDayUnavailable}
               aria-label={ariaLabel}
               title={ariaLabel}
               style={isConsolidatedSold && singleTier ? {
