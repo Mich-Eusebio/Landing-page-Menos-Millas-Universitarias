@@ -82,14 +82,9 @@ async function sendTicketsReminder(phoneNumber, uid) {
 
     if (uid) {
       const generalDocRef = doc(db, 'rifas/v2/general_registrations', `${uid}_general`);
-      const premiumDocRef = doc(db, 'rifas/v2/premium_registrations', `${uid}_premium`);
+      const generalSnap = await getDoc(generalDocRef);
 
-      const [generalSnap, premiumSnap] = await Promise.all([
-        getDoc(generalDocRef),
-        getDoc(premiumDocRef)
-      ]);
-
-      if (!generalSnap.exists() && !premiumSnap.exists()) {
+      if (!generalSnap.exists()) {
         console.log('⚠️ No se encontraron registros para UID:', uid);
         await sendGenericText({
           telefono: phoneNumber,
@@ -98,26 +93,12 @@ async function sendTicketsReminder(phoneNumber, uid) {
         return;
       }
 
-      if (generalSnap.exists()) {
-        const data = generalSnap.data();
-        nombre = data.owner_name;
-        planName = data.plan_name || 'Plan General';
-        
-        if (data.general_raffle_tickets) {
-          allTickets.push(...data.general_raffle_tickets.map(t => `general-${t.toString().padStart(4, '0')}`));
-        }
-      }
-
-      if (premiumSnap.exists()) {
-        const data = premiumSnap.data();
-        if (!nombre) {
-          nombre = data.owner_name;
-        }
-        planName = data.plan_name || planName;
-        
-        if (data.premium_raffle_tickets) {
-          allTickets.push(...data.premium_raffle_tickets.map(t => `premium-${t.toString().padStart(4, '0')}`));
-        }
+      const data = generalSnap.data();
+      nombre = data.owner_name;
+      planName = data.plan_name || 'Plan General';
+      
+      if (data.general_raffle_tickets) {
+        allTickets.push(...data.general_raffle_tickets.map(t => `general-${t.toString().padStart(4, '0')}`));
       }
     } else {
       console.log('⚠️ No se proporcionó UID, enviando mensaje de validación manual');
@@ -134,8 +115,8 @@ async function sendTicketsReminder(phoneNumber, uid) {
       nombre,
       telefono: phoneNumber,
       plan: planName,
-      ticketsPremium: allTickets.filter(t => t.startsWith('premium-')),
-      ticketsGeneral: allTickets.filter(t => t.startsWith('general-'))
+      ticketsPremium: [],
+      ticketsGeneral: allTickets
     });
 
     console.log(`✅ Mensaje enviado a ${phoneNumber}`);
