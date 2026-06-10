@@ -103,6 +103,8 @@ export default function App() {
   const [isBlurred, setIsBlurred] = useState(false);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [focusField, setFocusField] = useState('nombre');
+  const firstPlanRef = React.useRef(null);
+  const ticketGridRef = React.useRef(null);
 
   const [formData, setFormData] = useState({
     nombre: '',
@@ -121,6 +123,12 @@ export default function App() {
   useEffect(() => {
     if (step === 1) {
       setFocusField('nombre');
+    } else if (step === 2) {
+      setTimeout(() => firstPlanRef.current?.focus(), 100);
+    } else if (step === 3) {
+      setTimeout(() => ticketGridRef.current?.focus(), 100);
+    } else if (step === 4) {
+      setFocusField('comprobante');
     }
   }, [step]);
 
@@ -272,7 +280,7 @@ const toggleTicket = (id, type) => {
 const handleNext = () => {
   // Validación de step 1: información personal
   if (step === 1) {
-    if (!formData.nombre) {
+    if (!formData.nombre || !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(formData.nombre.trim())) {
       setFocusField('nombre');
       return;
     }
@@ -658,7 +666,17 @@ return (
             </div>
             <div>
               <label className="block text-sm font-black text-white mb-2">Nombre completo *</label>
-              <input required autoFocus={focusField === 'nombre'} type="text" className="w-full p-4 bg-white/5 rounded-2xl border-2 border-white/10 focus:border-blue-500 focus:bg-white/10 transition-all outline-none text-white" placeholder="Ej: Michael Eusebio" value={formData.nombre} onChange={e => setFormData({ ...formData, nombre: e.target.value })} />
+              <input 
+                required 
+                autoFocus={focusField === 'nombre'} 
+                type="text" 
+                pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
+                title="Solo se permiten letras y espacios"
+                className="w-full p-4 bg-white/5 rounded-2xl border-2 border-white/10 focus:border-blue-500 focus:bg-white/10 transition-all outline-none text-white" 
+                placeholder="Ej: Michael Eusebio" 
+                value={formData.nombre} 
+                onChange={e => setFormData({ ...formData, nombre: e.target.value })} 
+              />
             </div>
             <div>
               <label className="block text-sm font-black text-white mb-2">Últimos 4 dígitos de la cédula *</label>
@@ -677,10 +695,17 @@ return (
 
         {step === 2 && (
           <div className="space-y-4 animate-in fade-in duration-500">
-            {PLANS.map(plan => (
+            {PLANS.map((plan, index) => (
               <label key={plan.id} className={`flex items-center justify-between p-6 rounded-[2rem] border-2 transition-all cursor-pointer ${formData.plan === plan.id ? 'border-blue-500 bg-blue-600/10 ring-4 ring-blue-500/20' : 'border-white/10 hover:border-blue-400/50'}`}>
                 <div className="flex items-center gap-4">
-                  <input type="radio" name="plan" className="w-6 h-6 text-blue-500" checked={formData.plan === plan.id} onChange={() => setFormData({ ...formData, plan: plan.id })} />
+                  <input 
+                    ref={index === 0 ? firstPlanRef : null}
+                    type="radio" 
+                    name="plan" 
+                    className="w-6 h-6 text-blue-500" 
+                    checked={formData.plan === plan.id} 
+                    onChange={() => setFormData({ ...formData, plan: plan.id })} 
+                  />
                   <div>
                     <p className="font-black text-white text-lg">{plan.name}</p>
                     <p className="text-xs text-blue-300 font-bold uppercase tracking-wider">
@@ -695,7 +720,7 @@ return (
         )}
 
         {step === 3 && (
-          <div className="animate-in slide-in-from-right-8 duration-500">
+          <div className="animate-in slide-in-from-right-8 duration-500" ref={ticketGridRef} tabIndex={-1}>
             <div className="bg-amber-400/10 p-4 rounded-2xl flex items-start gap-3 mb-8 border border-amber-400/20">
               <Info size={20} className="text-amber-400 shrink-0 mt-0.5" />
               <p className="text-sm text-amber-200 leading-relaxed font-medium">
