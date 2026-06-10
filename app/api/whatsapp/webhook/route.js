@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { db } from '@/lib/FirebaseConfig';
-import { collection, query, where, getDocs, orderBy, limit, doc, getDoc } from 'firebase/firestore';
+import { adminDb } from '@/lib/firebaseAdmin';
 import { sendRifaConfirmation, sendGenericText } from '@/lib/apis/WhatsAppService';
 
 export async function POST(request) {
@@ -81,10 +80,9 @@ async function sendTicketsReminder(phoneNumber, uid) {
     let nombre = '';
 
     if (uid) {
-      const generalDocRef = doc(db, 'rifas/v2/general_registrations', `${uid}_general`);
-      const generalSnap = await getDoc(generalDocRef);
+      const generalSnap = await adminDb.doc(`rifas/v2/general_registrations/${uid}_general`).get();
 
-      if (!generalSnap.exists()) {
+      if (!generalSnap.exists) {
         console.log('⚠️ No se encontraron registros para UID:', uid);
         await sendGenericText({
           telefono: phoneNumber,
