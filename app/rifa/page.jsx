@@ -165,7 +165,7 @@ const selectedPlan = PLANS.find(p => p.id === formData.plan);
       const isPremium = step === 3;
       // Estos totales vienen de cómo llamas a renderTicketGrid en tu JSX
       const totalTickets = isPremium ? 240 : 2500; 
-      const pageSize = 120;
+      const pageSize = 100;
       const totalPages = Math.ceil(totalTickets / pageSize);
 
       let firstAvailablePage = 0;
@@ -349,7 +349,7 @@ const renderTicketGrid = (totalTickets, cols, type) => {
   const field = isPremium ? 'selectedPremium' : 'selectedGeneral';
   const limit = isPremium ? (selectedPlan?.premium || 0) : (selectedPlan?.general || 0);
 
-  const pageSize = 120; 
+  const pageSize = 100; 
   const totalPages = Math.ceil(totalTickets / pageSize);
 
   const startTicket = currentGridPage * pageSize + 1;
