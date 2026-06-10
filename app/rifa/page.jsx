@@ -494,8 +494,8 @@ if (step === 0) return (
     <section className="pt-20 md:pt-32 pb-20 px-4">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-8 md:gap-16">
         <div className="flex-shrink-0">
-          <div className="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-amber-400/30 shadow-2xl">
-            <img src="/EXCELENTE FOTO MÍA.png" alt="Michael Eusebio" className="w-full h-full object-cover" />
+          <div className="w-64 h-80 md:w-80 md:h-96 rounded-3xl overflow-hidden border-4 border-amber-400/30 shadow-2xl">
+            <img src="/EXCELENTE FOTO MÍA.png" alt="Michael Eusebio" className="w-full h-full object-cover object-top" />
           </div>
         </div>
         <div className="text-center md:text-left">
