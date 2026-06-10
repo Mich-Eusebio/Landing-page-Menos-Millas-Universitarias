@@ -103,8 +103,12 @@ export default function App() {
   const [isBlurred, setIsBlurred] = useState(false);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [focusField, setFocusField] = useState('nombre');
+  const nombreRef = React.useRef(null);
+  const cedulaRef = React.useRef(null);
+  const telefonoRef = React.useRef(null);
   const firstPlanRef = React.useRef(null);
   const ticketGridRef = React.useRef(null);
+  const comprobanteRef = React.useRef(null);
 
   const [formData, setFormData] = useState({
     nombre: '',
@@ -131,6 +135,19 @@ export default function App() {
       setFocusField('comprobante');
     }
   }, [step]);
+
+  useEffect(() => {
+    const fieldMap = {
+      nombre: nombreRef,
+      cedula: cedulaRef,
+      telefono: telefonoRef,
+      comprobante: comprobanteRef,
+    };
+    const ref = fieldMap[focusField];
+    if (ref?.current) {
+      ref.current.focus();
+    }
+  }, [focusField]);
 
   useEffect(() => {
     const hasShown = sessionStorage.getItem('countdown_shown');
@@ -667,8 +684,8 @@ return (
             <div>
               <label className="block text-sm font-black text-white mb-2">Nombre completo *</label>
               <input 
+                ref={nombreRef}
                 required 
-                autoFocus={focusField === 'nombre'} 
                 type="text" 
                 pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
                 title="Solo se permiten letras y espacios"
@@ -680,11 +697,28 @@ return (
             </div>
             <div>
               <label className="block text-sm font-black text-white mb-2">Últimos 4 dígitos de la cédula *</label>
-              <input required autoFocus={focusField === 'cedula'} type="text" maxLength="4" className="w-full p-4 bg-white/5 rounded-2xl border-2 border-white/10 focus:border-blue-500 focus:bg-white/10 transition-all outline-none text-white" placeholder="1234" value={formData.cedula} onChange={e => setFormData({ ...formData, cedula: e.target.value.replace(/\D/g, '') })} />
+              <input 
+                ref={cedulaRef}
+                required 
+                type="text" 
+                maxLength="4" 
+                className="w-full p-4 bg-white/5 rounded-2xl border-2 border-white/10 focus:border-blue-500 focus:bg-white/10 transition-all outline-none text-white" 
+                placeholder="1234" 
+                value={formData.cedula} 
+                onChange={e => setFormData({ ...formData, cedula: e.target.value.replace(/\D/g, '') })} 
+              />
             </div>
             <div>
               <label className="block text-sm font-black text-white mb-2">WhatsApp o Teléfono *</label>
-              <input required autoFocus={focusField === 'telefono'} type="tel" className="w-full p-4 bg-white/5 rounded-2xl border-2 border-white/10 focus:border-blue-500 focus:bg-white/10 transition-all outline-none text-white" placeholder="Ej: 18295551234" value={formData.telefono} onChange={e => setFormData({ ...formData, telefono: e.target.value.replace(/[^0-9]/g, '') })} />
+              <input 
+                ref={telefonoRef}
+                required 
+                type="tel" 
+                className="w-full p-4 bg-white/5 rounded-2xl border-2 border-white/10 focus:border-blue-500 focus:bg-white/10 transition-all outline-none text-white" 
+                placeholder="Ej: 18295551234" 
+                value={formData.telefono} 
+                onChange={e => setFormData({ ...formData, telefono: e.target.value.replace(/[^0-9]/g, '') })} 
+              />
             </div>
             <div>
               <label className="block text-sm font-black text-white mb-2">Correo electrónico *</label>
@@ -831,8 +865,8 @@ return (
 
             <div className="relative border-4 border-dashed border-blue-400/30 bg-blue-600/5 rounded-[2.5rem] p-12 text-center hover:bg-blue-600/10 hover:border-blue-400/50 transition-all group">
               <input
+                ref={comprobanteRef}
                 required
-                autoFocus={focusField === 'comprobante'}
                 type="file"
                 accept="image/png, image/jpeg, image/jpg, image/webp"
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
