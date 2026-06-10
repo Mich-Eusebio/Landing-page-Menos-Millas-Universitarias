@@ -26,6 +26,10 @@ const App = () => {
   const [visibleCount, setVisibleCount] = useState(7);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     if (activeTab === 'supporters' && supporters.length === 0) {
       setLoadingSupporters(true);
       getSupporters().then(data => {
@@ -107,7 +111,7 @@ const App = () => {
               Voy a estudiar ingeniería en EE.UU. Sin vista, primer dominicano en hacerlo. Con los que decidan estar.
             </p>
             <div className="flex flex-col gap-8 items-center lg:items-start pt-4">
-              <a href="#apoyar" className="w-full lg:w-auto inline-flex items-center justify-center gap-3 px-8 py-5 md:px-12 md:py-6 bg-amber-400 hover:bg-amber-300 text-slate-900 font-black rounded-2xl shadow-2xl shadow-amber-400/20 transition-all uppercase text-base md:text-lg group">
+              <a href="#calendario" className="w-full lg:w-auto inline-flex items-center justify-center gap-3 px-8 py-5 md:px-12 md:py-6 bg-amber-400 hover:bg-amber-300 text-slate-900 font-black rounded-2xl shadow-2xl shadow-amber-400/20 transition-all uppercase text-base md:text-lg group">
                 Reserva tu día en mi historia
               </a>
             </div>
@@ -402,6 +406,10 @@ const App = () => {
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@1,400;1,700&display=swap');
         .font-serif { font-family: 'Crimson Pro', serif; }
+        
+        html {
+          scroll-behavior: smooth;
+        }
         
         @keyframes shimmer {
           0% { background-position: -20px 0; }

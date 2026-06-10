@@ -21,7 +21,7 @@ const HomeCalendar = () => {
   const soldPercentage = Math.round((soldCount / totalDays) * 100);
 
   return (
-    <section className="py-12 md:py-20 px-6 bg-[#000000] relative overflow-hidden">
+    <section id="calendario" className="py-12 md:py-20 px-6 bg-[#000000] relative overflow-hidden" style={{ scrollMarginTop: '100px' }}>
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-blue-600/5 blur-[150px] rounded-full"></div>
       </div>
