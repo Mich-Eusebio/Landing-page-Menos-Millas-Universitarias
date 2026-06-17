@@ -28,6 +28,7 @@ const App = () => {
 
   // States for Lead Capture Modal
   const [showPopup, setShowPopup] = useState(false);
+  const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [submittingLead, setSubmittingLead] = useState(false);
   const [leadSuccess, setLeadSuccess] = useState(false);
@@ -66,6 +67,10 @@ const App = () => {
 
   const handleLeadSubmit = async (e) => {
     e.preventDefault();
+    if (!name.trim()) {
+      setLeadError('Por favor ingresa tu nombre.');
+      return;
+    }
     if (!phone.trim()) {
       setLeadError('Por favor ingresa tu número.');
       return;
@@ -74,7 +79,7 @@ const App = () => {
     setLeadError('');
     try {
       const fullPhone = '+1 ' + phone.trim();
-      await saveWhatsAppLead(fullPhone);
+      await saveWhatsAppLead(name.trim(), fullPhone);
       setLeadSuccess(true);
       localStorage.setItem('mm_lead_interacted', 'true');
       setTimeout(() => {
@@ -82,7 +87,7 @@ const App = () => {
       }, 2500);
     } catch (err) {
       console.error(err);
-      setLeadError('Hubo un error al guardar tu número. Inténtalo de nuevo.');
+      setLeadError('Hubo un error al guardar tus datos. Inténtalo de nuevo.');
     } finally {
       setSubmittingLead(false);
     }
@@ -533,6 +538,23 @@ const App = () => {
                     {/* Formulario Limpio */}
                     <form onSubmit={handleLeadSubmit} className="space-y-4">
                       <div className="space-y-2">
+                        <label htmlFor="lead-name" className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
+                          Nombre completo
+                        </label>
+                        <input
+                          id="lead-name"
+                          type="text"
+                          autoFocus={true}
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          placeholder="Tu nombre y apellido"
+                          disabled={submittingLead}
+                          className="w-full bg-[#071526] text-white px-4 py-3.5 rounded-xl border border-slate-800 focus:border-amber-400 focus:outline-none transition text-base"
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-2">
                         <label htmlFor="lead-phone" className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
                           Número de WhatsApp
                         </label>
@@ -542,7 +564,6 @@ const App = () => {
                           <input
                             id="lead-phone"
                             type="tel"
-                            autoFocus={true}
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
                             placeholder="(809) 123-4567"
