@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { adminDb } from '@/lib/firebaseAdmin';
-import { sendRifaConfirmation, sendGenericText } from '@/lib/apis/WhatsAppService';
+import { sendRifaConfirmation, sendGenericText, sendLeadUpdateTemplate } from '@/lib/apis/WhatsAppService';
 
 export async function POST(request) {
   try {
@@ -56,6 +56,18 @@ async function handleIncomingMessage(payload) {
     const textLower = text.toLowerCase();
     
     console.log(`📱 Mensaje de ${from}: ${text}`);
+
+    // Check if message is from Admin (Michael)
+    const cleanFrom = from.replace(/\D/g, '');
+    const personalNumber = process.env.PERSONAL_NUMER;
+    const cleanAdmin = personalNumber ? personalNumber.replace(/\D/g, '') : '';
+    const isFromAdmin = cleanAdmin && (cleanFrom === cleanAdmin || cleanFrom === `1${cleanAdmin}` || `1${cleanFrom}` === cleanAdmin);
+
+    if (isFromAdmin && text.startsWith('/broadcast ')) {
+      const broadcastText = text.substring(11).trim();
+      await handleBroadcast(from, broadcastText);
+      return;
+    }
 
     if (textLower.includes('recuérdame') || textLower.includes('recuerdame') || textLower.includes('tickets')) {
       const uidMatch = text.match(/\[([a-f0-9-]+)\]/i);
@@ -135,4 +147,81 @@ export async function GET(request) {
   }
 
   return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+}
+
+async function handleBroadcast(adminPhone, rawBroadcastText) {
+  try {
+    const parts = rawBroadcastText.split('|');
+    if (parts.length < 3) {
+      await sendGenericText({
+        telefono: adminPhone,
+        texto: '❌ Formato inválido. Debe ser: /broadcast [acción] | [canal] | [descripción]'
+      });
+      return;
+    }
+
+    const action = parts[0].trim();
+    const channelCode = parts[1].trim();
+    const description = parts[2].trim();
+
+    const channelNames = {
+      ig: 'Instagram',
+      yt: 'YouTube',
+      lk: 'LinkedIn',
+      gh: 'GitHub',
+      '0': 'nuestra web'
+    };
+    const channelText = channelNames[channelCode.toLowerCase()] || channelCode;
+
+    console.log(`📣 Iniciando difusión. Acción: "${action}", Canal: "${channelText}", Desc: "${description}", Botón Param: "${channelCode}"`);
+
+    const snapshot = await adminDb.collection('lead-capture').get();
+    if (snapshot.empty) {
+      await sendGenericText({
+        telefono: adminPhone,
+        texto: '⚠️ No hay contactos registrados en la colección lead-capture.'
+      });
+      return;
+    }
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const doc of snapshot.docs) {
+      const data = doc.data();
+      const rawPhone = data.phone;
+      const nombre = data.name || 'Aliado';
+
+      if (!rawPhone) continue;
+
+      const cleanPhone = rawPhone.replace(/\D/g, '');
+
+      const result = await sendLeadUpdateTemplate({
+        telefono: cleanPhone,
+        nombre,
+        action,
+        channel: channelText,
+        description,
+        buttonParam: channelCode
+      });
+
+      if (result.success) {
+        successCount++;
+      } else {
+        failCount++;
+      }
+    }
+
+    await sendGenericText({
+      telefono: adminPhone,
+      texto: `✅ Difusión completada.\nEnviados con éxito: ${successCount}\nFallidos: ${failCount}`
+    });
+
+  } catch (error) {
+    console.error('❌ Error en handleBroadcast:', error);
+    await sendGenericText({
+      telefono: adminPhone,
+      texto: `❌ Error al ejecutar la difusión: ${error.message}`
+    });
+  }
 }

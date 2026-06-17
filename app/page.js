@@ -1,3 +1,5 @@
+import { redirect } from 'next/navigation';
+import { socialNetworks } from '@/lib/social_networks';
 import HomeClient from './HomeClient';
 
 export const metadata = {
@@ -8,6 +10,14 @@ export const metadata = {
   },
 };
 
-export default function Page() {
+export default async function Page({ searchParams }) {
+  const params = await searchParams;
+  const channel = params.channel;
+  if (channel && channel !== '0') {
+    const target = socialNetworks[channel];
+    if (target) {
+      redirect(target);
+    }
+  }
   return <HomeClient />;
 }
