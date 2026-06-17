@@ -39,12 +39,29 @@ const App = () => {
 
   useEffect(() => {
     const hasInteracted = localStorage.getItem('mm_lead_interacted');
-    if (!hasInteracted) {
-      const timer = setTimeout(() => {
-        setShowPopup(true);
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
+    if (hasInteracted) return;
+
+    // Small delay to ensure child component DOM is fully rendered
+    const timer = setTimeout(() => {
+      const target = document.getElementById('calendario');
+      if (!target) return;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              setShowPopup(true);
+              observer.disconnect();
+            }
+          });
+        },
+        { threshold: 0.35 }
+      );
+
+      observer.observe(target);
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, []);
 
   const handleLeadSubmit = async (e) => {
@@ -56,7 +73,8 @@ const App = () => {
     setSubmittingLead(true);
     setLeadError('');
     try {
-      await saveWhatsAppLead(phone.trim());
+      const fullPhone = '+1 ' + phone.trim();
+      await saveWhatsAppLead(fullPhone);
       setLeadSuccess(true);
       localStorage.setItem('mm_lead_interacted', 'true');
       setTimeout(() => {
@@ -454,7 +472,7 @@ const App = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-title"
@@ -463,7 +481,7 @@ const App = () => {
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className="bg-[#0a1628] border border-blue-500/20 rounded-3xl p-6 md:p-8 max-w-md w-full relative shadow-2xl shadow-blue-500/10 overflow-hidden"
+              className="bg-[#0b1f3a] border border-slate-800 rounded-2xl p-8 md:p-12 max-w-2xl w-full relative shadow-2xl overflow-hidden"
             >
               {/* Decorative Glow */}
               <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/10 blur-[50px] rounded-full pointer-events-none"></div>
@@ -471,7 +489,7 @@ const App = () => {
               {/* Close Button */}
               <button
                 onClick={handleLeadClose}
-                className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors p-2 rounded-full hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                className="absolute top-6 right-6 text-slate-400 hover:text-white transition-colors p-2 rounded-full hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer z-10"
                 aria-label="Cerrar"
               >
                 <X className="w-5 h-5" />
@@ -479,74 +497,93 @@ const App = () => {
 
               {/* Success State */}
               {leadSuccess ? (
-                <div className="text-center py-8 space-y-4">
+                <div className="text-center py-8 space-y-6">
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="w-16 h-16 bg-green-500/20 border border-green-500/30 rounded-full flex items-center justify-center mx-auto"
+                    className="w-20 h-20 bg-green-500/10 border border-green-500/30 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-green-500/10"
                   >
-                    <MessageCircle className="w-8 h-8 text-green-400 fill-green-400/20" />
+                    <MessageCircle className="w-10 h-10 text-[#25D366] fill-[#25D366]/20" />
                   </motion.div>
-                  <h3 className="text-2xl font-black text-white uppercase italic tracking-tighter">¡Listo!</h3>
-                  <p className="text-blue-100/70 text-sm leading-relaxed">
+                  <h3 className="text-3xl font-black text-white uppercase italic tracking-tighter">¡Listo!</h3>
+                  <p className="text-blue-100/70 text-base md:text-lg leading-relaxed">
                     Te has unido con éxito. Nos vemos pronto en el grupo de WhatsApp.
                   </p>
                 </div>
               ) : (
                 /* Form State */
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <div className="w-12 h-12 bg-blue-600/20 border border-blue-500/30 rounded-2xl flex items-center justify-center text-blue-400">
-                      <MessageCircle className="w-6 h-6 text-blue-400" />
+                <div className="grid md:grid-cols-12 gap-6 md:gap-8 items-center">
+                  {/* Form Column */}
+                  <div className="col-span-12 md:col-span-7 space-y-5 order-1 md:order-1">
+                    {/* Encabezado Emocional */}
+                    <div className="flex flex-col items-center md:items-start text-center md:text-left">
+                      <div className="bg-[#25D366]/10 p-2.5 rounded-full mb-3 text-[#25D366] w-fit">
+                        <MessageCircle className="w-6 h-6 text-[#25D366] fill-[#25D366]/20" />
+                      </div>
+                      <h2 className="text-xl md:text-2xl font-black text-white tracking-tight uppercase italic leading-tight">
+                        Descuentos exclusivos <span className="text-[#25D366] block text-2xl md:text-3xl mt-1 font-black">+ la historia en tiempo real</span>
+                      </h2>
                     </div>
-                    <h3 id="modal-title" className="text-xl md:text-2xl font-black text-white uppercase italic tracking-tighter leading-tight">
-                      Sigue la historia en <span className="text-blue-400">WhatsApp</span>
-                    </h3>
+
+                    {/* Cuerpo con Jerarquía Textual */}
+                    <p className="text-slate-300 text-base text-center md:text-left leading-relaxed">
+                      Únete al WhatsApp. <strong className="text-white font-bold">Gratis.</strong>
+                    </p>
+
+                    {/* Formulario Limpio */}
+                    <form onSubmit={handleLeadSubmit} className="space-y-4">
+                      <div className="space-y-2">
+                        <label htmlFor="lead-phone" className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
+                          Número de WhatsApp
+                        </label>
+                        <div className="relative flex items-center">
+                          {/* Simulación de bandera/prefijo nativo */}
+                          <span className="absolute left-4 text-sm text-slate-400 font-medium select-none">🇩🇴 +1</span>
+                          <input
+                            id="lead-phone"
+                            type="tel"
+                            autoFocus={true}
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            placeholder="(809) 123-4567"
+                            disabled={submittingLead}
+                            className="w-full bg-[#071526] text-white pl-16 pr-4 py-3.5 rounded-xl border border-slate-800 focus:border-amber-400 focus:outline-none transition text-base"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      {leadError && (
+                        <p className="text-xs font-bold text-red-400" role="alert">
+                          {leadError}
+                        </p>
+                      )}
+
+                      <button
+                        type="submit"
+                        disabled={submittingLead}
+                        className="w-full bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold py-3.5 rounded-xl transition shadow-lg shadow-amber-500/10 tracking-wide text-sm cursor-pointer"
+                      >
+                        {submittingLead ? (
+                          <span className="flex items-center justify-center gap-2">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Guardando...
+                          </span>
+                        ) : (
+                          'Quiero entrar'
+                        )}
+                      </button>
+                    </form>
                   </div>
 
-                  <p className="text-sm text-blue-100/70 leading-relaxed font-medium">
-                    Únete al WhatsApp y sigue en tiempo real cómo un programador ciego construye su camino a Nueva York — y accede primero a los descuentos exclusivos de los sponsors.
-                  </p>
-
-                  <form onSubmit={handleLeadSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                      <label htmlFor="lead-phone" className="text-xs font-black uppercase tracking-widest text-slate-400">
-                        Número de WhatsApp
-                      </label>
-                      <input
-                        id="lead-phone"
-                        type="tel"
-                        autoFocus={true}
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        placeholder="+1 (809) 123-4567"
-                        disabled={submittingLead}
-                        className="w-full bg-slate-900/60 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm"
-                        required
-                      />
-                    </div>
-
-                    {leadError && (
-                      <p className="text-xs font-bold text-red-400" role="alert">
-                        {leadError}
-                      </p>
-                    )}
-
-                    <button
-                      type="submit"
-                      disabled={submittingLead}
-                      className="w-full bg-amber-400 hover:bg-amber-300 disabled:opacity-50 text-slate-900 font-black py-3 rounded-xl uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-amber-400/10"
-                    >
-                      {submittingLead ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Guardando...
-                        </>
-                      ) : (
-                        'Unirse ahora'
-                      )}
-                    </button>
-                  </form>
+                  {/* Photo Column */}
+                  <div className="col-span-12 md:col-span-5 flex justify-center md:justify-end relative self-end -mb-8 md:-mb-12 order-2 md:order-2">
+                    <img
+                      src="/imagen Michael Eusebio con baston sin fondo.png"
+                      alt="Michael Eusebio con bastón"
+                      className="w-40 md:w-full h-auto max-h-[220px] md:max-h-[320px] object-contain drop-shadow-[0_10px_25px_rgba(59,130,246,0.2)]"
+                    />
+                  </div>
                 </div>
               )}
             </motion.div>
