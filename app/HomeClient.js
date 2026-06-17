@@ -14,9 +14,10 @@ import {
   Target,
   Trophy,
   Newspaper,
-  Users
+  Users,
+  X
 } from 'lucide-react';
-import { getSupporters } from '../lib/apis/SorteoActions';
+import { getSupporters, saveWhatsAppLead } from '../lib/apis/SorteoActions';
 import HomeCalendar from '../components/HomeCalendar';
 
 const App = () => {
@@ -25,9 +26,54 @@ const App = () => {
   const [loadingSupporters, setLoadingSupporters] = useState(false);
   const [visibleCount, setVisibleCount] = useState(7);
 
+  // States for Lead Capture Modal
+  const [showPopup, setShowPopup] = useState(false);
+  const [phone, setPhone] = useState('');
+  const [submittingLead, setSubmittingLead] = useState(false);
+  const [leadSuccess, setLeadSuccess] = useState(false);
+  const [leadError, setLeadError] = useState('');
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  useEffect(() => {
+    const hasInteracted = localStorage.getItem('mm_lead_interacted');
+    if (!hasInteracted) {
+      const timer = setTimeout(() => {
+        setShowPopup(true);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const handleLeadSubmit = async (e) => {
+    e.preventDefault();
+    if (!phone.trim()) {
+      setLeadError('Por favor ingresa tu número.');
+      return;
+    }
+    setSubmittingLead(true);
+    setLeadError('');
+    try {
+      await saveWhatsAppLead(phone.trim());
+      setLeadSuccess(true);
+      localStorage.setItem('mm_lead_interacted', 'true');
+      setTimeout(() => {
+        setShowPopup(false);
+      }, 2500);
+    } catch (err) {
+      console.error(err);
+      setLeadError('Hubo un error al guardar tu número. Inténtalo de nuevo.');
+    } finally {
+      setSubmittingLead(false);
+    }
+  };
+
+  const handleLeadClose = () => {
+    setShowPopup(false);
+    localStorage.setItem('mm_lead_interacted', 'true');
+  };
 
   useEffect(() => {
     if (activeTab === 'supporters' && supporters.length === 0) {
@@ -402,6 +448,111 @@ const App = () => {
           <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">© 2026 Michael Eusebio · Menos Millas Universitarias</p>
         </div>
       </footer>
+      <AnimatePresence>
+        {showPopup && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-title"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-[#0a1628] border border-blue-500/20 rounded-3xl p-6 md:p-8 max-w-md w-full relative shadow-2xl shadow-blue-500/10 overflow-hidden"
+            >
+              {/* Decorative Glow */}
+              <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/10 blur-[50px] rounded-full pointer-events-none"></div>
+
+              {/* Close Button */}
+              <button
+                onClick={handleLeadClose}
+                className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors p-2 rounded-full hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                aria-label="Cerrar"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* Success State */}
+              {leadSuccess ? (
+                <div className="text-center py-8 space-y-4">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="w-16 h-16 bg-green-500/20 border border-green-500/30 rounded-full flex items-center justify-center mx-auto"
+                  >
+                    <MessageCircle className="w-8 h-8 text-green-400 fill-green-400/20" />
+                  </motion.div>
+                  <h3 className="text-2xl font-black text-white uppercase italic tracking-tighter">¡Listo!</h3>
+                  <p className="text-blue-100/70 text-sm leading-relaxed">
+                    Te has unido con éxito. Nos vemos pronto en el grupo de WhatsApp.
+                  </p>
+                </div>
+              ) : (
+                /* Form State */
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <div className="w-12 h-12 bg-blue-600/20 border border-blue-500/30 rounded-2xl flex items-center justify-center text-blue-400">
+                      <MessageCircle className="w-6 h-6 text-blue-400" />
+                    </div>
+                    <h3 id="modal-title" className="text-xl md:text-2xl font-black text-white uppercase italic tracking-tighter leading-tight">
+                      Sigue la historia en <span className="text-blue-400">WhatsApp</span>
+                    </h3>
+                  </div>
+
+                  <p className="text-sm text-blue-100/70 leading-relaxed font-medium">
+                    Únete al WhatsApp y sigue en tiempo real cómo un programador ciego construye su camino a Nueva York — y accede primero a los descuentos exclusivos de los sponsors.
+                  </p>
+
+                  <form onSubmit={handleLeadSubmit} className="space-y-4">
+                    <div className="space-y-2">
+                      <label htmlFor="lead-phone" className="text-xs font-black uppercase tracking-widest text-slate-400">
+                        Número de WhatsApp
+                      </label>
+                      <input
+                        id="lead-phone"
+                        type="tel"
+                        autoFocus={true}
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="+1 (809) 123-4567"
+                        disabled={submittingLead}
+                        className="w-full bg-slate-900/60 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm"
+                        required
+                      />
+                    </div>
+
+                    {leadError && (
+                      <p className="text-xs font-bold text-red-400" role="alert">
+                        {leadError}
+                      </p>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={submittingLead}
+                      className="w-full bg-amber-400 hover:bg-amber-300 disabled:opacity-50 text-slate-900 font-black py-3 rounded-xl uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-amber-400/10"
+                    >
+                      {submittingLead ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Guardando...
+                        </>
+                      ) : (
+                        'Unirse ahora'
+                      )}
+                    </button>
+                  </form>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@1,400;1,700&display=swap');
