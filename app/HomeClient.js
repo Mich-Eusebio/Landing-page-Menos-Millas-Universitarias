@@ -21,7 +21,7 @@ import { getSupporters, saveWhatsAppLead } from '../lib/apis/SorteoActions';
 import HomeCalendar from '../components/HomeCalendar';
 
 const App = () => {
-  const [activeTab, setActiveTab] = useState('supporters');
+  const [activeTab, setActiveTab] = useState('validacion');
   const [supporters, setSupporters] = useState([]);
   const [loadingSupporters, setLoadingSupporters] = useState(false);
   const [visibleCount, setVisibleCount] = useState(7);
