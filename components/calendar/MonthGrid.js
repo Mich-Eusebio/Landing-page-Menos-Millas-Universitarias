@@ -348,11 +348,17 @@ const MonthGrid = ({
                   aria-checked={amActive}
                   aria-label={amLabel}
                   title={amLabel}
-                  disabled={amSold}
-                  onClick={() => onSlotClick(dateStr, 'morning')}
+                  disabled={amSold && !morningSponsor?.link}
+                  onClick={() => {
+                    if (amSold) {
+                      if (morningSponsor?.link) window.open(morningSponsor.link, '_blank');
+                    } else {
+                      onSlotClick(dateStr, 'morning');
+                    }
+                  }}
                   className={`absolute top-0 left-0 w-full h-1/2 border-b border-[#30363d]/50 flex flex-col items-center justify-center p-0.5 md:p-1 transition-all
                     ${amSold
-                      ? 'bg-amber-500/10 cursor-not-allowed text-amber-500/40'
+                      ? `bg-amber-500/10 ${morningSponsor?.link ? 'cursor-pointer hover:bg-amber-500/20' : 'cursor-not-allowed'} text-amber-500/40`
                       : amActive
                         ? 'bg-blue-600 text-white shadow-[inset_0_0_10px_rgba(255,255,255,0.1)]'
                         : 'bg-[#161b22] text-white/50 hover:bg-[#1f2937] hover:text-white'
@@ -378,11 +384,17 @@ const MonthGrid = ({
                   aria-checked={pmActive}
                   aria-label={pmLabel}
                   title={pmLabel}
-                  disabled={pmSold}
-                  onClick={() => onSlotClick(dateStr, 'afternoon')}
+                  disabled={pmSold && !afternoonSponsor?.link}
+                  onClick={() => {
+                    if (pmSold) {
+                      if (afternoonSponsor?.link) window.open(afternoonSponsor.link, '_blank');
+                    } else {
+                      onSlotClick(dateStr, 'afternoon');
+                    }
+                  }}
                   className={`absolute bottom-0 left-0 w-full h-1/2 flex flex-col items-center justify-center p-0.5 md:p-1 transition-all
                     ${pmSold
-                      ? 'bg-amber-500/10 cursor-not-allowed text-amber-500/40'
+                      ? `bg-amber-500/10 ${afternoonSponsor?.link ? 'cursor-pointer hover:bg-amber-500/20' : 'cursor-not-allowed'} text-amber-500/40`
                       : pmActive
                         ? 'bg-blue-600 text-white shadow-[inset_0_0_10px_rgba(255,255,255,0.1)]'
                         : 'bg-[#161b22] text-white/50 hover:bg-[#1f2937] hover:text-white'
@@ -419,15 +431,23 @@ const MonthGrid = ({
 
           // PATCH: Medio día vendido = día completo no disponible
           const isDayUnavailable = isFullySold || isHalfDaySold;
+          const sponsorLink = isConsolidatedSold ? (morningSponsor?.link || soldInfo?.link || null) : null;
+          const hasLink = !!sponsorLink;
 
           return (
             <motion.button
               key={dateStr}
-              whileHover={!isDayUnavailable ? { scale: 1.08, y: -4 } : {}}
-              whileTap={!isDayUnavailable ? { scale: 0.95 } : {}}
-              onClick={() => !isDayUnavailable && onDateClick(dateStr, isDayUnavailable)}
-              disabled={isDayUnavailable}
-              aria-disabled={isDayUnavailable}
+              whileHover={(!isDayUnavailable || hasLink) ? { scale: 1.08, y: -4 } : {}}
+              whileTap={(!isDayUnavailable || hasLink) ? { scale: 0.95 } : {}}
+              onClick={() => {
+                if (hasLink) {
+                  window.open(sponsorLink, '_blank');
+                } else if (!isDayUnavailable) {
+                  onDateClick(dateStr, isDayUnavailable);
+                }
+              }}
+              disabled={isDayUnavailable && !hasLink}
+              aria-disabled={isDayUnavailable && !hasLink}
               aria-label={ariaLabel}
               title={ariaLabel}
               style={isConsolidatedSold && singleTier ? {
@@ -438,7 +458,7 @@ const MonthGrid = ({
                 aspect-square border flex flex-col items-center justify-center relative transition-all duration-300 overflow-hidden
                 ${roundingClass}
                 ${isConsolidatedSold
-                  ? 'bg-[#050505] cursor-not-allowed'
+                  ? `bg-[#050505] ${hasLink ? 'cursor-pointer hover:bg-[#0f0f0f]' : 'cursor-not-allowed'}`
                   : isFullSelected
                     ? 'bg-blue-600 border-blue-400 shadow-[0_0_30px_rgba(37,99,235,0.4),inset_0_0_20px_rgba(255,255,255,0.2)] z-10'
                     : 'bg-[#161b22] border-[#30363d] hover:bg-[#1f2937] hover:border-[#8b949e]'
