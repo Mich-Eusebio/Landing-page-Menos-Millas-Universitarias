@@ -227,11 +227,6 @@ const MonthGrid = ({
             const spanLength     = sponsorGroup.dates.length;
             const groupDayNumbers = sponsorGroup.dates.map((d) => parseInt(d.split('-')[2], 10));
             const tier           = getTier(sponsorGroup.planId);
-            const sponsorSubtitle = spanLength === 7
-              ? 'Patrocinó esta semana'
-              : spanLength >= 28
-              ? 'Patrocinó este mes'
-              : `Patrocinó ${spanLength} días`;
 
             const startDate = new Date(sponsorGroup.dates[0] + 'T00:00:00');
             const endDate = new Date(sponsorGroup.dates[sponsorGroup.dates.length - 1] + 'T00:00:00');
@@ -301,9 +296,6 @@ const MonthGrid = ({
                   <div className="flex flex-col min-w-0">
                     <span className="text-sm md:text-xl font-black leading-none tracking-tighter truncate text-white uppercase italic">
                       {morningSponsor?.nombre}
-                    </span>
-                    <span className="text-[10px] md:text-xs font-bold leading-tight truncate mt-1" style={{ color: `${tier.color}AA` }}>
-                      {sponsorSubtitle}
                     </span>
                   </div>
                 </div>
