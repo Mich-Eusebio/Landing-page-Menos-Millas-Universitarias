@@ -240,11 +240,17 @@ const MonthGrid = ({
             const endStr = endDate.toLocaleDateString('es-ES', options);
             const ariaLabel = `${startStr} hasta el ${endStr} patrocinado por ${sponsorGroup.sponsor ?? 'sponsor'}`;
 
+            const sponsorLink = morningSponsor?.link || soldInfo?.link || null;
+            const hasLink = !!sponsorLink;
+
             return (
               <motion.button
                 key={dateStr}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={hasLink ? { scale: 1.02 } : {}}
+                whileTap={hasLink ? { scale: 0.98 } : {}}
+                onClick={() => {
+                  if (hasLink) window.open(sponsorLink, '_blank');
+                }}
                 style={{
                   gridColumn:  `span ${spanLength}`,
                   gridRow:     'span 1',
@@ -253,7 +259,7 @@ const MonthGrid = ({
                 }}
                 className={`
                   h-full border-2 flex flex-col relative overflow-hidden ${roundingClass}
-                  cursor-pointer bg-[#0d1a0f]/50
+                  ${hasLink ? 'cursor-pointer hover:brightness-110' : 'cursor-default'} bg-[#0d1a0f]/50
                 `}
                 aria-label={ariaLabel}
               >
