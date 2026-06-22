@@ -118,8 +118,8 @@ const MonthGrid = ({
 
           // ── User selection state ──
           const userSelection    = selectedDates.find((d) => d.dateStr === dateStr);
-          const isAMSelected     = userSelection && (userSelection.slot === 'morning'   || userSelection.slot === 'full');
-          const isPMSelected     = userSelection && (userSelection.slot === 'afternoon' || userSelection.slot === 'full');
+          const isAMSelected     = userSelection && userSelection.slot === 'morning';
+          const isPMSelected     = userSelection && userSelection.slot === 'afternoon';
           const isFullSelected   = userSelection && userSelection.slot === 'full';
           const isGroupSelection = userSelection?.selectionGroupId &&
             (userSelection.selectionGroupId.startsWith('week-') ||
