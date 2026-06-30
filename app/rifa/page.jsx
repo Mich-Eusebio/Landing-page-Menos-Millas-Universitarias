@@ -33,6 +33,8 @@ import {
   Landmark
 } from 'lucide-react';
 import { validateAndReserveTickets, saveParticipant } from '@/lib/apis/rifaTransactions';
+import { sendRafflePurchaseNotification } from '@/lib/apis/SorteoActions';
+
 
 
 
@@ -432,8 +434,17 @@ const handleSubmit = async (e) => {
         await saveParticipant(transaction, 'rifas/v2/premium_registrations', premiumPayload);
       }
     });
+
+    // Enviar notificación de WhatsApp al admin (Michael)
+    try {
+      await sendRafflePurchaseNotification(formData.nombre, selectedPlan?.name || 'plan de rifa');
+    } catch (notifErr) {
+      console.error("🔥 Error al enviar notificación de WhatsApp al admin:", notifErr);
+    }
+
     setSubmissionId(submissionId);
     setStep(7); // ¡Éxito!
+
   } catch (err) { 
     console.error(" Error al procesar:", err);
     alert(err.message || "Error al procesar la solicitud.");
