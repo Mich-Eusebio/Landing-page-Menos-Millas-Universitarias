@@ -59,7 +59,7 @@ async function handleIncomingMessage(payload) {
 
     // Check if message is from Admin (Michael)
     const cleanFrom = from.replace(/\D/g, '');
-    const personalNumber = process.env.PERSONAL_NUMER;
+    const personalNumber = process.env.PERSONAL_NUMER || process.env.PERSONAL_NUMBER;
     const cleanAdmin = personalNumber ? personalNumber.replace(/\D/g, '') : '';
     const isFromAdmin = cleanAdmin && (cleanFrom === cleanAdmin || cleanFrom === `1${cleanAdmin}` || `1${cleanFrom}` === cleanAdmin);
 

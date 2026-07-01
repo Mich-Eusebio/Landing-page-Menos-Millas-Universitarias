@@ -33,7 +33,7 @@ import {
   Landmark
 } from 'lucide-react';
 import { validateAndReserveTickets, saveParticipant } from '@/lib/apis/rifaTransactions';
-import { sendRafflePurchaseNotification } from '@/lib/apis/SorteoActions';
+import { sendRafflePurchaseNotification, sendRaffleNotificationStatus } from '@/lib/apis/SorteoActions';
 
 
 
@@ -443,12 +443,13 @@ const handleSubmit = async (e) => {
     }
 
     // Enviar confirmación automática de WhatsApp al usuario
+    let wasNotified = false;
     try {
       let formattedPhone = formData.telefono.replace(/\D/g, '');
       if (formattedPhone.length === 10) {
         formattedPhone = '1' + formattedPhone;
       }
-      await fetch('/api/whatsapp/send', {
+      const response = await fetch('/api/whatsapp/send', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -460,8 +461,17 @@ const handleSubmit = async (e) => {
           ticketsGeneral: formData.selectedGeneral,
         }),
       });
+      const resData = await response.json();
+      wasNotified = !!(resData && resData.success);
     } catch (userNotifErr) {
       console.error("🔥 Error al enviar confirmación de WhatsApp al usuario:", userNotifErr);
+    }
+
+    // Enviar estado de la notificación de usuario al admin (Michael)
+    try {
+      await sendRaffleNotificationStatus(formData.nombre, wasNotified);
+    } catch (statusErr) {
+      console.error("🔥 Error al enviar notificación de estado de WhatsApp al admin:", statusErr);
     }
 
     setSubmissionId(submissionId);
