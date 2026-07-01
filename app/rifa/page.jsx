@@ -162,7 +162,7 @@ export default function App() {
     console.log('Countdown check - hasShown:', hasShown);
     if (hasShown) return;
 
-    const targetDate = new Date('2026-07-11T00:00:00');
+    const targetDate = new Date('2026-07-30T23:59:59');
 
     const updateCountdown = () => {
       const now = new Date();
