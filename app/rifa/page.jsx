@@ -40,8 +40,8 @@ import { sendRafflePurchaseNotification } from '@/lib/apis/SorteoActions';
 
 // --- Constants ---
 const PLANS = [
-  { id: 'extra', name: 'Milla Extra', price: 'RD$5,000', amount: 5000, premium: 3, general: 10 },
-  { id: 'impacto', name: 'Milla de Impacto', price: 'RD$3,000', amount: 3000, premium: 1, general: 5 },
+  { id: 'extra', name: 'Milla Extra', price: 'RD$5,000', amount: 5000, premium: 0, general: 10 },
+  { id: 'impacto', name: 'Milla de Impacto', price: 'RD$3,000', amount: 3000, premium: 0, general: 5 },
   { id: 'impulso', name: 'Milla de Impulso', price: 'RD$1,500', amount: 1500, premium: 0, general: 3 },
   { id: 'inicial', name: 'Milla Inicial', price: 'RD$1,000', amount: 1000, premium: 0, general: 1 },
 ];
@@ -440,6 +440,28 @@ const handleSubmit = async (e) => {
       await sendRafflePurchaseNotification(formData.nombre, selectedPlan?.name || 'plan de rifa');
     } catch (notifErr) {
       console.error("🔥 Error al enviar notificación de WhatsApp al admin:", notifErr);
+    }
+
+    // Enviar confirmación automática de WhatsApp al usuario
+    try {
+      let formattedPhone = formData.telefono.replace(/\D/g, '');
+      if (formattedPhone.length === 10) {
+        formattedPhone = '1' + formattedPhone;
+      }
+      await fetch('/api/whatsapp/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          nombre: formData.nombre,
+          telefono: formattedPhone,
+          plan: selectedPlan?.name || 'plan de rifa',
+          ticketsGeneral: formData.selectedGeneral,
+        }),
+      });
+    } catch (userNotifErr) {
+      console.error("🔥 Error al enviar confirmación de WhatsApp al usuario:", userNotifErr);
     }
 
     setSubmissionId(submissionId);
@@ -953,24 +975,12 @@ return (
             </div>
             <h2 className="text-3xl font-black mb-4 text-white leading-tight">Tu participación quedó registrada 🎉</h2>
             <p className="text-white/70 mb-8 leading-relaxed max-w-sm mx-auto font-medium">
-              Gracias por apostar por el talento dominicano con discapacidad.
+              Gracias por apostar por el talento dominicano con discapacidad. Te hemos enviado un mensaje de confirmación por WhatsApp con los detalles de tus tickets.
             </p>
-
-            <div className="max-w-sm mx-auto space-y-4 mb-8">
-              <a
-                href={`https://wa.me/${(process.env.NEXT_PUBLIC_KAPSO_PHONE_NUMBER || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Recuérdame mis tickets [${submissionId}]`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full bg-green-600 text-white px-6 py-4 rounded-2xl font-black hover:bg-green-500 shadow-xl shadow-green-600/20 transition-all flex items-center justify-center gap-3"
-              >
-                <Phone size={20} />
-                Recuérdame mis tickets
-              </a>
-            </div>
 
             <button
               onClick={() => window.location.reload()}
-              className="w-full bg-blue-600 text-white px-6 py-4 rounded-2xl font-black hover:bg-blue-700 shadow-xl shadow-blue-600/20 transition-all"
+              className="w-full max-w-sm bg-blue-600 text-white px-6 py-4 rounded-2xl font-black hover:bg-blue-700 shadow-xl shadow-blue-600/20 transition-all"
             >
               Cerrar esta ventana
             </button>
