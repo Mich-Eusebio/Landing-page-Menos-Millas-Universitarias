@@ -294,7 +294,7 @@ const MonthGrid = ({
                     />
                   ) : null}
                   <div className="flex flex-col min-w-0">
-                    <span className="text-sm md:text-xl font-black leading-none tracking-tighter truncate text-white uppercase italic">
+                    <span className="text-sm md:text-xl font-black leading-tight tracking-tighter text-white uppercase italic whitespace-normal break-words line-clamp-2">
                       {morningSponsor?.nombre}
                     </span>
                   </div>
@@ -369,7 +369,7 @@ const MonthGrid = ({
                           className="w-4 h-4 md:w-6 md:h-6 rounded-full object-cover border border-amber-400/50"
                           onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                       ) : null}
-                      <span className="text-[5px] md:text-[7px] font-bold text-amber-400 truncate w-full block">{morningSponsor.nombre}</span>
+                      <span className="text-[5px] md:text-[7px] font-bold text-amber-400 whitespace-normal break-words leading-tight w-full block px-0.5 line-clamp-2">{morningSponsor.nombre}</span>
                     </div>
                   ) : (
                     <span className="text-[5px] md:text-[7px] font-black tracking-widest uppercase opacity-60">☀️</span>
@@ -405,7 +405,7 @@ const MonthGrid = ({
                           className="w-4 h-4 md:w-6 md:h-6 rounded-full object-cover border border-amber-400/50"
                           onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                       ) : null}
-                      <span className="text-[5px] md:text-[7px] font-bold text-amber-400 truncate w-full block">{afternoonSponsor.nombre}</span>
+                      <span className="text-[5px] md:text-[7px] font-bold text-amber-400 whitespace-normal break-words leading-tight w-full block px-0.5 line-clamp-2">{afternoonSponsor.nombre}</span>
                     </div>
                   ) : (
                     <span className="text-[5px] md:text-[7px] font-black tracking-widest uppercase opacity-60">🌙</span>
@@ -483,7 +483,7 @@ const MonthGrid = ({
                         onError={(e) => { e.currentTarget.style.display = 'none'; }}
                       />
                     ) : null}
-                    <span className="text-[8px] md:text-[10px] font-black text-center leading-none tracking-tighter truncate text-white uppercase italic w-full px-1">
+                    <span className="text-[8px] md:text-[10px] font-black text-center leading-tight tracking-tighter text-white uppercase italic w-full px-1 whitespace-normal break-words line-clamp-2">
                       {morningSponsor.nombre}
                     </span>
                   </div>
