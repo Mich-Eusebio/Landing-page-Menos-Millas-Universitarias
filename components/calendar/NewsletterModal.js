@@ -22,7 +22,7 @@ const NewsletterModal = ({
 
   const TOTAL_STEPS = 4; // 1: Info, 2: Photo, 3: Payment, 4: Proof
 
-  const totalPrice = (formData.monthsSubscribed || 1) * 2000;
+  const totalPrice = 500;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -105,24 +105,11 @@ const NewsletterModal = ({
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-blue-400 uppercase tracking-widest ml-1">Meses de Suscripción</label>
-                  <div className="relative">
-                    <Calendar className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20" />
-                    <select
-                      name="monthsSubscribed"
-                      value={formData.monthsSubscribed}
-                      onChange={handleInputChange}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-16 py-4 text-white focus:outline-none focus:border-blue-500 transition-colors appearance-none cursor-pointer"
-                    >
-                      {[1, 2, 3, 4, 5, 6, 12].map(num => (
-                        <option key={num} value={num} className="bg-[#0a0a0a]">{num} {num === 1 ? 'Mes' : 'Meses'}</option>
-                      ))}
-                    </select>
-                    <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-white/40">
-                      <ChevronRight className="w-5 h-5 rotate-90" />
-                    </div>
+                  <label className="text-[10px] font-black text-blue-400 uppercase tracking-widest ml-1">Precio de Acceso</label>
+                  <div className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white font-bold">
+                    RD$ 500
                   </div>
-                  <p className="text-[10px] text-white/30 font-bold uppercase tracking-widest mt-2 ml-1">RD$ 2,000 / mes</p>
+                  <p className="text-[10px] text-white/30 font-bold uppercase tracking-widest mt-2 ml-1">Pago único</p>
                 </div>
 
                 <button
@@ -229,7 +216,7 @@ const NewsletterModal = ({
                     </p>
                   </div>
                   <div className="text-right relative z-10">
-                    <p className="text-[8px] font-black text-white/40 uppercase tracking-widest mb-1">Por {formData.monthsSubscribed} meses</p>
+                    <p className="text-[8px] font-black text-white/40 uppercase tracking-widest mb-1">Pago único</p>
                     <span className="text-[10px] font-black text-blue-400 bg-blue-500/10 px-2 py-1 rounded-lg uppercase tracking-wider">
                       En Primera Fila
                     </span>
@@ -358,7 +345,7 @@ const NewsletterModal = ({
                     </div>
                   </div>
                   <span className="text-[10px] font-bold text-white/40 group-hover:text-white/60 transition-colors uppercase leading-relaxed tracking-wider text-balance">
-                    Entiendo que mi suscripción comenzará una vez sea verificada y que puedo cancelar en cualquier momento.
+                    Entiendo que mi acceso comenzará una vez sea verificado el pago único.
                   </span>
                 </label>
 

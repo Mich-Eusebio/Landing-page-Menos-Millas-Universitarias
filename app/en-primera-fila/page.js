@@ -205,7 +205,7 @@ const EnPrimeraFila = () => {
           >
             <div className="relative w-full max-w-[280px] md:max-w-none aspect-square md:aspect-[3/4] rounded-2xl md:rounded-xl overflow-hidden brightness-110 contrast-100 shadow-2xl border border-white/5">
               <Image 
-                src="/EXCELENTE FOTO MÍA.png" 
+                src="/imagen Michael Eusebio con baston sin fondo.png" 
                 alt="Michael Eusebio" 
                 fill 
                 className="object-cover object-top"
@@ -291,7 +291,7 @@ const EnPrimeraFila = () => {
                   UNIRME A LOS PRIMEROS 100
                 </button>
                 <p className="text-[#A1A1AA] text-xs md:text-sm font-medium">
-                  RD$2,000 / mes · cancela cuando quieras
+                  RD$500 · Pago único
                 </p>
               </div>
             </motion.div>
@@ -310,7 +310,7 @@ const EnPrimeraFila = () => {
             &copy; 2026 Menos Millas Universitarias.
           </p>
           <div className="flex gap-6 text-xs text-[#71717A]">
-            <span className="cursor-default">En Primera Fila — RD$2,000 / mes</span>
+            <span className="cursor-default">En Primera Fila — RD$500 (Pago único)</span>
           </div>
         </div>
       </footer>
