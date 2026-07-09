@@ -299,7 +299,7 @@ export default function TechEventPage() {
                 const el = document.getElementById('registro-seccion');
                 if (el) el.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="px-8 py-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black rounded-2xl flex items-center gap-3 shadow-2xl shadow-blue-500/30 hover:scale-[1.03] active:scale-98 transition-all cursor-pointer text-base uppercase tracking-wider"
+              className="px-8 py-5 bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black rounded-2xl flex items-center gap-3 shadow-2xl shadow-yellow-400/20 hover:scale-[1.03] active:scale-98 transition-all cursor-pointer text-base uppercase tracking-wider"
             >
               Regístrate ahora. Cupos limitados. <ArrowRight className="w-5 h-5" />
             </button>
