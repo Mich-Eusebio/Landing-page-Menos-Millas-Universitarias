@@ -271,6 +271,20 @@ export default function TechEventPage() {
             Un evento para quienes construyen a pesar de las excusas — programación, IA y accesibilidad en República Dominicana.
           </p>
 
+          {/* FOTO PRINCIPAL - TOP MOBILE/DESKTOP */}
+          <div className="relative rounded-3xl overflow-hidden border border-white/10 aspect-[4/5] max-w-[280px] md:max-w-[340px] mx-auto group bg-white/5 shadow-2xl">
+            <img 
+              src="/imagen Michael Eusebio con baston sin fondo.png" 
+              alt="Michael Eusebio con bastón" 
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-transparent to-transparent" />
+            <div className="absolute bottom-6 left-6 right-6 text-left">
+              <p className="text-xs font-black tracking-widest uppercase text-blue-400">Speaker Principal</p>
+              <p className="text-lg font-black text-white italic uppercase">Michael Eusebio</p>
+            </div>
+          </div>
+
           {/* CUENTA REGRESIVA EVENTO */}
           <div className="bg-gradient-to-br from-blue-900/10 to-indigo-950/10 border border-blue-500/10 rounded-3xl p-6 max-w-xl mx-auto relative overflow-hidden">
             <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl pointer-events-none" />
@@ -306,54 +320,36 @@ export default function TechEventPage() {
           </div>
         </div>
 
-        {/* SECCIÓN 2: DETALLES, HISTORIA Y FOTO */}
-        <div className="grid md:grid-cols-12 gap-8 items-center pt-4 border-t border-white/10">
-          
-          {/* FOTO IZQUIERDA */}
-          <div className="md:col-span-5 relative rounded-3xl overflow-hidden border border-white/10 aspect-[4/5] group bg-white/5 shadow-2xl">
-            <img 
-              src="/imagen Michael Eusebio con baston sin fondo.png" 
-              alt="Michael Eusebio con bastón" 
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-transparent to-transparent" />
-            <div className="absolute bottom-6 left-6 right-6">
-              <p className="text-xs font-black tracking-widest uppercase text-blue-400">Speaker Principal</p>
-              <p className="text-lg font-black text-white italic uppercase">Michael Eusebio</p>
-            </div>
+        {/* SECCIÓN 2: DETALLES E HISTORIA */}
+        <div className="space-y-8 pt-4 border-t border-white/10">
+          <div className="space-y-4 text-slate-300 text-base md:text-lg leading-relaxed font-medium max-w-3xl mx-auto text-center md:text-left">
+            <p>
+              Soy Michael Eusebio, programador autodidacta y usuario de lector de pantalla. Construí mi carrera en tech sin ver una sola línea de código en pantalla — y hoy quiero compartir cómo la IA está cambiando las reglas del juego para todos, sin importar de dónde partas.
+            </p>
+            <p>
+              En este evento vas a aprender cómo la inteligencia artificial está bajando la barrera de entrada a la programación, y por qué eso es una oportunidad — no una amenaza — para el talento dominicano.
+            </p>
           </div>
 
-          {/* HISTORIA Y DETALLES LOGÍSTICOS DERECHA */}
-          <div className="md:col-span-7 space-y-6">
-            <div className="space-y-4 text-slate-300 text-base md:text-lg leading-relaxed font-medium">
-              <p>
-                Soy Michael Eusebio, programador autodidacta y usuario de lector de pantalla. Construí mi carrera en tech sin ver una sola línea de código en pantalla — y hoy quiero compartir cómo la IA está cambiando las reglas del juego para todos, sin importar de dónde partas.
-              </p>
-              <p>
-                En este evento vas a aprender cómo la inteligencia artificial está bajando la barrera de entrada a la programación, y por qué eso es una oportunidad — no una amenaza — para el talento dominicano.
-              </p>
+          {/* DETALLES LOGÍSTICOS */}
+          <div className="grid grid-cols-2 gap-4 max-w-xl mx-auto">
+            <div className="bg-white/5 border border-white/5 rounded-2xl p-5 flex items-center gap-4">
+              <div className="w-12 h-12 bg-blue-600/10 rounded-xl border border-blue-500/20 flex items-center justify-center text-blue-400">
+                <Calendar className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">FECHA</p>
+                <p className="text-sm font-black text-white uppercase mt-0.5">20 de agosto</p>
+              </div>
             </div>
 
-            {/* DETALLES LOGÍSTICOS */}
-            <div className="grid grid-cols-2 gap-4 pt-4">
-              <div className="bg-white/5 border border-white/5 rounded-2xl p-5 flex items-center gap-4">
-                <div className="w-12 h-12 bg-blue-600/10 rounded-xl border border-blue-500/20 flex items-center justify-center text-blue-400">
-                  <Calendar className="w-6 h-6" />
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">FECHA</p>
-                  <p className="text-sm font-black text-white uppercase mt-0.5">20 de agosto</p>
-                </div>
+            <div className="bg-white/5 border border-white/5 rounded-2xl p-5 flex items-center gap-4">
+              <div className="w-12 h-12 bg-blue-600/10 rounded-xl border border-blue-500/20 flex items-center justify-center text-blue-400">
+                <MapPin className="w-6 h-6" />
               </div>
-
-              <div className="bg-white/5 border border-white/5 rounded-2xl p-5 flex items-center gap-4">
-                <div className="w-12 h-12 bg-blue-600/10 rounded-xl border border-blue-500/20 flex items-center justify-center text-blue-400">
-                  <MapPin className="w-6 h-6" />
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">LUGAR</p>
-                  <p className="text-sm font-black text-white uppercase mt-0.5">Pyhex Work</p>
-                </div>
+              <div>
+                <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">LUGAR</p>
+                <p className="text-sm font-black text-white uppercase mt-0.5">Pyhex Work</p>
               </div>
             </div>
           </div>
