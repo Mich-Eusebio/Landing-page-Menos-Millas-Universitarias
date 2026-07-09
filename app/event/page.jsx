@@ -244,18 +244,17 @@ export default function TechEventPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a192f] text-slate-100 font-sans relative overflow-hidden">
+    <div className="min-h-screen bg-[#0a192f] text-slate-100 font-sans relative overflow-hidden pb-24">
       
       {/* GLOWING BACKGROUND DECORATIONS */}
       <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/10 blur-[180px] rounded-full pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[45%] h-[45%] bg-indigo-600/10 blur-[150px] rounded-full pointer-events-none" />
       
-      {/* GRID LAYOUT PRINCIPAL */}
-      <div className="max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-12 gap-12 relative z-10 items-start">
+      {/* CONTENEDOR VERTICAL PRINCIPAL */}
+      <div className="max-w-4xl mx-auto px-6 py-16 space-y-20 relative z-10">
         
-        {/* COLUMNA IZQUIERDA: INFORMACIÓN E HISTORIA */}
-        <div className="md:col-span-7 space-y-8">
-          
+        {/* SECCIÓN 1: HERO COOL (CENTRADITO Y DE IMPACTO) */}
+        <div className="text-center space-y-8 max-w-3xl mx-auto">
           {/* BADGE DE EVENTO */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600/10 border border-blue-500/20 text-blue-400 text-xs font-black uppercase tracking-widest">
             <Sparkles className="w-4 h-4 text-blue-400" />
@@ -263,66 +262,19 @@ export default function TechEventPage() {
           </div>
 
           {/* HEADLINE */}
-          <h1 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter leading-none text-white">
+          <h1 className="text-6xl md:text-8xl font-black uppercase italic tracking-tighter leading-none text-white">
             Tech Sin <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">Límites</span>
           </h1>
 
           {/* SUBHEADLINE */}
-          <p className="text-xl md:text-2xl text-blue-100/70 leading-relaxed font-bold">
+          <p className="text-xl md:text-2xl text-blue-100/70 leading-relaxed font-bold max-w-2xl mx-auto">
             Un evento para quienes construyen a pesar de las excusas — programación, IA y accesibilidad en República Dominicana.
           </p>
 
-          {/* IMAGEN DEL TITULAR */}
-          <div className="relative rounded-3xl overflow-hidden border border-white/10 aspect-[16/9] group bg-white/5 shadow-2xl">
-            <img 
-              src="/michael_webinar_clean.png" 
-              alt="Michael Eusebio - Tech sin límites" 
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-[#0a192f]/20 to-transparent" />
-            <div className="absolute bottom-6 left-6 right-6">
-              <p className="text-xs font-black tracking-widest uppercase text-blue-400">Speaker Principal</p>
-              <p className="text-lg font-black text-white italic uppercase">Michael Eusebio</p>
-            </div>
-          </div>
-
-          {/* STORY / CUERPO */}
-          <div className="space-y-4 text-slate-300 text-base md:text-lg leading-relaxed font-medium">
-            <p>
-              Soy Michael Eusebio, programador autodidacta y usuario de lector de pantalla. Construí mi carrera en tech sin ver una sola línea de código en pantalla — y hoy quiero compartir cómo la IA está cambiando las reglas del juego para todos, sin importar de dónde partas.
-            </p>
-            <p>
-              En este evento vas a aprender cómo la inteligencia artificial está bajando la barrera de entrada a la programación, y por qué eso es una oportunidad — no una amenaza — para el talento dominicano.
-            </p>
-          </div>
-
-          {/* DETALLES DEL EVENTO */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-white/5 border border-white/5 rounded-2xl p-5 flex items-center gap-4">
-              <div className="w-12 h-12 bg-blue-600/10 rounded-xl border border-blue-500/20 flex items-center justify-center text-blue-400">
-                <Calendar className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">FECHA</p>
-                <p className="text-sm font-black text-white uppercase mt-0.5">20 de agosto</p>
-              </div>
-            </div>
-
-            <div className="bg-white/5 border border-white/5 rounded-2xl p-5 flex items-center gap-4">
-              <div className="w-12 h-12 bg-blue-600/10 rounded-xl border border-blue-500/20 flex items-center justify-center text-blue-400">
-                <MapPin className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">LUGAR</p>
-                <p className="text-sm font-black text-white uppercase mt-0.5">Pyhex Work</p>
-              </div>
-            </div>
-          </div>
-
-          {/* COUNTDOWN COMPONENT */}
-          <div className="bg-gradient-to-br from-blue-900/10 to-indigo-950/10 border border-blue-500/10 rounded-3xl p-6 relative overflow-hidden">
+          {/* CUENTA REGRESIVA EVENTO */}
+          <div className="bg-gradient-to-br from-blue-900/10 to-indigo-950/10 border border-blue-500/10 rounded-3xl p-6 max-w-xl mx-auto relative overflow-hidden">
             <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl pointer-events-none" />
-            <p className="text-[10px] font-black text-blue-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+            <p className="text-[10px] font-black text-blue-400 uppercase tracking-[0.2em] mb-4 flex items-center justify-center gap-2">
               <Clock className="w-4 h-4" /> Cuenta Regresiva para el Evento
             </p>
             <div className="grid grid-cols-4 gap-4 text-center">
@@ -340,10 +292,75 @@ export default function TechEventPage() {
             </div>
           </div>
 
+          {/* CTA PRINCIPAL DEL HERO */}
+          <div className="flex flex-col items-center justify-center pt-4">
+            <button
+              onClick={() => {
+                const el = document.getElementById('registro-seccion');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="px-8 py-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black rounded-2xl flex items-center gap-3 shadow-2xl shadow-blue-500/30 hover:scale-[1.03] active:scale-98 transition-all cursor-pointer text-base uppercase tracking-wider"
+            >
+              Regístrate ahora. Cupos limitados. <ArrowRight className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
-        {/* COLUMNA DERECHA: PROCESO DE REGISTRO (MULTI-PASO CARD) */}
-        <div className="md:col-span-5 md:sticky md:top-10">
+        {/* SECCIÓN 2: DETALLES, HISTORIA Y FOTO */}
+        <div className="grid md:grid-cols-12 gap-8 items-center pt-4 border-t border-white/10">
+          
+          {/* FOTO IZQUIERDA */}
+          <div className="md:col-span-5 relative rounded-3xl overflow-hidden border border-white/10 aspect-[4/5] group bg-white/5 shadow-2xl">
+            <img 
+              src="/EXCELENTE FOTO MÍA.png" 
+              alt="Michael Eusebio trabajando" 
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-transparent to-transparent" />
+            <div className="absolute bottom-6 left-6 right-6">
+              <p className="text-xs font-black tracking-widest uppercase text-blue-400">Speaker Principal</p>
+              <p className="text-lg font-black text-white italic uppercase">Michael Eusebio</p>
+            </div>
+          </div>
+
+          {/* HISTORIA Y DETALLES LOGÍSTICOS DERECHA */}
+          <div className="md:col-span-7 space-y-6">
+            <div className="space-y-4 text-slate-300 text-base md:text-lg leading-relaxed font-medium">
+              <p>
+                Soy Michael Eusebio, programador autodidacta y usuario de lector de pantalla. Construí mi carrera en tech sin ver una sola línea de código en pantalla — y hoy quiero compartir cómo la IA está cambiando las reglas del juego para todos, sin importar de dónde partas.
+              </p>
+              <p>
+                En este evento vas a aprender cómo la inteligencia artificial está bajando la barrera de entrada a la programación, y por qué eso es una oportunidad — no una amenaza — para el talento dominicano.
+              </p>
+            </div>
+
+            {/* DETALLES LOGÍSTICOS */}
+            <div className="grid grid-cols-2 gap-4 pt-4">
+              <div className="bg-white/5 border border-white/5 rounded-2xl p-5 flex items-center gap-4">
+                <div className="w-12 h-12 bg-blue-600/10 rounded-xl border border-blue-500/20 flex items-center justify-center text-blue-400">
+                  <Calendar className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">FECHA</p>
+                  <p className="text-sm font-black text-white uppercase mt-0.5">20 de agosto</p>
+                </div>
+              </div>
+
+              <div className="bg-white/5 border border-white/5 rounded-2xl p-5 flex items-center gap-4">
+                <div className="w-12 h-12 bg-blue-600/10 rounded-xl border border-blue-500/20 flex items-center justify-center text-blue-400">
+                  <MapPin className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">LUGAR</p>
+                  <p className="text-sm font-black text-white uppercase mt-0.5">Pyhex Work</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* SECCIÓN 3: FORMULARIO DE REGISTRO (CENTRADITO Y CON FANTÁSTICO DISEÑO) */}
+        <div id="registro-seccion" className="max-w-2xl mx-auto w-full pt-8 border-t border-white/10">
           
           <div className="bg-gradient-to-b from-[#0e213b] to-[#0a1526] border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
             
