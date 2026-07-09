@@ -251,28 +251,80 @@ export default function TechEventPage() {
       <div className="absolute bottom-[-10%] right-[-10%] w-[45%] h-[45%] bg-indigo-600/10 blur-[150px] rounded-full pointer-events-none" />
       
       {/* CONTENEDOR VERTICAL PRINCIPAL */}
-      <div className="max-w-4xl mx-auto px-6 py-16 space-y-20 relative z-10">
+      <div className="max-w-6xl mx-auto px-6 py-16 space-y-20 relative z-10">
         
-        {/* SECCIÓN 1: HERO COOL (CENTRADITO Y DE IMPACTO) */}
-        <div className="text-center space-y-8 max-w-3xl mx-auto">
-          {/* BADGE DE EVENTO */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600/10 border border-blue-500/20 text-blue-400 text-xs font-black uppercase tracking-widest">
-            <Sparkles className="w-4 h-4 text-blue-400" />
-            CONFERENCIA EXCLUSIVA
+        {/* SECCIÓN 1: HERO COOL (GRID EN DESKTOP, STACKED EN MÓVIL) */}
+        <div className="grid md:grid-cols-12 gap-12 items-center max-w-5xl mx-auto">
+          
+          {/* Lado izquierdo: Información y Contadores */}
+          <div className="md:col-span-7 space-y-8 flex flex-col items-center md:items-start text-center md:text-left">
+            {/* BADGE DE EVENTO */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600/10 border border-blue-500/20 text-blue-400 text-xs font-black uppercase tracking-widest">
+              <Sparkles className="w-4 h-4 text-blue-400" />
+              CONFERENCIA EXCLUSIVA
+            </div>
+
+            {/* HEADLINE */}
+            <h1 className="text-6xl md:text-7xl lg:text-8xl font-black uppercase italic tracking-tighter leading-none text-white text-center md:text-left">
+              Tech Sin <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">Límites</span>
+            </h1>
+
+            {/* SUBHEADLINE */}
+            <p className="text-xl md:text-2xl text-blue-100/70 leading-relaxed font-bold max-w-2xl">
+              Un evento para quienes construyen a pesar de las excusas — programación, IA y accesibilidad en República Dominicana.
+            </p>
+
+            {/* FOTO PRINCIPAL - MÓVIL (Solo visible en pantallas pequeñas) */}
+            <div className="block md:hidden relative rounded-3xl overflow-hidden border border-white/10 aspect-[4/5] w-full max-w-[280px] mx-auto group bg-white/5 shadow-2xl">
+              <img 
+                src="/imagen Michael Eusebio con baston sin fondo.png" 
+                alt="Michael Eusebio con bastón" 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-transparent to-transparent" />
+              <div className="absolute bottom-6 left-6 right-6 text-left">
+                <p className="text-xs font-black tracking-widest uppercase text-blue-400">Speaker Principal</p>
+                <p className="text-lg font-black text-white italic uppercase">Michael Eusebio</p>
+              </div>
+            </div>
+
+            {/* CUENTA REGRESIVA EVENTO */}
+            <div className="bg-gradient-to-br from-blue-900/10 to-indigo-950/10 border border-blue-500/10 rounded-3xl p-6 w-full max-w-xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl pointer-events-none" />
+              <p className="text-[10px] font-black text-blue-400 uppercase tracking-[0.2em] mb-4 flex items-center justify-center md:justify-start gap-2">
+                <Clock className="w-4 h-4" /> Cuenta Regresiva para el Evento
+              </p>
+              <div className="grid grid-cols-4 gap-4 text-center">
+                {[
+                  { label: 'DÍAS', value: timeLeftEvent.days },
+                  { label: 'HORAS', value: timeLeftEvent.hours },
+                  { label: 'MINUTOS', value: timeLeftEvent.minutes },
+                  { label: 'SEGUNDOS', value: timeLeftEvent.seconds }
+                ].map((time, idx) => (
+                  <div key={idx} className="bg-white/5 border border-white/5 rounded-xl p-3">
+                    <span className="text-2xl md:text-3xl font-black text-white block font-mono">{String(time.value).padStart(2, '0')}</span>
+                    <span className="text-[8px] font-black text-slate-400 tracking-wider block mt-1">{time.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* CTA PRINCIPAL DEL HERO */}
+            <div className="w-full flex justify-center md:justify-start pt-4">
+              <button
+                onClick={() => {
+                  const el = document.getElementById('registro-seccion');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="px-8 py-5 bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black rounded-2xl flex items-center gap-3 shadow-2xl shadow-yellow-400/20 hover:scale-[1.03] active:scale-98 transition-all cursor-pointer text-base uppercase tracking-wider"
+              >
+                Regístrate ahora. Cupos limitados. <ArrowRight className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
-          {/* HEADLINE */}
-          <h1 className="text-6xl md:text-8xl font-black uppercase italic tracking-tighter leading-none text-white">
-            Tech Sin <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">Límites</span>
-          </h1>
-
-          {/* SUBHEADLINE */}
-          <p className="text-xl md:text-2xl text-blue-100/70 leading-relaxed font-bold max-w-2xl mx-auto">
-            Un evento para quienes construyen a pesar de las excusas — programación, IA y accesibilidad en República Dominicana.
-          </p>
-
-          {/* FOTO PRINCIPAL - TOP MOBILE/DESKTOP */}
-          <div className="relative rounded-3xl overflow-hidden border border-white/10 aspect-[4/5] max-w-[280px] md:max-w-[340px] mx-auto group bg-white/5 shadow-2xl">
+          {/* Lado derecho: Foto para PC (Oculto en móvil) */}
+          <div className="hidden md:block md:col-span-5 relative rounded-3xl overflow-hidden border border-white/10 aspect-[4/5] w-full max-w-[360px] mx-auto group bg-white/5 shadow-2xl">
             <img 
               src="/imagen Michael Eusebio con baston sin fondo.png" 
               alt="Michael Eusebio con bastón" 
@@ -285,39 +337,6 @@ export default function TechEventPage() {
             </div>
           </div>
 
-          {/* CUENTA REGRESIVA EVENTO */}
-          <div className="bg-gradient-to-br from-blue-900/10 to-indigo-950/10 border border-blue-500/10 rounded-3xl p-6 max-w-xl mx-auto relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl pointer-events-none" />
-            <p className="text-[10px] font-black text-blue-400 uppercase tracking-[0.2em] mb-4 flex items-center justify-center gap-2">
-              <Clock className="w-4 h-4" /> Cuenta Regresiva para el Evento
-            </p>
-            <div className="grid grid-cols-4 gap-4 text-center">
-              {[
-                { label: 'DÍAS', value: timeLeftEvent.days },
-                { label: 'HORAS', value: timeLeftEvent.hours },
-                { label: 'MINUTOS', value: timeLeftEvent.minutes },
-                { label: 'SEGUNDOS', value: timeLeftEvent.seconds }
-              ].map((time, idx) => (
-                <div key={idx} className="bg-white/5 border border-white/5 rounded-xl p-3">
-                  <span className="text-2xl md:text-3xl font-black text-white block font-mono">{String(time.value).padStart(2, '0')}</span>
-                  <span className="text-[8px] font-black text-slate-400 tracking-wider block mt-1">{time.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* CTA PRINCIPAL DEL HERO */}
-          <div className="flex flex-col items-center justify-center pt-4">
-            <button
-              onClick={() => {
-                const el = document.getElementById('registro-seccion');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-              }}
-              className="px-8 py-5 bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black rounded-2xl flex items-center gap-3 shadow-2xl shadow-yellow-400/20 hover:scale-[1.03] active:scale-98 transition-all cursor-pointer text-base uppercase tracking-wider"
-            >
-              Regístrate ahora. Cupos limitados. <ArrowRight className="w-5 h-5" />
-            </button>
-          </div>
         </div>
 
         {/* SECCIÓN 2: DETALLES E HISTORIA */}
