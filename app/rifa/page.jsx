@@ -503,7 +503,8 @@ const handleSubmit = async (e) => {
     setSubmissionId(submissionId);
     setStep(7); // ¡Éxito!
 
-    // Disparar las notificaciones de WhatsApp en segundo plano (asíncrono)
+    // Disparar las notificaciones de WhatsApp en segundo plano (Desactivado temporalmente por mantenimiento de Meta Panel)
+    /*
     (async () => {
       // Enviar notificación de WhatsApp al admin (Michael)
       try {
@@ -546,6 +547,7 @@ const handleSubmit = async (e) => {
         console.error("🔥 Error al enviar notificación de estado de WhatsApp al admin:", statusErr);
       }
     })();
+    */
 
   } catch (err) { 
     console.error(" Error al procesar:", err);
