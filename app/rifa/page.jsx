@@ -459,6 +459,8 @@ const handleSubmit = async (e) => {
           telefono: formattedPhone,
           plan: selectedPlan?.name || 'plan de rifa',
           ticketsGeneral: formData.selectedGeneral,
+          ticketsPremium: formData.selectedPremium,
+          submissionId: submissionId
         }),
       });
       const resData = await response.json();

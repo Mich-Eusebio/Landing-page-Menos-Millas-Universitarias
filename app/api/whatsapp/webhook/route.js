@@ -126,7 +126,8 @@ async function sendTicketsReminder(phoneNumber, uid) {
       telefono: phoneNumber,
       plan: planName,
       ticketsPremium: [],
-      ticketsGeneral: allTickets
+      ticketsGeneral: allTickets,
+      submissionId: uid ? `${uid}_general` : ''
     });
 
     console.log(`✅ Mensaje enviado a ${phoneNumber}`);

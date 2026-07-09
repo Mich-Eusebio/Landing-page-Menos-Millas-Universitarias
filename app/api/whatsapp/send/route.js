@@ -4,7 +4,7 @@ import { sendRifaConfirmation } from '@/lib/apis/WhatsAppService';
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { nombre, telefono, plan, ticketsPremium, ticketsGeneral } = body;
+    const { nombre, telefono, plan, ticketsPremium, ticketsGeneral, submissionId } = body;
 
     if (!nombre || !telefono || !plan) {
       return NextResponse.json(
@@ -18,7 +18,8 @@ export async function POST(request) {
       telefono,
       plan,
       ticketsPremium: ticketsPremium || [],
-      ticketsGeneral: ticketsGeneral || []
+      ticketsGeneral: ticketsGeneral || [],
+      submissionId
     });
 
     return NextResponse.json(result);
