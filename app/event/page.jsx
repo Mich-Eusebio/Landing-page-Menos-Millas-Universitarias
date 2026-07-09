@@ -312,8 +312,8 @@ export default function TechEventPage() {
           {/* FOTO IZQUIERDA */}
           <div className="md:col-span-5 relative rounded-3xl overflow-hidden border border-white/10 aspect-[4/5] group bg-white/5 shadow-2xl">
             <img 
-              src="/EXCELENTE FOTO MÍA.png" 
-              alt="Michael Eusebio trabajando" 
+              src="/imagen Michael Eusebio con baston sin fondo.png" 
+              alt="Michael Eusebio con bastón" 
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-transparent to-transparent" />
