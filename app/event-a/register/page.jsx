@@ -208,12 +208,12 @@ export default function RegisterPage() {
         console.warn('⚠️ Error al comprimir imagen, subiendo original:', err);
       }
 
-      const storageRef = ref(storage, `comprobantes_evento/${generatedId}_[${formData.nombre.replace(/\s+/g, '_')}]`);
+      const storageRef = ref(storage, `comprobantes_event_a/${generatedId}_[${formData.nombre.replace(/\s+/g, '_')}]`);
       const uploadResult = await uploadBytes(storageRef, fileToUpload);
       comprobanteUrl = await getDownloadURL(uploadResult.ref);
 
       // 2. Escribir registro en Firestore
-      const regRef = doc(db, 'tech_event_registrations', generatedId);
+      const regRef = doc(db, 'event_a_registrations', generatedId);
       await setDoc(regRef, {
         registration_id: generatedId,
         nombre: formData.nombre,
