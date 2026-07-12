@@ -266,7 +266,7 @@ export default function TechEventPage() {
 
             {/* HEADLINE */}
             <h1 className="text-4xl md:text-7xl lg:text-8xl font-black uppercase italic tracking-tighter leading-tight text-white text-center md:text-left">
-              Tech Sin <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">Límites</span>
+              Cómo lograr tus metas en <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">hard mode</span>
             </h1>
 
             {/* SUBHEADLINE */}
