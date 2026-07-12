@@ -26,16 +26,32 @@ import { doc, setDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 
-const EARLY_BIRD_END_DATE = new Date('2026-07-23T23:59:59-04:00');
+// Helper para calcular precio según la fecha
+const getPricingDetails = (date = new Date()) => {
+  // Fase 1: Early bird (primera semana de lanzamiento) hasta el 18 de Julio de 2026 inclusive
+  const earlyBirdEnd = new Date('2026-07-18T23:59:59-04:00');
+  // Fase 2: Precio regular desde el 19 de Julio hasta el 12 de Agosto de 2026 inclusive
+  const regularEnd = new Date('2026-08-12T23:59:59-04:00');
+  
+  if (date <= earlyBirdEnd) {
+    return { price: 1800, label: 'Preventa', phase: 'early_bird' };
+  } else if (date <= regularEnd) {
+    return { price: 3000, label: 'Precio Regular', phase: 'regular' };
+  } else {
+    return { price: 4000, label: 'Última Semana / Puerta', phase: 'puerta' };
+  }
+};
 
 export default function RegisterPage() {
   const [step, setStep] = useState(1);
+  const [subStep, setSubStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
   const [submissionId, setSubmissionId] = useState(null);
   
-  const [isEarlyBird, setIsEarlyBird] = useState(true);
   const [price, setPrice] = useState(1800);
+  const [priceLabel, setPriceLabel] = useState('Preventa');
+  const [pricePhase, setPricePhase] = useState('early_bird');
   
   const [copiedAccount, setCopiedAccount] = useState(false);
   const [copiedId, setCopiedId] = useState(false);
@@ -74,9 +90,10 @@ export default function RegisterPage() {
   useEffect(() => {
     const checkPricing = () => {
       const now = new Date();
-      const earlyBirdActive = now < EARLY_BIRD_END_DATE;
-      setIsEarlyBird(earlyBirdActive);
-      setPrice(earlyBirdActive ? 1800 : 2500);
+      const details = getPricingDetails(now);
+      setPrice(details.price);
+      setPriceLabel(details.label);
+      setPricePhase(details.phase);
     };
     checkPricing();
   }, []);
@@ -139,22 +156,32 @@ export default function RegisterPage() {
     });
   };
 
-  const validateStep1 = () => {
+  const validateSubStep = () => {
     const errors = {};
-    if (!formData.nombre.trim()) errors.nombre = 'El nombre completo es requerido';
-    if (!formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email)) errors.email = 'Introduce un email válido';
-    if (!formData.telefono.trim()) errors.telefono = 'El WhatsApp o teléfono es requerido';
-    if (!formData.ocupacion.trim()) errors.ocupacion = 'Por favor, indícanos a qué te dedicas';
-    if (!formData.fuente) errors.fuente = 'Selecciona una opción';
-
+    if (subStep === 0 && !formData.nombre.trim()) errors.nombre = 'El nombre completo es requerido';
+    if (subStep === 1 && (!formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email))) errors.email = 'Introduce un email válido';
+    if (subStep === 2 && !formData.telefono.trim()) errors.telefono = 'El WhatsApp o teléfono es requerido';
+    if (subStep === 3 && !formData.ocupacion.trim()) errors.ocupacion = 'Por favor, indícanos a qué te dedicas';
+    
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  const handleNextStep = () => {
-    if (validateStep1()) {
-      setStep(2);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+  const handleNextSubStep = () => {
+    if (validateSubStep()) {
+      if (subStep < 5) {
+        setSubStep(subStep + 1);
+      } else {
+        setStep(2);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleNextSubStep();
     }
   };
 
@@ -198,7 +225,7 @@ export default function RegisterPage() {
         bankSelection: formData.bankSelection,
         comprobanteUrl: comprobanteUrl,
         monto_pagado: price,
-        tipo_precio: isEarlyBird ? 'Early Bird' : 'General',
+        tipo_precio: priceLabel,
         terms_accepted: formData.terms_accepted,
         created_at: new Date().toISOString(),
         userId: user.uid,
@@ -219,7 +246,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a192f] text-slate-100 font-sans relative overflow-hidden flex flex-col justify-between py-12 px-6">
+    <div className="min-h-screen bg-[#090909] text-slate-100 font-sans relative overflow-hidden flex flex-col justify-between py-12 px-6">
       
       {/* GLOWING BACKGROUND DECORATIONS */}
       <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/10 blur-[180px] rounded-full pointer-events-none" />
@@ -264,22 +291,32 @@ export default function RegisterPage() {
                   RD$ {price.toLocaleString()}
                 </p>
               </div>
-              {isEarlyBird ? (
-                <div className="text-right">
-                  <span className="text-[8px] font-black bg-blue-500/20 text-blue-300 px-2 py-1 rounded-md uppercase tracking-wider block mb-1">
-                    🔥 EARLY BIRD (Ahorra RD$700)
-                  </span>
-                  <p className="text-[9px] font-bold text-slate-300">
-                    Disponibilidad limitada
-                  </p>
-                </div>
-              ) : (
-                <div className="text-right">
-                  <span className="text-[8px] font-black bg-slate-500/20 text-slate-300 px-2 py-1 rounded-md uppercase tracking-wider block">
-                    PRECIO GENERAL
-                  </span>
-                </div>
-              )}
+              <div className="text-right">
+                {pricePhase === 'early_bird' && (
+                  <>
+                    <span className="text-[8px] font-black bg-blue-500/20 text-blue-300 px-2 py-1 rounded-md uppercase tracking-wider block mb-1">
+                      🔥 PREVENTA (Ahorra RD$2,200)
+                    </span>
+                    <p className="text-[9px] font-bold text-slate-300">Solo durante la primera semana de lanzamiento</p>
+                  </>
+                )}
+                {pricePhase === 'regular' && (
+                  <>
+                    <span className="text-[8px] font-black bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded-md uppercase tracking-wider block mb-1">
+                      PRECIO REGULAR
+                    </span>
+                    <p className="text-[9px] font-bold text-slate-300">Fase intermedia de venta</p>
+                  </>
+                )}
+                {pricePhase === 'puerta' && (
+                  <>
+                    <span className="text-[8px] font-black bg-red-500/20 text-red-300 px-2 py-1 rounded-md uppercase tracking-wider block mb-1">
+                      🚨 ÚLTIMA HORA / PUERTA
+                    </span>
+                    <p className="text-[9px] font-bold text-slate-300">Últimos cupos en venta</p>
+                  </>
+                )}
+              </div>
             </div>
           )}
 
@@ -287,7 +324,7 @@ export default function RegisterPage() {
           <div className="p-8">
             <AnimatePresence mode="wait">
               
-              {/* PASO 1: FORMULARIO */}
+              {/* PASO 1: FORMULARIO CONVERSACIONAL */}
               {step === 1 && (
                 <motion.div
                   key="step-1"
@@ -296,130 +333,296 @@ export default function RegisterPage() {
                   exit={{ opacity: 0, x: 10 }}
                   className="space-y-6"
                 >
-                  {/* Campo: Nombre */}
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-blue-400 uppercase tracking-widest block">Nombre Completo</label>
-                    <div className="relative">
-                      <User className="absolute left-4 top-3.5 w-4 h-4 text-slate-500" />
-                      <input 
-                        type="text" 
-                        placeholder="Ej. Juan Pérez"
-                        value={formData.nombre}
-                        onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-                        className={`w-full bg-white/5 border ${formErrors.nombre ? 'border-red-500/50' : 'border-white/10'} focus:border-blue-600 rounded-2xl py-3 pl-12 pr-4 text-sm font-bold text-white outline-none transition-all`}
-                      />
-                    </div>
-                    {formErrors.nombre && <p className="text-[10px] font-bold text-red-500 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5" /> {formErrors.nombre}</p>}
-                  </div>
-
-                  {/* Campo: Email */}
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-blue-400 uppercase tracking-widest block">Correo Electrónico</label>
-                    <div className="relative">
-                      <Mail className="absolute left-4 top-3.5 w-4 h-4 text-slate-500" />
-                      <input 
-                        type="email" 
-                        placeholder="ejemplo@email.com"
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className={`w-full bg-white/5 border ${formErrors.email ? 'border-red-500/50' : 'border-white/10'} focus:border-blue-600 rounded-2xl py-3 pl-12 pr-4 text-sm font-bold text-white outline-none transition-all`}
-                      />
-                    </div>
-                    {formErrors.email && <p className="text-[10px] font-bold text-red-500 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5" /> {formErrors.email}</p>}
-                  </div>
-
-                  {/* Campo: WhatsApp */}
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-blue-400 uppercase tracking-widest block">WhatsApp / Teléfono</label>
-                    <div className="relative">
-                      <Phone className="absolute left-4 top-3.5 w-4 h-4 text-slate-500" />
-                      <input 
-                        type="tel" 
-                        placeholder="809-555-1234"
-                        value={formData.telefono}
-                        onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
-                        className={`w-full bg-white/5 border ${formErrors.telefono ? 'border-red-500/50' : 'border-white/10'} focus:border-blue-600 rounded-2xl py-3 pl-12 pr-4 text-sm font-bold text-white outline-none transition-all`}
-                      />
-                    </div>
-                    {formErrors.telefono && <p className="text-[10px] font-bold text-red-500 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5" /> {formErrors.telefono}</p>}
-                  </div>
-
-                  {/* Campo: Ocupación */}
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-blue-400 uppercase tracking-widest block">¿A qué te dedicas? (Empresa, Rol o Estudiante)</label>
-                    <div className="relative">
-                      <Briefcase className="absolute left-4 top-3.5 w-4 h-4 text-slate-500" />
-                      <input 
-                        type="text" 
-                        placeholder="Ej. Desarrollador Web en Pyhex / Estudiante"
-                        value={formData.ocupacion}
-                        onChange={(e) => setFormData({ ...formData, ocupacion: e.target.value })}
-                        className={`w-full bg-white/5 border ${formErrors.ocupacion ? 'border-red-500/50' : 'border-white/10'} focus:border-blue-600 rounded-2xl py-3 pl-12 pr-4 text-sm font-bold text-white outline-none transition-all`}
-                      />
-                    </div>
-                    {formErrors.ocupacion && <p className="text-[10px] font-bold text-red-500 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5" /> {formErrors.ocupacion}</p>}
-                  </div>
-
-                  {/* Campo: Expectativa (Opcional) */}
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-blue-400 uppercase tracking-widest block">¿Qué esperas sacar de este evento? (Opcional)</label>
-                    <div className="relative">
-                      <HelpCircle className="absolute left-4 top-3.5 w-4 h-4 text-slate-500" />
-                      <textarea 
-                        placeholder="Texto corto de tus expectativas..."
-                        value={formData.expectativa}
-                        onChange={(e) => setFormData({ ...formData, expectativa: e.target.value })}
-                        rows={2}
-                        className="w-full bg-white/5 border border-white/10 focus:border-blue-600 rounded-2xl py-3 pl-12 pr-4 text-sm font-bold text-white outline-none transition-all resize-none"
-                      />
+                  {/* Indicador de Progreso SubStep */}
+                  <div className="flex items-center justify-between text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-white/5 pb-3">
+                    <span>Pregunta {subStep + 1} de 6</span>
+                    <div className="flex gap-1 h-1.5 w-32 bg-white/5 rounded-full overflow-hidden">
+                      {[0, 1, 2, 3, 4, 5].map((idx) => (
+                        <div 
+                          key={idx} 
+                          className={`flex-1 transition-all duration-300 ${idx <= subStep ? 'bg-blue-500' : 'bg-transparent'}`}
+                        />
+                      ))}
                     </div>
                   </div>
 
-                  {/* Campo: ¿Cómo te enteraste? (Dropdown) */}
-                  <div className="space-y-2 relative">
-                    <label className="text-[10px] font-black text-blue-400 uppercase tracking-widest block">¿Cómo te enteraste del evento?</label>
-                    
-                    <button
-                      type="button"
-                      onClick={() => setCustomDropdownOpen(!customDropdownOpen)}
-                      className={`w-full bg-white/5 border ${formErrors.fuente ? 'border-red-500/50' : 'border-white/10'} focus:border-blue-600 rounded-2xl py-3.5 px-4 text-sm font-bold text-white flex justify-between items-center transition-all`}
-                    >
-                      <span className={formData.fuente ? 'text-white' : 'text-slate-500'}>
-                        {formData.fuente || 'Selecciona una opción'}
-                      </span>
-                      <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${customDropdownOpen ? 'rotate-180' : ''}`} />
-                    </button>
-
-                    {customDropdownOpen && (
-                      <div className="absolute z-20 w-full mt-2 bg-[#0c213b] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-                        {['Instagram', 'LinkedIn', 'Un amigo me invitó', 'Otro'].map((option, idx) => (
-                          <button
-                            key={idx}
-                            type="button"
-                            onClick={() => {
-                              setFormData({ ...formData, fuente: option });
-                              setCustomDropdownOpen(false);
-                            }}
-                            className="w-full px-5 py-3 text-left text-sm font-bold hover:bg-blue-600 text-slate-200 hover:text-white transition-colors"
-                          >
-                            {option}
-                          </button>
-                        ))}
-                      </div>
+                  <AnimatePresence mode="wait">
+                    {/* Pregunta 0: Nombre */}
+                    {subStep === 0 && (
+                      <motion.div
+                        key="sub-nombre"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="space-y-4"
+                      >
+                        <div className="space-y-2">
+                          <label className="text-xs font-black text-blue-400 uppercase tracking-widest block">¿Cuál es tu nombre completo?</label>
+                          <div className="relative">
+                            <User className="absolute left-4 top-3.5 w-4 h-4 text-slate-500" />
+                            <input 
+                              type="text" 
+                              placeholder="Ej. Juan Pérez"
+                              value={formData.nombre}
+                              onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                              onKeyDown={handleKeyDown}
+                              autoFocus
+                              className={`w-full bg-white/5 border ${formErrors.nombre ? 'border-red-500/50' : 'border-white/10'} focus:border-blue-600 rounded-2xl py-3.5 pl-12 pr-4 text-sm font-bold text-white outline-none transition-all`}
+                            />
+                          </div>
+                          {formErrors.nombre && <p className="text-[10px] font-bold text-red-500 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5" /> {formErrors.nombre}</p>}
+                        </div>
+                        
+                        <button
+                          type="button"
+                          onClick={handleNextSubStep}
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3.5 rounded-2xl flex items-center justify-center gap-2 shadow-xl shadow-blue-600/20 active:scale-98 transition-all cursor-pointer text-xs uppercase tracking-wider"
+                        >
+                          Siguiente <ArrowRight className="w-4 h-4" />
+                        </button>
+                      </motion.div>
                     )}
-                    
-                    {formErrors.fuente && <p className="text-[10px] font-bold text-red-500 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5" /> {formErrors.fuente}</p>}
-                  </div>
 
-                  {/* Botón de envío paso 1 */}
-                  <button
-                    type="button"
-                    onClick={handleNextStep}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 shadow-xl shadow-blue-600/20 active:scale-98 transition-all cursor-pointer"
-                  >
-                    Continuar a pago <ArrowRight className="w-5 h-5" />
-                  </button>
+                    {/* Pregunta 1: Email */}
+                    {subStep === 1 && (
+                      <motion.div
+                        key="sub-email"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="space-y-4"
+                      >
+                        <div className="space-y-2">
+                          <label className="text-xs font-black text-blue-400 uppercase tracking-widest block">¿A qué correo te enviamos el boleto?</label>
+                          <div className="relative">
+                            <Mail className="absolute left-4 top-3.5 w-4 h-4 text-slate-500" />
+                            <input 
+                              type="email" 
+                              placeholder="ejemplo@email.com"
+                              value={formData.email}
+                              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                              onKeyDown={handleKeyDown}
+                              autoFocus
+                              className={`w-full bg-white/5 border ${formErrors.email ? 'border-red-500/50' : 'border-white/10'} focus:border-blue-600 rounded-2xl py-3.5 pl-12 pr-4 text-sm font-bold text-white outline-none transition-all`}
+                            />
+                          </div>
+                          {formErrors.email && <p className="text-[10px] font-bold text-red-500 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5" /> {formErrors.email}</p>}
+                        </div>
+                        
+                        <div className="flex gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setSubStep(0)}
+                            className="flex-1 py-3.5 bg-white/5 hover:bg-white/10 text-white/50 hover:text-white font-black rounded-2xl transition-all cursor-pointer text-xs uppercase tracking-wider"
+                          >
+                            Atrás
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleNextSubStep}
+                            className="flex-[2] bg-blue-600 hover:bg-blue-700 text-white font-black py-3.5 rounded-2xl flex items-center justify-center gap-2 shadow-xl shadow-blue-600/20 active:scale-98 transition-all cursor-pointer text-xs uppercase tracking-wider"
+                          >
+                            Siguiente <ArrowRight className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
 
+                    {/* Pregunta 2: WhatsApp */}
+                    {subStep === 2 && (
+                      <motion.div
+                        key="sub-whatsapp"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="space-y-4"
+                      >
+                        <div className="space-y-2">
+                          <label className="text-xs font-black text-blue-400 uppercase tracking-widest block">¿Cuál es tu WhatsApp?</label>
+                          <div className="relative">
+                            <Phone className="absolute left-4 top-3.5 w-4 h-4 text-slate-500" />
+                            <input 
+                              type="tel" 
+                              placeholder="809-555-1234"
+                              value={formData.telefono}
+                              onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
+                              onKeyDown={handleKeyDown}
+                              autoFocus
+                              className={`w-full bg-white/5 border ${formErrors.telefono ? 'border-red-500/50' : 'border-white/10'} focus:border-blue-600 rounded-2xl py-3.5 pl-12 pr-4 text-sm font-bold text-white outline-none transition-all`}
+                            />
+                          </div>
+                          {formErrors.telefono && <p className="text-[10px] font-bold text-red-500 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5" /> {formErrors.telefono}</p>}
+                        </div>
+                        
+                        <div className="flex gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setSubStep(1)}
+                            className="flex-1 py-3.5 bg-white/5 hover:bg-white/10 text-white/50 hover:text-white font-black rounded-2xl transition-all cursor-pointer text-xs uppercase tracking-wider"
+                          >
+                            Atrás
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleNextSubStep}
+                            className="flex-[2] bg-blue-600 hover:bg-blue-700 text-white font-black py-3.5 rounded-2xl flex items-center justify-center gap-2 shadow-xl shadow-blue-600/20 active:scale-98 transition-all cursor-pointer text-xs uppercase tracking-wider"
+                          >
+                            Siguiente <ArrowRight className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* Pregunta 3: Ocupación */}
+                    {subStep === 3 && (
+                      <motion.div
+                        key="sub-ocupacion"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="space-y-4"
+                      >
+                        <div className="space-y-2">
+                          <label className="text-xs font-black text-blue-400 uppercase tracking-widest block">¿A qué te dedicas? (Empresa, Rol o Estudiante)</label>
+                          <div className="relative">
+                            <Briefcase className="absolute left-4 top-3.5 w-4 h-4 text-slate-500" />
+                            <input 
+                              type="text" 
+                              placeholder="Ej. Desarrollador Web / Estudiante"
+                              value={formData.ocupacion}
+                              onChange={(e) => setFormData({ ...formData, ocupacion: e.target.value })}
+                              onKeyDown={handleKeyDown}
+                              autoFocus
+                              className={`w-full bg-white/5 border ${formErrors.ocupacion ? 'border-red-500/50' : 'border-white/10'} focus:border-blue-600 rounded-2xl py-3.5 pl-12 pr-4 text-sm font-bold text-white outline-none transition-all`}
+                            />
+                          </div>
+                          {formErrors.ocupacion && <p className="text-[10px] font-bold text-red-500 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5" /> {formErrors.ocupacion}</p>}
+                        </div>
+                        
+                        <div className="flex gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setSubStep(2)}
+                            className="flex-1 py-3.5 bg-white/5 hover:bg-white/10 text-white/50 hover:text-white font-black rounded-2xl transition-all cursor-pointer text-xs uppercase tracking-wider"
+                          >
+                            Atrás
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleNextSubStep}
+                            className="flex-[2] bg-blue-600 hover:bg-blue-700 text-white font-black py-3.5 rounded-2xl flex items-center justify-center gap-2 shadow-xl shadow-blue-600/20 active:scale-98 transition-all cursor-pointer text-xs uppercase tracking-wider"
+                          >
+                            Siguiente <ArrowRight className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* Pregunta 4: Expectativa (Opcional) */}
+                    {subStep === 4 && (
+                      <motion.div
+                        key="sub-expectativa"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="space-y-4"
+                      >
+                        <div className="space-y-2">
+                          <label className="text-xs font-black text-blue-400 uppercase tracking-widest block">¿Qué esperas del evento? (Opcional)</label>
+                          <div className="relative">
+                            <HelpCircle className="absolute left-4 top-3.5 w-4 h-4 text-slate-500" />
+                            <textarea 
+                              placeholder="Texto corto de tus expectativas..."
+                              value={formData.expectativa}
+                              onChange={(e) => setFormData({ ...formData, expectativa: e.target.value })}
+                              rows={2}
+                              autoFocus
+                              className="w-full bg-white/5 border border-white/10 focus:border-blue-600 rounded-2xl py-3 pl-12 pr-4 text-sm font-bold text-white outline-none transition-all resize-none"
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="flex gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setSubStep(3)}
+                            className="flex-1 py-3.5 bg-white/5 hover:bg-white/10 text-white/50 hover:text-white font-black rounded-2xl transition-all cursor-pointer text-xs uppercase tracking-wider"
+                          >
+                            Atrás
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleNextSubStep}
+                            className="flex-[2] bg-blue-600 hover:bg-blue-700 text-white font-black py-3.5 rounded-2xl flex items-center justify-center gap-2 shadow-xl shadow-blue-600/20 active:scale-98 transition-all cursor-pointer text-xs uppercase tracking-wider"
+                          >
+                            Siguiente <ArrowRight className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* Pregunta 5: Dropdown fuente */}
+                    {subStep === 5 && (
+                      <motion.div
+                        key="sub-fuente"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="space-y-4"
+                      >
+                        <div className="space-y-2 relative">
+                          <label className="text-xs font-black text-blue-400 uppercase tracking-widest block">¿Cómo te enteraste del evento?</label>
+                          
+                          <button
+                            type="button"
+                            onClick={() => setCustomDropdownOpen(!customDropdownOpen)}
+                            className={`w-full bg-white/5 border ${formErrors.fuente ? 'border-red-500/50' : 'border-white/10'} focus:border-blue-600 rounded-2xl py-3.5 px-4 text-sm font-bold text-white flex justify-between items-center transition-all`}
+                          >
+                            <span className={formData.fuente ? 'text-white' : 'text-slate-500'}>
+                              {formData.fuente || 'Selecciona una opción'}
+                            </span>
+                            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${customDropdownOpen ? 'rotate-180' : ''}`} />
+                          </button>
+
+                          {customDropdownOpen && (
+                            <div className="absolute z-20 w-full mt-2 bg-[#0c213b] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+                              {['Instagram', 'LinkedIn', 'Un amigo me invitó', 'Otro'].map((option, idx) => (
+                                <button
+                                  key={idx}
+                                  type="button"
+                                  onClick={() => {
+                                    setFormData({ ...formData, fuente: option });
+                                    setCustomDropdownOpen(false);
+                                    // Auto-avanza al paso de pago directamente en 300ms!
+                                    setTimeout(() => {
+                                      setStep(2);
+                                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                                    }, 200);
+                                  }}
+                                  className="w-full px-5 py-3 text-left text-sm font-bold hover:bg-blue-600 text-slate-200 hover:text-white transition-colors"
+                                >
+                                  {option}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                          
+                          {formErrors.fuente && <p className="text-[10px] font-bold text-red-500 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5" /> {formErrors.fuente}</p>}
+                        </div>
+                        
+                        <div className="flex gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setSubStep(4)}
+                            className="w-full py-3.5 bg-white/5 hover:bg-white/10 text-white/50 hover:text-white font-black rounded-2xl transition-all cursor-pointer text-xs uppercase tracking-wider text-center"
+                          >
+                            Atrás
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+
+                  </AnimatePresence>
                 </motion.div>
               )}
 
@@ -471,6 +674,7 @@ export default function RegisterPage() {
                           type="button"
                           onClick={() => handleCopy(formData.bankSelection === 'popular' ? '0854243391' : '9607058204', setCopiedAccount)}
                           className="p-2 bg-white/5 hover:bg-blue-600/20 border border-white/5 hover:border-blue-500/30 rounded-lg text-white/40 hover:text-blue-400 transition-all active:scale-90 cursor-pointer"
+                          aria-label={copiedAccount ? "Número de cuenta copiado" : "Copiar número de cuenta bancaria"}
                         >
                           {copiedAccount ? <span className="text-[8px] font-black text-blue-400 uppercase">Copiado</span> : <Copy className="w-4 h-4" />}
                         </button>
@@ -498,6 +702,7 @@ export default function RegisterPage() {
                           type="button"
                           onClick={() => handleCopy('40234024806', setCopiedId)}
                           className="p-2 bg-white/5 hover:bg-blue-600/20 border border-white/5 hover:border-blue-500/30 rounded-lg text-white/40 hover:text-blue-400 transition-all active:scale-90 cursor-pointer"
+                          aria-label={copiedId ? "Cédula de identidad copiada" : "Copiar cédula de identidad del titular"}
                         >
                           {copiedId ? <span className="text-[8px] font-black text-blue-400 uppercase">Copiado</span> : <Copy className="w-4 h-4" />}
                         </button>
