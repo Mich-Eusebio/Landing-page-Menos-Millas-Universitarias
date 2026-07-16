@@ -25,6 +25,9 @@ export default function LinktreePage() {
   
   // Video state
   const [isPlaying, setIsPlaying] = useState(false);
+  const [videoEnded, setVideoEnded] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
   const videoRef = useRef(null);
 
   // Email capture states
@@ -100,6 +103,8 @@ export default function LinktreePage() {
     }
   };
 
+  const remainingTime = Math.max(0, Math.ceil(duration - currentTime));
+
   return (
     <main className="min-h-screen bg-[#050c18] text-slate-100 flex flex-col items-center justify-start p-4 md:p-6 relative overflow-hidden select-none">
       {/* Background elements */}
@@ -145,17 +150,19 @@ export default function LinktreePage() {
                   ref={videoRef}
                   src="/blind_coder_viral.mp4"
                   className="w-full h-full object-cover"
-                  loop
                   playsInline
                   onClick={handlePlayPause}
+                  onEnded={() => setVideoEnded(true)}
+                  onTimeUpdate={(e) => setCurrentTime(e.target.currentTime)}
+                  onLoadedMetadata={(e) => setDuration(e.target.duration)}
                 />
                 
                 {/* Custom Overlay Controls */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-6 pointer-events-none">
-                  {!isPlaying && (
+                  {!isPlaying && !videoEnded && (
                     <button 
                       onClick={handlePlayPause}
-                      className="absolute inset-0 m-auto w-16 h-16 bg-blue-600 hover:bg-blue-500 text-white rounded-full flex items-center justify-center shadow-xl shadow-blue-600/40 pointer-events-auto transition-transform active:scale-95"
+                      className="absolute inset-0 m-auto w-16 h-16 bg-blue-600 hover:bg-blue-500 text-white rounded-full flex items-center justify-center shadow-xl shadow-blue-600/40 pointer-events-auto transition-transform active:scale-95 animate-pulse"
                     >
                       <Play className="w-6 h-6 fill-current ml-1" />
                     </button>
@@ -170,35 +177,61 @@ export default function LinktreePage() {
                     </button>
                   )}
                   
-                  <p className="text-center text-xs font-semibold text-slate-300 italic">
-                    Al final del video, tengo algo para ti.
-                  </p>
+                  {/* Countdown overlay or confirmation message */}
+                  <div className="text-center bg-black/40 backdrop-blur-md border border-white/5 py-2 px-4 rounded-xl mx-auto max-w-[90%]">
+                    {videoEnded ? (
+                      <p className="text-xs font-black uppercase tracking-wider text-green-400 flex items-center justify-center gap-1.5">
+                        ✨ ¡Regalo especial desbloqueado abajo!
+                      </p>
+                    ) : (
+                      <p className="text-xs font-semibold text-slate-300">
+                        {isPlaying && remainingTime > 0 ? (
+                          <span>El regalo se desbloquea en <strong className="text-blue-400 font-extrabold">{remainingTime}s</strong></span>
+                        ) : (
+                          <span>Mira el video completo para desbloquear un regalo</span>
+                        )}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              {/* PDF Download Call to Action */}
-              <div className="w-full mt-4 bg-white/5 border border-white/10 rounded-2xl p-5 text-center shadow-lg relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl pointer-events-none" />
-                <h3 className="text-sm font-black uppercase tracking-wider text-amber-400 mb-1">Regalo Especial</h3>
-                <p className="text-xs text-slate-300 mb-4">
-                  Descarga mis <strong>7 Consejos de Resiliencia</strong> para superar cualquier obstáculo académico o personal.
-                </p>
-                <button
-                  onClick={handleDownloadInitiate}
-                  className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black uppercase text-xs tracking-widest rounded-xl transition-all shadow-lg shadow-amber-500/10 active:scale-98 flex items-center justify-center gap-2"
-                >
-                  <Download className="w-4 h-4" />
-                  Descargar Consejos (PDF)
-                </button>
-              </div>
+              {/* Conditional rendering for PDF Download and Skip Button */}
+              <AnimatePresence>
+                {videoEnded && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0, y: 15 }}
+                    animate={{ opacity: 1, height: 'auto', y: 0 }}
+                    exit={{ opacity: 0, height: 0, y: 15 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                    className="w-full flex flex-col items-center"
+                  >
+                    {/* PDF Download Call to Action */}
+                    <div className="w-full mt-4 bg-white/5 border border-white/10 rounded-2xl p-5 text-center shadow-lg relative overflow-hidden">
+                      <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl pointer-events-none" />
+                      <h3 className="text-sm font-black uppercase tracking-wider text-amber-400 mb-1">Regalo Especial</h3>
+                      <p className="text-xs text-slate-300 mb-4">
+                        Descarga mis <strong>7 Consejos de Resiliencia</strong> para superar cualquier obstáculo académico o personal.
+                      </p>
+                      <button
+                        onClick={handleDownloadInitiate}
+                        className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black uppercase text-xs tracking-widest rounded-xl transition-all shadow-lg shadow-amber-500/10 active:scale-98 flex items-center justify-center gap-2"
+                      >
+                        <Download className="w-4 h-4" />
+                        Descargar Consejos (PDF)
+                      </button>
+                    </div>
 
-              {/* Direct Linktree Skip Button */}
-              <button 
-                onClick={() => setPageState('links')}
-                className="mt-6 text-xs text-slate-400 hover:text-white flex items-center gap-1 transition-colors uppercase tracking-wider font-semibold"
-              >
-                Saltar presentación e ir a enlaces <ChevronRight className="w-3.5 h-3.5" />
-              </button>
+                    {/* Direct Linktree Skip Button */}
+                    <button 
+                      onClick={() => setPageState('links')}
+                      className="mt-6 text-xs text-slate-400 hover:text-white flex items-center gap-1 transition-colors uppercase tracking-wider font-semibold"
+                    >
+                      Saltar presentación e ir a enlaces <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           ) : (
             <motion.div 
