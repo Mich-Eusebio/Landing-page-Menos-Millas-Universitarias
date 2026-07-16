@@ -34,7 +34,7 @@ Aprendes a programar.
 Creas páginas web.
 Desarrollas aplicaciones.
 
-Todo con la ayuda de un lector de pantalla que convierte cada línea de código en una voz que habla a una velocidad que la mayoría de las personas ni siquiera puede entender.
+Todo con la ayuda de un lector de pantalla que convierte cada línea de código en una voz a velocidad 5x.
 
 Ahora imagina esa misma voz...
 Pero en inglés.
@@ -58,7 +58,7 @@ Ahora queda superar el último obstáculo: financiar la otra mitad.
 Y como rendirse nunca ha sido una opción...
 Decidimos hacer una rifa.
 
-Gracias a cientos de personas que ya creen en este sueño, **hemos alcanzado el 50 % de la meta.**
+Gracias a 307 personas que ya creen en este sueño, **hemos alcanzado el 50 % de la meta.**
 
 Hoy tú también puedes formar parte de esta historia.
 
