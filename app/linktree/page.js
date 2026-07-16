@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Play, 
@@ -11,13 +11,91 @@ import {
   Instagram, 
   Award,
   DollarSign,
-  ChevronRight
+  ChevronRight,
+  Volume2
 } from 'lucide-react';
 import Link from 'next/link';
 import { downloadResilienceGuide } from '../../lib/apis/leadmagnets';
 
+const introSentences = [
+  "¿CREES EN LOS LÍMITES?",
+  "Muchos dicen que los límites solo existen en la mente.",
+  "Es fácil decirlo, pero no hacerlo.",
+  "Ahora imagina esto.",
+  "No puedes leer las letras de una computadora.",
+  "Ves que hay algo en la pantalla, pero no sabes qué dice.",
+  "Muchas veces confundes a tu propia madre con otra persona porque apenas puedes distinguir los rostros.",
+  "Y aun así...",
+  "Aprendes a programar.",
+  "Creas páginas web.",
+  "Desarrollas aplicaciones.",
+  "Todo con la ayuda de un lector de pantalla...",
+  "Que convierte cada línea de código en una voz que habla a una velocidad que la mayoría de las personas ni siquiera puede entender.",
+  "Ahora imagina esa misma voz...",
+  "Pero en inglés.",
+  "Mientras muchos tienen cursos de miles de dólares para prepararse...",
+  "Tú estudias por tu cuenta, usando únicamente los recursos gratuitos que encuentras en Internet.",
+  "Día tras día. Línea por línea. Error tras error.",
+  "Hasta que ocurre algo que parecía imposible.",
+  "Eres admitido en una de las mejores universidades del mundo para estudiar Computer Science.",
+  "Pero el desafío todavía no termina.",
+  "La universidad creyó en mí y me otorgó una beca que cubre la mitad del costo.",
+  "Ahora queda superar el último obstáculo: financiar la otra mitad.",
+  "Y como rendirse nunca ha sido una opción...",
+  "Decidimos hacer una rifa.",
+  "Gracias a cientos de personas que ya creen en este sueño, hemos alcanzado el 50% de la meta.",
+  "Hoy tú también puedes formar parte de esta historia.",
+  "Ayúdame a convertir una admisión en un título universitario.",
+  "Participa en la rifa o realiza un aporte.",
+  "Cada paso nos acerca un poco más a la meta."
+];
+
+// Typewriter Subtitle Component
+const TypewriterSentence = ({ text, onComplete, speed = 35, delay = 2200 }) => {
+  const [displayText, setDisplayText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    // Reset state when text changes
+    setDisplayText('');
+    setIsDeleting(false);
+  }, [text]);
+
+  useEffect(() => {
+    let timer;
+    if (!isDeleting) {
+      if (displayText.length < text.length) {
+        timer = setTimeout(() => {
+          setDisplayText(text.slice(0, displayText.length + 1));
+        }, speed);
+      } else {
+        timer = setTimeout(() => {
+          setIsDeleting(true);
+        }, delay);
+      }
+    } else {
+      if (displayText.length > 0) {
+        timer = setTimeout(() => {
+          setDisplayText(text.slice(0, displayText.length - 1));
+        }, speed / 2);
+      } else {
+        setIsDeleting(false);
+        onComplete();
+      }
+    }
+    return () => clearTimeout(timer);
+  }, [displayText, isDeleting, text, speed, delay, onComplete]);
+
+  return (
+    <span className="text-xl md:text-2xl font-black italic uppercase tracking-tight text-white leading-relaxed text-center block max-w-lg min-h-[140px] drop-shadow-[0_0_12px_rgba(59,130,246,0.3)]">
+      {displayText}
+      <span className="animate-pulse text-blue-400 font-normal">|</span>
+    </span>
+  );
+};
+
 export default function LinktreePage() {
-  // Page states: 'video', 'download', or 'links'
+  // Page states: 'video', 'download', 'intro' (subtitle copy), or 'links'
   const [pageState, setPageState] = useState('video');
   
   // Video state
@@ -25,6 +103,9 @@ export default function LinktreePage() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const videoRef = useRef(null);
+
+  // Subtitle/Intro state
+  const [currentSentenceIndex, setCurrentSentenceIndex] = useState(0);
 
   // Bank selection states
   const [selectedBank, setSelectedBank] = useState('');
@@ -43,7 +124,6 @@ export default function LinktreePage() {
 
   const handleVideoEnded = () => {
     setIsPlaying(false);
-    // Transition to download page automatically when video ends
     setPageState('download');
   };
 
@@ -51,8 +131,18 @@ export default function LinktreePage() {
     // Download the PDF
     downloadResilienceGuide();
     
-    // Immediately transition to the Linktree links page
-    setPageState('links');
+    // Go to the animated subtitle intro
+    setPageState('intro');
+    setCurrentSentenceIndex(0);
+  };
+
+  const handleNextSentence = () => {
+    if (currentSentenceIndex < introSentences.length - 1) {
+      setCurrentSentenceIndex(prev => prev + 1);
+    } else {
+      // Completed all sentences, go to links
+      setPageState('links');
+    }
   };
 
   const handleBankRedirect = (e) => {
@@ -151,7 +241,7 @@ export default function LinktreePage() {
                 </div>
               </div>
 
-              {/* Direct Skip button for those who already watched */}
+              {/* Direct Skip button */}
               <button 
                 onClick={() => setPageState('download')}
                 className="mt-6 text-xs text-slate-400 hover:text-white flex items-center gap-1 transition-colors uppercase tracking-wider font-semibold"
@@ -168,7 +258,7 @@ export default function LinktreePage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.5 }}
-              className="w-full flex flex-col items-center"
+              className="w-full flex flex-col items-center animate-fade-in"
             >
               {/* Header */}
               <div className="text-center mb-8">
@@ -199,6 +289,49 @@ export default function LinktreePage() {
                 >
                   <Download className="w-4 h-4 text-slate-950" />
                   Descargar Guía (PDF)
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {pageState === 'intro' && (
+            <motion.div
+              key="intro-state"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="w-full flex flex-col items-center justify-center min-h-[450px]"
+            >
+              {/* Teleprompter Subtitle player */}
+              <div className="flex-1 flex items-center justify-center py-10 px-4">
+                <TypewriterSentence 
+                  text={introSentences[currentSentenceIndex]} 
+                  onComplete={handleNextSentence}
+                />
+              </div>
+
+              {/* Progress and Skip */}
+              <div className="w-full flex flex-col items-center gap-4 mt-6">
+                <div className="flex gap-1 justify-center w-full max-w-[200px]">
+                  {introSentences.map((_, index) => (
+                    <div 
+                      key={index}
+                      className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+                        index === currentSentenceIndex 
+                          ? 'bg-blue-500 w-4' 
+                          : index < currentSentenceIndex 
+                            ? 'bg-blue-900' 
+                            : 'bg-white/10'
+                      }`}
+                    />
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => setPageState('links')}
+                  className="text-xs text-slate-400 hover:text-white uppercase tracking-widest font-black transition-colors flex items-center gap-1.5"
+                >
+                  Saltar Intro <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
             </motion.div>
