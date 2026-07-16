@@ -275,12 +275,14 @@ export default function LinktreePage() {
               </div>
 
               {/* Direct Skip button */}
-              <button 
-                onClick={() => setPageState('download')}
-                className="mt-6 text-xs text-slate-400 hover:text-white flex items-center gap-1 transition-colors uppercase tracking-wider font-semibold"
-              >
-                Saltar video <ChevronRight className="w-3.5 h-3.5" />
-              </button>
+              {process.env.NEXT_PUBLIC_TEST_MODE === 'true' && (
+                <button 
+                  onClick={() => setPageState('download')}
+                  className="mt-6 text-xs text-slate-400 hover:text-white flex items-center gap-1 transition-colors uppercase tracking-wider font-semibold"
+                >
+                  Saltar video <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              )}
             </motion.div>
           )}
 
@@ -362,12 +364,14 @@ export default function LinktreePage() {
                     <ArrowRight className="w-4 h-4" />
                   </motion.button>
                 ) : (
-                  <button
-                    onClick={() => setPageState('links')}
-                    className="text-xs text-slate-400 hover:text-white uppercase tracking-widest font-black transition-colors flex items-center gap-1.5 py-2"
-                  >
-                    Saltar Intro <ChevronRight className="w-4 h-4" />
-                  </button>
+                  process.env.NEXT_PUBLIC_TEST_MODE === 'true' && (
+                    <button
+                      onClick={() => setPageState('links')}
+                      className="text-xs text-slate-400 hover:text-white uppercase tracking-widest font-black transition-colors flex items-center gap-1.5 py-2"
+                    >
+                      Saltar Intro <ChevronRight className="w-4 h-4" />
+                    </button>
+                  )
                 )}
               </div>
             </motion.div>
