@@ -20,12 +20,11 @@ import Link from 'next/link';
 import { savePdfDownloadLead } from '../../lib/apis/SorteoActions';
 
 export default function LinktreePage() {
-  // Page states: 'presentation' or 'links'
-  const [pageState, setPageState] = useState('presentation');
+  // Page states: 'video', 'download', or 'links'
+  const [pageState, setPageState] = useState('video');
   
   // Video state
   const [isPlaying, setIsPlaying] = useState(false);
-  const [videoEnded, setVideoEnded] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const videoRef = useRef(null);
@@ -52,6 +51,12 @@ export default function LinktreePage() {
     }
   };
 
+  const handleVideoEnded = () => {
+    setIsPlaying(false);
+    // Transition to download page automatically when video ends
+    setPageState('download');
+  };
+
   const handleDownloadInitiate = () => {
     setShowEmailModal(true);
   };
@@ -72,15 +77,15 @@ export default function LinktreePage() {
       
       setSubmitSuccess(true);
       
-      // Trigger PDF download
+      // Trigger PDF download from public/guia_resciliencia.pdf
       const link = document.createElement('a');
-      link.href = '/docs/7_consejos_resiliencia.pdf';
-      link.download = '7_Consejos_de_Resiliencia_Michael_Eusebio.pdf';
+      link.href = '/guia_resciliencia.pdf';
+      link.download = 'Guia_de_Resiliencia_Michael_Eusebio.pdf';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
-      // Transition to Linktree state after a small delay
+      // Transition to Linktree state immediately after download starts
       setTimeout(() => {
         setShowEmailModal(false);
         setPageState('links');
@@ -122,9 +127,9 @@ export default function LinktreePage() {
         </Link>
 
         <AnimatePresence mode="wait">
-          {pageState === 'presentation' ? (
+          {pageState === 'video' && (
             <motion.div 
-              key="presentation"
+              key="video-state"
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
@@ -152,14 +157,14 @@ export default function LinktreePage() {
                   className="w-full h-full object-cover"
                   playsInline
                   onClick={handlePlayPause}
-                  onEnded={() => setVideoEnded(true)}
+                  onEnded={handleVideoEnded}
                   onTimeUpdate={(e) => setCurrentTime(e.target.currentTime)}
                   onLoadedMetadata={(e) => setDuration(e.target.duration)}
                 />
                 
                 {/* Custom Overlay Controls */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-6 pointer-events-none">
-                  {!isPlaying && !videoEnded && (
+                  {!isPlaying && (
                     <button 
                       onClick={handlePlayPause}
                       className="absolute inset-0 m-auto w-16 h-16 bg-blue-600 hover:bg-blue-500 text-white rounded-full flex items-center justify-center shadow-xl shadow-blue-600/40 pointer-events-auto transition-transform active:scale-95 animate-pulse"
@@ -177,65 +182,83 @@ export default function LinktreePage() {
                     </button>
                   )}
                   
-                  {/* Countdown overlay or confirmation message */}
+                  {/* Copy Text Overlay */}
                   <div className="text-center bg-black/40 backdrop-blur-md border border-white/5 py-2 px-4 rounded-xl mx-auto max-w-[90%]">
-                    {videoEnded ? (
-                      <p className="text-xs font-black uppercase tracking-wider text-green-400 flex items-center justify-center gap-1.5">
-                        ✨ ¡Regalo especial desbloqueado abajo!
-                      </p>
-                    ) : (
-                      <p className="text-xs font-semibold text-slate-300">
-                        {isPlaying && remainingTime > 0 ? (
-                          <span>Al final tengo algo para ti (<strong className="text-blue-400 font-extrabold">{remainingTime}s</strong>)</span>
-                        ) : (
-                          <span>Al final tengo algo para ti</span>
-                        )}
-                      </p>
-                    )}
+                    <p className="text-xs font-semibold text-slate-300">
+                      {isPlaying && remainingTime > 0 ? (
+                        <span>Al final tengo algo para ti (<strong className="text-blue-400 font-extrabold">{remainingTime}s</strong>)</span>
+                      ) : (
+                        <span>Al final tengo algo para ti</span>
+                      )}
+                    </p>
                   </div>
                 </div>
               </div>
 
-              {/* Conditional rendering for PDF Download and Skip Button */}
-              <AnimatePresence>
-                {videoEnded && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0, y: 15 }}
-                    animate={{ opacity: 1, height: 'auto', y: 0 }}
-                    exit={{ opacity: 0, height: 0, y: 15 }}
-                    transition={{ duration: 0.6, ease: "easeOut" }}
-                    className="w-full flex flex-col items-center"
-                  >
-                    {/* PDF Download Call to Action */}
-                    <div className="w-full mt-4 bg-white/5 border border-white/10 rounded-2xl p-5 text-center shadow-lg relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl pointer-events-none" />
-                      <h3 className="text-sm font-black uppercase tracking-wider text-amber-400 mb-1">Regalo Especial</h3>
-                      <p className="text-xs text-slate-300 mb-4">
-                        Descarga mis <strong>7 Consejos de Resiliencia</strong> para superar cualquier obstáculo académico o personal.
-                      </p>
-                      <button
-                        onClick={handleDownloadInitiate}
-                        className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black uppercase text-xs tracking-widest rounded-xl transition-all shadow-lg shadow-amber-500/10 active:scale-98 flex items-center justify-center gap-2"
-                      >
-                        <Download className="w-4 h-4" />
-                        Descargar Consejos (PDF)
-                      </button>
-                    </div>
-
-                    {/* Direct Linktree Skip Button */}
-                    <button 
-                      onClick={() => setPageState('links')}
-                      className="mt-6 text-xs text-slate-400 hover:text-white flex items-center gap-1 transition-colors uppercase tracking-wider font-semibold"
-                    >
-                      Saltar presentación e ir a enlaces <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              {/* Direct Skip button for those who already watched */}
+              <button 
+                onClick={() => setPageState('download')}
+                className="mt-6 text-xs text-slate-400 hover:text-white flex items-center gap-1 transition-colors uppercase tracking-wider font-semibold"
+              >
+                Saltar video <ChevronRight className="w-3.5 h-3.5" />
+              </button>
             </motion.div>
-          ) : (
+          )}
+
+          {pageState === 'download' && (
             <motion.div 
-              key="links"
+              key="download-state"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.5 }}
+              className="w-full flex flex-col items-center"
+            >
+              {/* Header */}
+              <div className="text-center mb-8">
+                <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-amber-500/10 border border-amber-500/20 rounded-full text-amber-400 mb-2 inline-block">
+                  Regalo Especial
+                </span>
+                <h1 className="text-xl md:text-2xl font-black italic uppercase tracking-tight text-white leading-tight">
+                  Descarga mi guía de resiliencia que me llevó al top mundial de las universidades del mundo
+                </h1>
+              </div>
+
+              {/* PDF Download Call to Action Card */}
+              <div className="w-full bg-white/5 border border-white/10 rounded-3xl p-6 text-center shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
+                
+                <div className="w-16 h-16 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center justify-center text-amber-400 mb-6 mx-auto">
+                  <Download className="w-8 h-8" />
+                </div>
+                
+                <h3 className="text-base font-black uppercase tracking-wider text-amber-400 mb-2">Guía de Resiliencia</h3>
+                <p className="text-xs text-slate-300 mb-6 leading-relaxed">
+                  Descubre los 7 consejos que utilicé para superar las barreras de accesibilidad y ser admitido en la Universidad de Colorado Boulder.
+                </p>
+                
+                <button
+                  onClick={handleDownloadInitiate}
+                  className="w-full py-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black uppercase text-xs tracking-widest rounded-xl transition-all shadow-lg shadow-amber-500/20 active:scale-95 flex items-center justify-center gap-2"
+                >
+                  <Download className="w-4 h-4 text-slate-950" />
+                  Descargar Guía (PDF)
+                </button>
+              </div>
+
+              {/* Link to skip to Linktree */}
+              <button 
+                onClick={() => setPageState('links')}
+                className="mt-8 text-xs text-slate-400 hover:text-white flex items-center gap-1 transition-colors uppercase tracking-wider font-semibold"
+              >
+                Ir directamente a los enlaces <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </motion.div>
+          )}
+
+          {pageState === 'links' && (
+            <motion.div 
+              key="links-state"
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
@@ -379,7 +402,7 @@ export default function LinktreePage() {
 
               {/* Volver a la presentación */}
               <button 
-                onClick={() => setPageState('presentation')}
+                onClick={() => setPageState('video')}
                 className="mt-8 text-xs text-slate-500 hover:text-slate-300 transition-colors uppercase tracking-wider font-semibold"
               >
                 Volver a la presentación
@@ -422,7 +445,7 @@ export default function LinktreePage() {
                     Ingresa tu correo
                   </h3>
                   <p className="text-xs text-slate-400 text-center mb-6">
-                    Para descargar los <strong>7 Consejos de Resiliencia</strong>, por favor dinos a dónde enviártelo.
+                    Por favor dinos a dónde enviártelo para descargar la guía.
                   </p>
 
                   <form onSubmit={handleEmailSubmit} className="space-y-4">
