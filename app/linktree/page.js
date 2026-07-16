@@ -11,91 +11,102 @@ import {
   Instagram, 
   Award,
   DollarSign,
-  ChevronRight,
-  Volume2
+  ChevronRight
 } from 'lucide-react';
 import Link from 'next/link';
 import { downloadResilienceGuide } from '../../lib/apis/leadmagnets';
 
-const introSentences = [
-  "¿CREES EN LOS LÍMITES?",
-  "Muchos dicen que los límites solo existen en la mente.",
-  "Es fácil decirlo, pero no hacerlo.",
-  "Ahora imagina esto.",
-  "No puedes leer las letras de una computadora.",
-  "Ves que hay algo en la pantalla, pero no sabes qué dice.",
-  "Muchas veces confundes a tu propia madre con otra persona porque apenas puedes distinguir los rostros.",
-  "Y aun así...",
-  "Aprendes a programar.",
-  "Creas páginas web.",
-  "Desarrollas aplicaciones.",
-  "Todo con la ayuda de un lector de pantalla...",
-  "Que convierte cada línea de código en una voz que habla a una velocidad que la mayoría de las personas ni siquiera puede entender.",
-  "Ahora imagina esa misma voz...",
-  "Pero en inglés.",
-  "Mientras muchos tienen cursos de miles de dólares para prepararse...",
-  "Tú estudias por tu cuenta, usando únicamente los recursos gratuitos que encuentras en Internet.",
-  "Día tras día. Línea por línea. Error tras error.",
-  "Hasta que ocurre algo que parecía imposible.",
-  "Eres admitido en una de las mejores universidades del mundo para estudiar Computer Science.",
-  "Pero el desafío todavía no termina.",
-  "La universidad creyó en mí y me otorgó una beca que cubre la mitad del costo.",
-  "Ahora queda superar el último obstáculo: financiar la otra mitad.",
-  "Y como rendirse nunca ha sido una opción...",
-  "Decidimos hacer una rifa.",
-  "Gracias a cientos de personas que ya creen en este sueño, hemos alcanzado el 50% de la meta.",
-  "Hoy tú también puedes formar parte de esta historia.",
-  "Ayúdame a convertir una admisión en un título universitario.",
-  "Participa en la rifa o realiza un aporte.",
-  "Cada paso nos acerca un poco más a la meta."
-];
+const fullCopyText = `# ¿CREES EN LOS LÍMITES?
 
-// Typewriter Subtitle Component
-const TypewriterSentence = ({ text, onComplete, speed = 35, delay = 2200 }) => {
-  const [displayText, setDisplayText] = useState('');
-  const [isDeleting, setIsDeleting] = useState(false);
+Muchos dicen que los límites solo existen en la mente.
 
-  useEffect(() => {
-    // Reset state when text changes
-    setDisplayText('');
-    setIsDeleting(false);
-  }, [text]);
+Es fácil decirlo, pero no hacerlo.
 
-  useEffect(() => {
-    let timer;
-    if (!isDeleting) {
-      if (displayText.length < text.length) {
-        timer = setTimeout(() => {
-          setDisplayText(text.slice(0, displayText.length + 1));
-        }, speed);
-      } else {
-        timer = setTimeout(() => {
-          setIsDeleting(true);
-        }, delay);
-      }
+Ahora imagina esto.
+
+No puedes leer las letras de una computadora. Ves que hay algo en la pantalla, pero no sabes qué dice.
+
+Muchas veces confundes a tu propia madre con otra persona porque apenas puedes distinguir los rostros.
+
+Y aun así...
+
+Aprendes a programar.
+Creas páginas web.
+Desarrollas aplicaciones.
+
+Todo con la ayuda de un lector de pantalla que convierte cada línea de código en una voz que habla a una velocidad que la mayoría de las personas ni siquiera puede entender.
+
+Ahora imagina esa misma voz...
+Pero en inglés.
+
+Mientras muchos tienen cursos de miles de dólares para prepararse, tú estudias por tu cuenta, usando únicamente los recursos gratuitos que encuentras en Internet.
+
+Día tras día.
+Línea por línea.
+Error tras error.
+
+Hasta que ocurre algo que parecía imposible.
+
+**Eres admitido en una de las mejores universidades del mundo para estudiar Computer Science.**
+
+Pero el desafío todavía no termina.
+
+La universidad creyó en mí y me otorgó una beca que cubre la mitad del costo.
+
+Ahora queda superar el último obstáculo: financiar la otra mitad.
+
+Y como rendirse nunca ha sido una opción...
+Decidimos hacer una rifa.
+
+Gracias a cientos de personas que ya creen en este sueño, **hemos alcanzado el 50 % de la meta.**
+
+Hoy tú también puedes formar parte de esta historia.
+
+## Ayúdame a convertir una admisión en un título universitario.
+
+**Participa en la rifa o realiza un aporte. Cada paso nos acerca un poco más a la meta.**`;
+
+// Simple parser to render markdown on the fly
+const renderTypedText = (text) => {
+  const blocks = text.split('\n\n');
+  return blocks.map((block, idx) => {
+    let content = block;
+    // Replace markdown bold inline: **text** -> <strong>text</strong>
+    const boldRegex = /\*\*(.*?)\*\*/g;
+    content = content.replace(boldRegex, '<strong>$1</strong>');
+
+    if (block.startsWith('# ')) {
+      return (
+        <h1 
+          key={idx} 
+          className="text-2xl md:text-3xl font-black italic uppercase tracking-tight text-white mb-4 mt-2 drop-shadow-[0_0_8px_rgba(59,130,246,0.3)]"
+          dangerouslySetInnerHTML={{ __html: content.substring(2) }}
+        />
+      );
+    } else if (block.startsWith('## ')) {
+      return (
+        <h2 
+          key={idx} 
+          className="text-lg md:text-xl font-bold uppercase tracking-wide text-blue-400 mb-3 mt-4"
+          dangerouslySetInnerHTML={{ __html: content.substring(3) }}
+        />
+      );
     } else {
-      if (displayText.length > 0) {
-        timer = setTimeout(() => {
-          setDisplayText(text.slice(0, displayText.length - 1));
-        }, speed / 2);
-      } else {
-        setIsDeleting(false);
-        onComplete();
-      }
+      // Replace single newlines within paragraph with <br/> for clean listing
+      const formattedContent = content.replace(/\n/g, '<br/>');
+      return (
+        <p 
+          key={idx} 
+          className="text-sm md:text-base text-slate-300 leading-relaxed mb-4 font-medium"
+          dangerouslySetInnerHTML={{ __html: formattedContent }}
+        />
+      );
     }
-    return () => clearTimeout(timer);
-  }, [displayText, isDeleting, text, speed, delay, onComplete]);
-
-  return (
-    <span className="text-xl md:text-2xl font-black italic uppercase tracking-tight text-white leading-relaxed text-center block max-w-lg min-h-[140px] drop-shadow-[0_0_12px_rgba(59,130,246,0.3)]">
-      {displayText}
-      <span className="animate-pulse text-blue-400 font-normal">|</span>
-    </span>
-  );
+  });
 };
 
 export default function LinktreePage() {
-  // Page states: 'video', 'download', 'intro' (subtitle copy), or 'links'
+  // Page states: 'video', 'download', 'intro' (AI chatbot typewriter), or 'links'
   const [pageState, setPageState] = useState('video');
   
   // Video state
@@ -104,12 +115,44 @@ export default function LinktreePage() {
   const [duration, setDuration] = useState(0);
   const videoRef = useRef(null);
 
-  // Subtitle/Intro state
-  const [currentSentenceIndex, setCurrentSentenceIndex] = useState(0);
+  // Chatbot typewriter state
+  const [displayText, setDisplayText] = useState('');
+  const [isTypingComplete, setIsTypingComplete] = useState(false);
+  const scrollContainerRef = useRef(null);
 
   // Bank selection states
   const [selectedBank, setSelectedBank] = useState('');
   const [showBankSelect, setShowBankSelect] = useState(false);
+
+  // Typewriter effect
+  useEffect(() => {
+    if (pageState !== 'intro') return;
+
+    let index = 0;
+    setDisplayText('');
+    setIsTypingComplete(false);
+
+    const interval = setInterval(() => {
+      if (index < fullCopyText.length) {
+        // Adjust speed slightly: type faster on spaces and normal on characters
+        const char = fullCopyText.charAt(index);
+        setDisplayText((prev) => prev + char);
+        index++;
+      } else {
+        setIsTypingComplete(true);
+        clearInterval(interval);
+      }
+    }, 15); // Fast typing speed like a chatbot
+
+    return () => clearInterval(interval);
+  }, [pageState]);
+
+  // Autoscroll effect
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+    }
+  }, [displayText]);
 
   const handlePlayPause = () => {
     if (videoRef.current) {
@@ -131,18 +174,8 @@ export default function LinktreePage() {
     // Download the PDF
     downloadResilienceGuide();
     
-    // Go to the animated subtitle intro
+    // Transition to the intro chat view
     setPageState('intro');
-    setCurrentSentenceIndex(0);
-  };
-
-  const handleNextSentence = () => {
-    if (currentSentenceIndex < introSentences.length - 1) {
-      setCurrentSentenceIndex(prev => prev + 1);
-    } else {
-      // Completed all sentences, go to links
-      setPageState('links');
-    }
   };
 
   const handleBankRedirect = (e) => {
@@ -258,7 +291,7 @@ export default function LinktreePage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.5 }}
-              className="w-full flex flex-col items-center animate-fade-in"
+              className="w-full flex flex-col items-center"
             >
               {/* Header */}
               <div className="text-center mb-8">
@@ -300,39 +333,42 @@ export default function LinktreePage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="w-full flex flex-col items-center justify-center min-h-[450px]"
+              className="w-full flex flex-col items-center"
             >
-              {/* Teleprompter Subtitle player */}
-              <div className="flex-1 flex items-center justify-center py-10 px-4">
-                <TypewriterSentence 
-                  text={introSentences[currentSentenceIndex]} 
-                  onComplete={handleNextSentence}
-                />
+              {/* Typewriter Scroll Container */}
+              <div 
+                ref={scrollContainerRef}
+                className="w-full h-[460px] bg-black/30 border border-white/10 rounded-3xl p-6 overflow-y-auto scroll-smooth flex flex-col shadow-2xl relative"
+                style={{ scrollbarWidth: 'thin' }}
+              >
+                <div className="flex-1 text-left">
+                  {renderTypedText(displayText)}
+                  {!isTypingComplete && (
+                    <span className="inline-block w-2.5 h-4 ml-1 bg-blue-500 animate-pulse" />
+                  )}
+                </div>
               </div>
 
-              {/* Progress and Skip */}
+              {/* Action Buttons */}
               <div className="w-full flex flex-col items-center gap-4 mt-6">
-                <div className="flex gap-1 justify-center w-full max-w-[200px]">
-                  {introSentences.map((_, index) => (
-                    <div 
-                      key={index}
-                      className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-                        index === currentSentenceIndex 
-                          ? 'bg-blue-500 w-4' 
-                          : index < currentSentenceIndex 
-                            ? 'bg-blue-900' 
-                            : 'bg-white/10'
-                      }`}
-                    />
-                  ))}
-                </div>
-
-                <button
-                  onClick={() => setPageState('links')}
-                  className="text-xs text-slate-400 hover:text-white uppercase tracking-widest font-black transition-colors flex items-center gap-1.5"
-                >
-                  Saltar Intro <ChevronRight className="w-4 h-4" />
-                </button>
+                {isTypingComplete ? (
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    onClick={() => setPageState('links')}
+                    className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-black uppercase text-xs tracking-widest rounded-xl transition-all shadow-lg shadow-blue-600/30 active:scale-95 flex items-center justify-center gap-2"
+                  >
+                    Ver Enlaces de Apoyo
+                    <ArrowRight className="w-4 h-4" />
+                  </motion.button>
+                ) : (
+                  <button
+                    onClick={() => setPageState('links')}
+                    className="text-xs text-slate-400 hover:text-white uppercase tracking-widest font-black transition-colors flex items-center gap-1.5 py-2"
+                  >
+                    Saltar Intro <ChevronRight className="w-4 h-4" />
+                  </button>
+                )}
               </div>
             </motion.div>
           )}
