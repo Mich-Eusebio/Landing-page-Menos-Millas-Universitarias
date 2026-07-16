@@ -5,19 +5,16 @@ import {
   Play, 
   Pause, 
   Download, 
-  Mail, 
-  Loader2, 
   ArrowRight, 
   ExternalLink, 
   MessageCircle, 
   Instagram, 
   Award,
   DollarSign,
-  CheckCircle2,
   ChevronRight
 } from 'lucide-react';
 import Link from 'next/link';
-import { savePdfDownloadLead } from '../../lib/apis/SorteoActions';
+import { downloadResilienceGuide } from '../../lib/apis/leadmagnets';
 
 export default function LinktreePage() {
   // Page states: 'video', 'download', or 'links'
@@ -28,13 +25,6 @@ export default function LinktreePage() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const videoRef = useRef(null);
-
-  // Email capture states
-  const [showEmailModal, setShowEmailModal] = useState(false);
-  const [email, setEmail] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState('');
-  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   // Bank selection states
   const [selectedBank, setSelectedBank] = useState('');
@@ -57,46 +47,12 @@ export default function LinktreePage() {
     setPageState('download');
   };
 
-  const handleDownloadInitiate = () => {
-    setShowEmailModal(true);
-  };
-
-  const handleEmailSubmit = async (e) => {
-    e.preventDefault();
-    if (!email || !email.includes('@')) {
-      setSubmitError('Por favor ingresa un correo electrónico válido.');
-      return;
-    }
-
-    setIsSubmitting(true);
-    setSubmitError('');
-
-    try {
-      // Save lead to Firestore
-      await savePdfDownloadLead(email.trim());
-      
-      setSubmitSuccess(true);
-      
-      // Trigger PDF download from public/guia_resciliencia.pdf
-      const link = document.createElement('a');
-      link.href = '/guia_resciliencia.pdf';
-      link.download = 'Guia_de_Resiliencia_Michael_Eusebio.pdf';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      // Transition to Linktree state immediately after download starts
-      setTimeout(() => {
-        setShowEmailModal(false);
-        setPageState('links');
-      }, 1500);
-
-    } catch (err) {
-      console.error(err);
-      setSubmitError('Ocurrió un error. Por favor inténtalo de nuevo.');
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleDownload = () => {
+    // Download the PDF
+    downloadResilienceGuide();
+    
+    // Immediately transition to the Linktree links page
+    setPageState('links');
   };
 
   const handleBankRedirect = (e) => {
@@ -238,21 +194,13 @@ export default function LinktreePage() {
                 </p>
                 
                 <button
-                  onClick={handleDownloadInitiate}
+                  onClick={handleDownload}
                   className="w-full py-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black uppercase text-xs tracking-widest rounded-xl transition-all shadow-lg shadow-amber-500/20 active:scale-95 flex items-center justify-center gap-2"
                 >
                   <Download className="w-4 h-4 text-slate-950" />
                   Descargar Guía (PDF)
                 </button>
               </div>
-
-              {/* Link to skip to Linktree */}
-              <button 
-                onClick={() => setPageState('links')}
-                className="mt-8 text-xs text-slate-400 hover:text-white flex items-center gap-1 transition-colors uppercase tracking-wider font-semibold"
-              >
-                Ir directamente a los enlaces <ChevronRight className="w-3.5 h-3.5" />
-              </button>
             </motion.div>
           )}
 
@@ -416,89 +364,6 @@ export default function LinktreePage() {
           © {new Date().getFullYear()} Michael Eusebio • Menos Millas Universitarias
         </footer>
       </div>
-
-      {/* Email Capture Modal */}
-      <AnimatePresence>
-        {showEmailModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowEmailModal(false)}
-              className="absolute inset-0 bg-black/80 backdrop-blur-md"
-            />
-            
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="bg-[#0c1220] border border-white/10 rounded-3xl p-6 md:p-8 w-full max-w-sm relative z-10 shadow-2xl"
-            >
-              {!submitSuccess ? (
-                <>
-                  <div className="w-12 h-12 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex items-center justify-center text-blue-400 mb-6 mx-auto">
-                    <Mail className="w-6 h-6" />
-                  </div>
-                  
-                  <h3 className="text-lg font-black uppercase tracking-tight text-white text-center mb-2">
-                    Ingresa tu correo
-                  </h3>
-                  <p className="text-xs text-slate-400 text-center mb-6">
-                    Por favor dinos a dónde enviártelo para descargar la guía.
-                  </p>
-
-                  <form onSubmit={handleEmailSubmit} className="space-y-4">
-                    <div>
-                      <input
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="tu@correo.com"
-                        className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 text-center font-medium"
-                      />
-                      {submitError && (
-                        <p className="text-red-400 text-xs mt-1 text-center font-semibold">{submitError}</p>
-                      )}
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full py-3 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-black uppercase text-xs tracking-widest rounded-xl transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Procesando...
-                        </>
-                      ) : (
-                        <>
-                          Descargar ahora
-                          <ArrowRight className="w-4 h-4" />
-                        </>
-                      )}
-                    </button>
-                  </form>
-                </>
-              ) : (
-                <div className="text-center py-6">
-                  <div className="w-16 h-16 bg-green-500/10 border border-green-500/20 rounded-full flex items-center justify-center text-green-400 mb-6 mx-auto">
-                    <CheckCircle2 className="w-10 h-10" />
-                  </div>
-                  <h3 className="text-lg font-black uppercase tracking-tight text-white mb-2">
-                    ¡Todo listo!
-                  </h3>
-                  <p className="text-xs text-slate-300">
-                    Tu descarga está iniciando. Redirigiéndote a los enlaces principales...
-                  </p>
-                </div>
-              )}
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </main>
   );
 }
