@@ -186,9 +186,9 @@ export default function LinktreePage() {
                     ) : (
                       <p className="text-xs font-semibold text-slate-300">
                         {isPlaying && remainingTime > 0 ? (
-                          <span>El regalo se desbloquea en <strong className="text-blue-400 font-extrabold">{remainingTime}s</strong></span>
+                          <span>Al final tengo algo para ti (<strong className="text-blue-400 font-extrabold">{remainingTime}s</strong>)</span>
                         ) : (
-                          <span>Mira el video completo para desbloquear un regalo</span>
+                          <span>Al final tengo algo para ti</span>
                         )}
                       </p>
                     )}
