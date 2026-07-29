@@ -244,44 +244,81 @@ const [visibleCount, setVisibleCount] = useState(200); // Empezamos mostrando 20
 const [currentGridPage, setCurrentGridPage] = useState(0);
 const selectedPlan = PLANS.find(p => p.id === formData.plan);
 
-//Auto-posicionar en la primera página con tickets disponibles al entrar al tablero
+  // Salto automático si la página actual del tablero está llena (todas las casillas rojas/reserved/sold)
   useEffect(() => {
-    if (step === 3 || step === 4) {
-      const isPremium = step === 3;
-      // Estos totales vienen de cómo llamas a renderTicketGrid en tu JSX
-      const totalTickets = isPremium ? 240 : 2500; 
+    if (step === 3) {
+      const isPremium = false; // Step 3 es para boletos Generales
+      const totalTickets = 2500; 
       const pageSize = 100;
       const totalPages = Math.ceil(totalTickets / pageSize);
 
-      let firstAvailablePage = 0;
+      const startTicket = currentGridPage * pageSize + 1;
+      const endTicket = Math.min(startTicket + pageSize - 1, totalTickets);
 
-      // Escaneamos página por página
-      for (let p = 0; p < totalPages; p++) {
-        let hasAvailable = false;
-        const startTicket = p * pageSize + 1;
-        const endTicket = Math.min(startTicket + pageSize - 1, totalTickets);
+      let pageIsFull = true;
+      for (let num = startTicket; num <= endTicket; num++) {
+        const rawId = num.toString().padStart(4, '0');
+        const fullId = isPremium ? `premium-${rawId}` : `general-${rawId}`;
+        const status = ticketsDB[fullId]?.status || 'available';
 
-        // Verificamos los tickets dentro de esta página
-        for (let num = startTicket; num <= endTicket; num++) {
-          const rawId = num.toString().padStart(4, '0');
-          const fullId = isPremium ? `premium-${rawId}` : `general-${rawId}`;
-          const status = ticketsDB[fullId]?.status || 'available';
+        if (status !== 'sold' && status !== 'reserved') {
+          pageIsFull = false;
+          break;
+        }
+      }
 
-          if (status !== 'sold' && status !== 'reserved') {
-            hasAvailable = true;
-            break; // Encontramos uno libre, no hace falta revisar más en esta página
+      if (pageIsFull) {
+        // Buscar la siguiente página disponible hacia adelante
+        let targetPage = -1;
+        for (let p = currentGridPage + 1; p < totalPages; p++) {
+          let hasAvailable = false;
+          const pStart = p * pageSize + 1;
+          const pEnd = Math.min(pStart + pageSize - 1, totalTickets);
+          for (let num = pStart; num <= pEnd; num++) {
+            const rawId = num.toString().padStart(4, '0');
+            const fullId = isPremium ? `premium-${rawId}` : `general-${rawId}`;
+            const status = ticketsDB[fullId]?.status || 'available';
+            if (status !== 'sold' && status !== 'reserved') {
+              hasAvailable = true;
+              break;
+            }
+          }
+          if (hasAvailable) {
+            targetPage = p;
+            break;
           }
         }
 
-        // Si esta página tiene disponibilidad, la seteamos y dejamos de buscar
-        if (hasAvailable) {
-          firstAvailablePage = p;
-          break; 
+        // Si no hay hacia adelante, buscar hacia atrás
+        if (targetPage === -1) {
+          for (let p = currentGridPage - 1; p >= 0; p--) {
+            let hasAvailable = false;
+            const pStart = p * pageSize + 1;
+            const pEnd = Math.min(pStart + pageSize - 1, totalTickets);
+            for (let num = pStart; num <= pEnd; num++) {
+              const rawId = num.toString().padStart(4, '0');
+              const fullId = isPremium ? `premium-${rawId}` : `general-${rawId}`;
+              const status = ticketsDB[fullId]?.status || 'available';
+              if (status !== 'sold' && status !== 'reserved') {
+                hasAvailable = true;
+                break;
+              }
+            }
+            if (hasAvailable) {
+              targetPage = p;
+              break;
+            }
+          }
+        }
+
+        // Si encontramos una página con boletos disponibles, saltamos a ella
+        if (targetPage !== -1 && targetPage !== currentGridPage) {
+          console.log(`⏩ Tablero de página ${currentGridPage + 1} lleno. Saltando automáticamente a la página ${targetPage + 1}`);
+          setCurrentGridPage(targetPage);
         }
       }
-      setCurrentGridPage(firstAvailablePage);
     }
-  }, [step]); // Solo se ejecuta al cambiar de paso para evitar saltos en la UI
+  }, [currentGridPage, ticketsDB, step]);
 
 const toggleTicket = (id, type) => {
   const rawId = id.toString().padStart(4, '0');
