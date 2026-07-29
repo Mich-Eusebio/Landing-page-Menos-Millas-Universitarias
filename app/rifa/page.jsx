@@ -542,14 +542,7 @@ const handleSubmit = async (e) => {
 
     // Disparar las notificaciones de WhatsApp en segundo plano
     (async () => {
-      // Enviar notificación de WhatsApp al admin (Michael)
-      try {
-        await sendRafflePurchaseNotification(formData.nombre, selectedPlan?.name || 'plan de rifa');
-      } catch (notifErr) {
-        console.error("🔥 Error al enviar notificación de WhatsApp al admin:", notifErr);
-      }
-
-      // Enviar confirmación automática de WhatsApp al usuario
+      // 1. Enviar confirmación automática de WhatsApp al usuario primero
       let wasNotified = false;
       try {
         let formattedPhone = formData.telefono.replace(/\D/g, '');
@@ -576,11 +569,13 @@ const handleSubmit = async (e) => {
         console.error("🔥 Error al enviar confirmación de WhatsApp al usuario:", userNotifErr);
       }
 
-      // Enviar estado de la notificación de usuario al admin (Michael)
-      try {
-        await sendRaffleNotificationStatus(formData.nombre, wasNotified);
-      } catch (statusErr) {
-        console.error("🔥 Error al enviar notificación de estado de WhatsApp al admin:", statusErr);
+      // 2. Si se notificó con éxito al usuario, enviar la notificación única al admin (Michael)
+      if (wasNotified) {
+        try {
+          await sendRafflePurchaseNotification(formData.nombre, selectedPlan?.name || 'plan de rifa');
+        } catch (notifErr) {
+          console.error("🔥 Error al enviar notificación única de WhatsApp al admin:", notifErr);
+        }
       }
     })();
 
