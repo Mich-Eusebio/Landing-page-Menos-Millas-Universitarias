@@ -3,9 +3,9 @@ import React, { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Check, Landmark, Upload, Loader2, Copy, Image as ImageIcon, ChevronRight } from 'lucide-react'
 import { saveSoldDays, saveComprameUnDia, uploadFile, getSoldDays } from '@/lib/apis/SorteoActions'
+import { compressImageForUpload } from '@/lib/compressImageForUpload'
 
 export default function CheckoutFlow({ selectedDays, isOpen, onClose }) {
-  if (!isOpen) return null
   const [step, setStep] = useState(1)
   const sponsorInputRef = useRef(null)
   const nameRef = useRef(null)
@@ -26,6 +26,8 @@ export default function CheckoutFlow({ selectedDays, isOpen, onClose }) {
   })
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  if (!isOpen) return null
 
   const n = selectedDays?.reduce((sum, d) => sum + (d.slot === 'full' ? 1 : 0.5), 0) || 0
   const isHalfDay = n === 0.5
@@ -132,18 +134,20 @@ export default function CheckoutFlow({ selectedDays, isOpen, onClose }) {
 
       let sponsor_foto_url = null
       if (formData.photoFile) {
-        const safeName = formData.photoFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')
+        const photoFile = await compressImageForUpload(formData.photoFile)
+        const safeName = photoFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')
         const data = new FormData()
-        data.append('file', formData.photoFile)
+        data.append('file', photoFile)
         data.append('path', `comprame-un-dia-sponsors/${Date.now()}_${safeName}`)
         sponsor_foto_url = await uploadFile(data)
       }
 
       let comprobante_url = null
       if (formData.proof) {
-        const safeName = formData.proof.name.replace(/[^a-zA-Z0-9.-]/g, '_')
+        const proofFile = await compressImageForUpload(formData.proof)
+        const safeName = proofFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')
         const data = new FormData()
-        data.append('file', formData.proof)
+        data.append('file', proofFile)
         data.append('path', `comprame-un-dia-comprobantes/proofs/${Date.now()}_${safeName}`)
         comprobante_url = await uploadFile(data)
       }
@@ -198,7 +202,12 @@ export default function CheckoutFlow({ selectedDays, isOpen, onClose }) {
       window.location.href = '/gracias'
     } catch (error) {
       console.error("Error submitting:", error)
-      alert("Hubo un error al procesar tu solicitud.")
+      if (error instanceof Error && error.message.startsWith('CONFLICTED_DATES:')) {
+        const dates = error.message.replace('CONFLICTED_DATES:', '').split(',').join(', ')
+        alert(`⚠️ Lo sentimos, estos días acaban de ser adquiridos: ${dates}. Por favor revisa el calendario.`)
+      } else {
+        alert("Hubo un error al procesar tu solicitud. Tus días no fueron reservados; intenta nuevamente.")
+      }
       setLoading(false)
     }
   }
