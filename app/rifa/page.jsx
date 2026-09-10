@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import { validateAndReserveTickets, saveParticipant } from '@/lib/apis/rifaTransactions';
 import { sendRafflePurchaseNotification, sendRaffleNotificationStatus } from '@/lib/apis/SorteoActions';
+import { trackMetaPurchase } from '@/lib/metaPixel';
 
 
 
@@ -534,6 +535,13 @@ const handleSubmit = async (e) => {
         };
         await saveParticipant(transaction, 'rifas/v2/premium_registrations', premiumPayload);
       }
+    });
+
+    // Solo registrar Purchase cuando Storage y la transacción de Firestore
+    // hayan finalizado correctamente. submissionId evita duplicados al recargar.
+    trackMetaPurchase({
+      submissionId,
+      value: selectedPlan?.amount,
     });
 
     // Cambiar a la pantalla de éxito inmediatamente (Non-blocking)
