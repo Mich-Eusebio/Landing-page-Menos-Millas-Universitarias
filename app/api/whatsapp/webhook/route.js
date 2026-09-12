@@ -3,6 +3,11 @@ import crypto from 'crypto';
 import { adminDb } from '@/lib/firebaseAdmin';
 import { sendRifaConfirmation, sendGenericText, sendLeadUpdateTemplate } from '@/lib/apis/WhatsAppService';
 
+// Safety lock: while enabled, /broadcast only sends the template back to the
+// configured admin number. Change this only after validating the Meta template.
+const BROADCAST_TEST_MODE = true;
+const BROADCAST_TEST_NAME = 'Michael Eusebio';
+
 export async function POST(request) {
   try {
     const rawBody = await request.text();
@@ -156,7 +161,7 @@ async function handleBroadcast(adminPhone, rawBroadcastText) {
     if (parts.length < 3) {
       await sendGenericText({
         telefono: adminPhone,
-        texto: '❌ Formato inválido. Debe ser: /broadcast [acción] | [canal] | [descripción]'
+        texto: '❌ Formato inválido. Debe ser: /broadcast [acción] | [canal] | [descripción] | [slug opcional del botón]'
       });
       return;
     }
@@ -164,6 +169,7 @@ async function handleBroadcast(adminPhone, rawBroadcastText) {
     const action = parts[0].trim();
     const channelCode = parts[1].trim();
     const description = parts[2].trim();
+    const buttonParam = parts[3]?.trim() || channelCode;
 
     const channelNames = {
       ig: 'Instagram',
@@ -174,24 +180,42 @@ async function handleBroadcast(adminPhone, rawBroadcastText) {
     };
     const channelText = channelNames[channelCode.toLowerCase()] || channelCode;
 
-    console.log(`📣 Iniciando difusión. Acción: "${action}", Canal: "${channelText}", Desc: "${description}", Botón Param: "${channelCode}"`);
+    console.log(`📣 Iniciando difusión. Acción: "${action}", Canal: "${channelText}", Desc: "${description}", Botón Param: "${buttonParam}"`);
 
-    const snapshot = await adminDb.collection('lead-capture').get();
-    if (snapshot.empty) {
-      await sendGenericText({
-        telefono: adminPhone,
-        texto: '⚠️ No hay contactos registrados en la colección lead-capture.'
-      });
-      return;
+    const contacts = [];
+
+    if (BROADCAST_TEST_MODE) {
+      const personalNumber = process.env.PERSONAL_NUMER || process.env.PERSONAL_NUMBER;
+      const testPhone = personalNumber?.replace(/\D/g, '');
+
+      if (!testPhone) {
+        throw new Error('Falta PERSONAL_NUMER o PERSONAL_NUMBER para ejecutar la prueba.');
+      }
+
+      contacts.push({ phone: testPhone, name: BROADCAST_TEST_NAME });
+      console.log(`🧪 Modo prueba activo: la difusión solo se enviará a ${testPhone}.`);
+    } else {
+      const snapshot = await adminDb.collection('lead-capture').get();
+      if (snapshot.empty) {
+        await sendGenericText({
+          telefono: adminPhone,
+          texto: '⚠️ No hay contactos registrados en la colección lead-capture.'
+        });
+        return;
+      }
+
+      for (const doc of snapshot.docs) {
+        const data = doc.data();
+        contacts.push({ phone: data.phone, name: data.name || 'Aliado' });
+      }
     }
 
     let successCount = 0;
     let failCount = 0;
 
-    for (const doc of snapshot.docs) {
-      const data = doc.data();
-      const rawPhone = data.phone;
-      const nombre = data.name || 'Aliado';
+    for (const contact of contacts) {
+      const rawPhone = contact.phone;
+      const nombre = contact.name;
 
       if (!rawPhone) continue;
 
@@ -203,7 +227,7 @@ async function handleBroadcast(adminPhone, rawBroadcastText) {
         action,
         channel: channelText,
         description,
-        buttonParam: channelCode
+        buttonParam
       });
 
       if (result.success) {
@@ -215,7 +239,7 @@ async function handleBroadcast(adminPhone, rawBroadcastText) {
 
     await sendGenericText({
       telefono: adminPhone,
-      texto: `✅ Difusión completada.\nEnviados con éxito: ${successCount}\nFallidos: ${failCount}`
+      texto: `${BROADCAST_TEST_MODE ? '🧪 Prueba' : '✅ Difusión'} completada.\nEnviados con éxito: ${successCount}\nFallidos: ${failCount}`
     });
 
   } catch (error) {

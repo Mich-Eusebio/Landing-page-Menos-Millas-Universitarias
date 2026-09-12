@@ -21,6 +21,8 @@ export default async function Page({ searchParams }) {
       redirect(staticUrl);
     }
 
+    let dynamicUrl = null;
+
     try {
       const docRef = adminDb.collection('company-sponsors').doc(channel.toLowerCase());
       const docSnap = await docRef.get();
@@ -31,12 +33,18 @@ export default async function Page({ searchParams }) {
           docRef.update({
             clicks: FieldValue.increment(1)
           }).catch(err => console.error('Error actualizando clics:', err));
-          
-          redirect(data.url);
+
+          dynamicUrl = data.url;
         }
       }
     } catch (error) {
       console.error('Error en redirección raíz (sponsors):', error);
+    }
+
+    // redirect() throws an internal Next.js signal, so it must stay outside
+    // the try/catch used for Firestore errors.
+    if (dynamicUrl) {
+      redirect(dynamicUrl);
     }
   }
 
