@@ -1,5 +1,4 @@
 "use client";
-import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/sitebar';
 import RaffleModal from '@/components/RaffleModal';
@@ -10,31 +9,19 @@ import { signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'fi
 import { collection, onSnapshot, doc, updateDoc, Timestamp } from 'firebase/firestore';
 import * as actions from '@/lib/apis/SorteoActions';
 import {
-    Trophy,
-    Accessibility,
     Smartphone,
-    Tablet,
-    Headphones,
-    Gift,
-    Play,
     CheckCircle,
     Clock,
     ArrowRight,
     Coins,
-    History,
-    X,
     PartyPopper,
-    MessageSquare,
     Star
 } from 'lucide-react';
 
 
 // --- CONSTANTES ---
 const PREMIOS = [
-    { id: 'top1', nombre: 'iPhone 16 Pro', icon: <Smartphone />, highTicket: false },
-    { id: 'top2', nombre: 'iPad 10th Gen', icon: <Tablet />, highTicket: false },
-    { id: 'top3', nombre: 'AirPods 4', icon: <Headphones />, highTicket: false },
-    { id: 'top4', nombre: 'Premio Sorpresa', icon: <Gift />, highTicket: true },
+    { id: 'iphone17', nombre: 'iPhone 17', icon: <Smartphone />, highTicket: false },
 ];
 
 
@@ -263,7 +250,10 @@ export default function App() {
             <main className="flex-1 h-full flex flex-col relative overflow-hidden bg-slate-950">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-900/20 via-slate-950 to-slate-950 pointer-events-none"></div>
                 
-                <InitScreen onStart={() => setModalOpen(true)} />
+                <InitScreen onStart={() => {
+                    setSelectedPremioId(premiosDisponibles[0]?.id || null);
+                    setModalOpen(true);
+                }} />
  
                 <RaffleModal 
                 isOpen={modalOpen} 
