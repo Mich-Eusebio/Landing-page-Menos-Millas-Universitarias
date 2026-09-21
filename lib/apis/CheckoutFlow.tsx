@@ -3,6 +3,7 @@ import React, { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Check, Landmark, Upload, Loader2, Copy, Image as ImageIcon, ChevronRight } from 'lucide-react'
 import { saveSoldDays, saveComprameUnDia, uploadFile, getSoldDays } from '@/lib/apis/SorteoActions'
+import { broadcastComprameUnDiaPurchase } from '@/lib/apis/ComprameUnDiaBroadcast'
 import { compressImageForUpload } from '@/lib/compressImageForUpload'
 
 export default function CheckoutFlow({ selectedDays, isOpen, onClose }) {
@@ -155,7 +156,7 @@ export default function CheckoutFlow({ selectedDays, isOpen, onClose }) {
       const plan_seleccionado = getTierId(n)
       const uid = Math.random().toString(36).substring(2, 9)
 
-      await saveComprameUnDia({
+      const purchaseResult = await saveComprameUnDia({
         fullName: formData.sponsor_name,
         phone: formData.phone,
         email: formData.email,
@@ -190,6 +191,17 @@ export default function CheckoutFlow({ selectedDays, isOpen, onClose }) {
         uid,
         plan: plan_seleccionado,
       })
+
+      // El broadcast es una notificación posterior: si WhatsApp falla, la compra
+      // y los días reservados permanecen confirmados.
+      try {
+        const broadcastResult = await broadcastComprameUnDiaPurchase(purchaseResult.id)
+        if (!broadcastResult.success) {
+          console.error('No se pudo completar el broadcast de la compra:', broadcastResult.error)
+        }
+      } catch (broadcastError) {
+        console.error('Error inesperado al iniciar el broadcast de la compra:', broadcastError)
+      }
 
       localStorage.setItem('mm_share', JSON.stringify({
         dayNumber: latestSoldDays.length + 1,
