@@ -20,7 +20,7 @@ import {
 import { getSupporters, saveWhatsAppLead } from '../lib/apis/SorteoActions';
 import HomeCalendar from '../components/HomeCalendar';
 
-const App = () => {
+const App = ({ campaignProgress }) => {
   const [activeTab, setActiveTab] = useState('validacion');
   const [supporters, setSupporters] = useState([]);
   const [loadingSupporters, setLoadingSupporters] = useState(false);
@@ -187,6 +187,53 @@ const App = () => {
           </motion.div>
         </div>
       </header>
+
+      <div aria-hidden="true" className="relative h-4 md:h-6 bg-[#081426]">
+        <div className="absolute inset-x-0 top-1/2 h-px bg-gradient-to-r from-transparent via-blue-400/10 to-transparent" />
+      </div>
+
+      {/* CAMPAIGN PROGRESS */}
+      <section className="relative px-6 pt-[72px] pb-20" aria-labelledby="campaign-progress-title">
+        <div className="max-w-[1120px] mx-auto rounded-3xl border border-white/10 bg-white/[0.05] p-6 md:p-8 shadow-2xl shadow-blue-950/30">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-400">Progreso de la meta</p>
+              <h2 id="campaign-progress-title" className="mt-2 text-2xl md:text-3xl font-black text-white">
+                Un sueño que ya es {campaignProgress.totalPercentage.toFixed(2)}% realidad.
+              </h2>
+            </div>
+            <div className="sm:text-right">
+              <p className="text-4xl md:text-5xl font-black tabular-nums text-blue-200">
+                {(100 - campaignProgress.totalPercentage).toFixed(2)}%
+              </p>
+              <p className="mt-1 text-xs font-black uppercase tracking-widest text-white/40">
+                Restante para completar la meta
+              </p>
+            </div>
+          </div>
+
+          <div
+            className="mt-6 h-5 overflow-hidden rounded-full border border-white/10 bg-slate-950/70 p-1"
+            role="progressbar"
+            aria-label="Progreso de la meta"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={campaignProgress.totalPercentage}
+          >
+            <motion.div
+              initial={{ width: 0 }}
+              whileInView={{ width: `${Math.min(campaignProgress.totalPercentage, 100)}%` }}
+              viewport={{ once: true }}
+              transition={{ duration: 1.2, ease: 'easeOut' }}
+              className="h-full rounded-full bg-amber-400 shadow-[0_0_24px_rgba(251,191,36,0.35)]"
+            />
+          </div>
+          <div className="mt-3 flex justify-between text-xs font-bold text-white/40">
+            <span>Inicio</span>
+            <span>Meta</span>
+          </div>
+        </div>
+      </section>
 
       {/* PARTNERS SECTION */}
       <section className="py-16 md:py-24 px-6 bg-[#050b16] relative overflow-hidden">

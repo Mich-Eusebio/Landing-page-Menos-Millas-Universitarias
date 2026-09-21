@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { adminDb, FieldValue } from '@/lib/firebaseAdmin';
 import { socialNetworks } from '@/lib/social_networks';
+import { calculateCampaignProgress } from '@/lib/campaignProgress';
 import HomeClient from './HomeClient';
 
 export const metadata = {
@@ -48,5 +49,7 @@ export default async function Page({ searchParams }) {
     }
   }
 
-  return <HomeClient />;
+  const campaignProgress = calculateCampaignProgress();
+
+  return <HomeClient campaignProgress={campaignProgress} />;
 }
