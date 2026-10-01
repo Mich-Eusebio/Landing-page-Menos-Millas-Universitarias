@@ -1,17 +1,19 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import Script from "next/script";
 import "./globals.css";
 
 const metaPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID || "1416585060378313";
 
-const geistSans = Geist({
+const geistSans = localFont({
   variable: "--font-geist-sans",
-  subsets: ["latin"],
+  src: "../public/fonts/Inter-Variable.ttf",
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
+const geistMono = localFont({
   variable: "--font-geist-mono",
-  subsets: ["latin"],
+  src: "../public/fonts/Montserrat-Variable.ttf",
+  display: "swap",
 });
 
 export const metadata = {

@@ -1,16 +1,26 @@
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { adminDb, FieldValue } from '@/lib/firebaseAdmin';
 import { socialNetworks } from '@/lib/social_networks';
 import { calculateCampaignProgress } from '@/lib/campaignProgress';
+import { getRequestLocale, HOME_COPY } from '@/lib/homeTranslations';
 import HomeClient from './HomeClient';
 
-export const metadata = {
-  verification: {
-    other: {
-      'impact-site-verification': ['16fde907-4de3-49d8-aaf9-e03523d00349'],
+export async function generateMetadata() {
+  const requestHeaders = await headers();
+  const locale = getRequestLocale(requestHeaders.get('accept-language'));
+  const copy = HOME_COPY[locale];
+
+  return {
+    title: copy.metadataTitle,
+    description: copy.metadataDescription,
+    verification: {
+      other: {
+        'impact-site-verification': ['16fde907-4de3-49d8-aaf9-e03523d00349'],
+      },
     },
-  },
-};
+  };
+}
 
 export default async function Page({ searchParams }) {
   const params = await searchParams;
@@ -50,6 +60,8 @@ export default async function Page({ searchParams }) {
   }
 
   const campaignProgress = calculateCampaignProgress();
+  const requestHeaders = await headers();
+  const locale = getRequestLocale(requestHeaders.get('accept-language'));
 
-  return <HomeClient campaignProgress={campaignProgress} />;
+  return <HomeClient campaignProgress={campaignProgress} locale={locale} />;
 }
