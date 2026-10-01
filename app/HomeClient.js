@@ -49,16 +49,25 @@ export default function HomeClient({ campaignProgress, locale = "es" }) {
   const supporters = supportersData;
   const raisedPercentage = Math.round(campaignProgress.totalPercentage);
   const remainingPercentage = 100 - raisedPercentage;
+  const minimumDate = useMemo(() => getTodayInSantoDomingo(), []);
+  const [minimumYear, minimumMonth, minimumDay] = minimumDate.split("-").map(Number);
   const [visibleCount, setVisibleCount] = useState(7);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [reminderDate, setReminderDate] = useState("");
+  const [reminderYear, setReminderYear] = useState(String(minimumYear));
+  const [reminderMonth, setReminderMonth] = useState("");
+  const [reminderDay, setReminderDay] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [formState, setFormState] = useState({ type: "idle", message: "" });
   const [pressImageMissing, setPressImageMissing] = useState(false);
   const [acceptanceImageMissing, setAcceptanceImageMissing] = useState(false);
 
-  const minimumDate = useMemo(() => getTodayInSantoDomingo(), []);
+  const reminderDate = reminderYear && reminderMonth && reminderDay
+    ? `${reminderYear}-${reminderMonth.padStart(2, "0")}-${reminderDay.padStart(2, "0")}`
+    : "";
+  const daysInSelectedMonth = reminderYear && reminderMonth
+    ? new Date(Number(reminderYear), Number(reminderMonth), 0).getDate()
+    : 0;
 
   useEffect(() => {
     document.documentElement.lang = locale;
@@ -82,7 +91,7 @@ export default function HomeClient({ campaignProgress, locale = "es" }) {
     setSubmitting(true);
     try {
       await saveFundraiserReminder({ name: name.trim(), phone: phone.trim(), reminderDate });
-      setName(""); setPhone(""); setReminderDate("");
+      setName(""); setPhone(""); setReminderYear(String(minimumYear)); setReminderMonth(""); setReminderDay("");
       setFormState({ type: "success", message: copy.reminderSuccess });
     } catch (error) {
       console.error(error);
@@ -279,7 +288,14 @@ export default function HomeClient({ campaignProgress, locale = "es" }) {
             <form onSubmit={handleReminderSubmit} className="grid gap-5 sm:grid-cols-2">
               <label className="block"><span className="mb-2 block text-sm font-black">{copy.nameLabel}</span><input type="text" value={name} onChange={(event) => setName(event.target.value)} autoComplete="name" placeholder={copy.namePlaceholder} className="w-full rounded-xl border border-white/10 bg-[#071526] px-4 py-3.5 text-white outline-none transition placeholder:text-slate-500 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/15" required /></label>
               <label className="block"><span className="mb-2 block text-sm font-black">{copy.phoneLabel}</span><input type="tel" value={phone} onChange={(event) => setPhone(event.target.value)} autoComplete="tel" inputMode="tel" placeholder={copy.phonePlaceholder} className="w-full rounded-xl border border-white/10 bg-[#071526] px-4 py-3.5 text-white outline-none transition placeholder:text-slate-500 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/15" required /></label>
-              <label className="block sm:col-span-2"><span className="mb-2 block text-sm font-black">{copy.dateLabel}</span><div className="relative"><CalendarDays className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" aria-hidden="true" /><input type="date" min={minimumDate} max={MAXIMUM_REMINDER_DATE} value={reminderDate} onChange={(event) => setReminderDate(event.target.value)} className="w-full rounded-xl border border-white/10 bg-[#071526] py-3.5 pl-12 pr-4 text-white outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-500/15" required /></div></label>
+              <fieldset className="sm:col-span-2">
+                <legend className="mb-2 flex items-center gap-2 text-sm font-black"><CalendarDays className="h-5 w-5 text-slate-400" aria-hidden="true" />{copy.dateLabel}</legend>
+                <div className="grid grid-cols-3 gap-3">
+                  <label className="block"><span className="sr-only">{copy.monthLabel}</span><select value={reminderMonth} onChange={(event) => { setReminderMonth(event.target.value); setReminderDay(""); }} aria-label={copy.monthLabel} className="w-full rounded-xl border border-white/10 bg-[#071526] px-3 py-3.5 text-white outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-500/15" required><option value="">{copy.monthLabel}</option>{copy.months.map((month, index) => { const monthNumber = index + 1; const isPastMonth = Number(reminderYear) === minimumYear && monthNumber < minimumMonth; return <option key={month} value={String(monthNumber)} disabled={isPastMonth}>{month}</option>; })}</select></label>
+                  <label className="block"><span className="sr-only">{copy.dayLabel}</span><select value={reminderDay} onChange={(event) => setReminderDay(event.target.value)} aria-label={copy.dayLabel} disabled={!reminderMonth} className="w-full rounded-xl border border-white/10 bg-[#071526] px-3 py-3.5 text-white outline-none transition disabled:cursor-not-allowed disabled:opacity-50 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/15" required><option value="">{copy.dayLabel}</option>{Array.from({ length: daysInSelectedMonth }, (_, index) => index + 1).map((day) => { const isPastDay = Number(reminderYear) === minimumYear && Number(reminderMonth) === minimumMonth && day < minimumDay; return <option key={day} value={String(day)} disabled={isPastDay}>{day}</option>; })}</select></label>
+                  <label className="block"><span className="sr-only">{copy.yearLabel}</span><select value={reminderYear} onChange={(event) => { setReminderYear(event.target.value); setReminderMonth(""); setReminderDay(""); }} aria-label={copy.yearLabel} className="w-full rounded-xl border border-white/10 bg-[#071526] px-3 py-3.5 text-white outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-500/15" required>{[2026, 2027].filter((year) => year >= minimumYear).map((year) => <option key={year} value={String(year)}>{year}</option>)}</select></label>
+                </div>
+              </fieldset>
               {formState.message && <p className={`sm:col-span-2 text-sm font-bold ${formState.type === "error" ? "text-red-700" : "text-emerald-700"}`} role="status">{formState.message}</p>}
               <button type="submit" disabled={submitting} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#f5c451] px-6 py-4 font-black transition hover:bg-[#ffd777] disabled:cursor-not-allowed disabled:opacity-60 sm:col-span-2">{submitting ? <Loader2 className="h-5 w-5 animate-spin" /> : <MessageCircle className="h-5 w-5" />}{submitting ? copy.saving : copy.remindMe}</button>
             </form>
